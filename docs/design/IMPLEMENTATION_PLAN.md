@@ -1,6 +1,6 @@
 # SCS Assessment 実装計画
 
-2026-09-18。登録先は [yasagure3/SCS_Assessment](https://github.com/yasagure3/SCS_Assessment)。**設計書をmainへ反映済み。親9件・子18件のIssueと親子関係を登録・検証済み。F01は `feat/star3-assessment` へ実装し、新規checkoutを含めDoD検証済み。後続の業務機能は未完了。**
+2026-09-18。登録先は [yasagure3/SCS_Assessment](https://github.com/yasagure3/SCS_Assessment)。**設計書をmainへ反映済み。親9件・子18件のIssueと親子関係を登録・検証済み。F01は `feat/star3-assessment` へ実装し、新規checkoutとGitHub CIを含め検証済み。F02は `feat/assessment-core` の分離worktreeで実装・検証済み。認証・業務画面との接続は後続タスク。**
 
 スケッチ確認と3件の局所PoCを終え、8機能の設計チェックはhigh 0。設計と本タスク群の独立レビューはhigh 0で完了した。設計の正本は[DESIGN.md](DESIGN.md)と[機能設計](features/)、確認記録は[REVIEW.md](REVIEW.md)。
 
