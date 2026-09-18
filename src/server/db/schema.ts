@@ -25,6 +25,19 @@ export const appUsers = sqliteTable("app_users", {
   revision: revision().default(1),
   ...stamps(),
 });
+export const authRevocations = sqliteTable(
+  "auth_revocations",
+  {
+    id: id(),
+    userId: required("user_id").references(() => appUsers.id),
+    revokedBefore: integer("revoked_before").notNull(),
+    status: text("status", { enum: ["pending", "processing", "succeeded", "failed"] }).notNull(),
+    errorCode: text("error_code"),
+    requestId: required("request_id"),
+    ...stamps(),
+  },
+  (table) => [index("auth_revocations_pending").on(table.status, table.createdAt)],
+);
 export const customers = sqliteTable("customers", {
   id: id(),
   name: required("name"),

@@ -92,6 +92,7 @@ F02検証（2026-09-18）: 固定81基準/26要求事項とcontent hash、seed�
 | テーブル | 主要カラム・制約 | インデックス/用途 |
 |---|---|---|
 | app_users | id PK, cognito_sub UNIQUE nullable, email_normalized UNIQUE, role admin/staff, status invited/active/suspended, revoked_before, revision INTEGER, created_at, updated_at | status/role。メールは認証用のみ、subを本人のキーとする |
+| auth_revocations | id PK, user_id FK, revoked_before, status pending/processing/succeeded/failed, error_code, request_id, created_at, updated_at | アプリ失効を先に確定するoutbox。provider呼出しは一度だけclaimし、tokenは保存しない |
 | customer_memberships | customer_id FK, user_id FK, PK(customer_id,user_id), created_by, created_at | user_id/customer_id、割当確認 |
 | customers | id PK, name TEXT(200), archived_at nullable, revision, created_by, created_at, updated_at | name/id、許可済み一覧検索 |
 | cases | id PK, customer_id FK, name TEXT(200), archived_at nullable, revision, created_by, created_at, updated_at | customer_id/updated_at/id |
@@ -283,3 +284,12 @@ GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・
 | 証跡のスキャン/配布フォントNOTICE | 本番保管・配布の準備タスクで確定。PDF/Officeをブラウザ内プレビューしない |
 
 これらを未決のままクラウドの実顧客運用へ進めない。ローカル製造と匿名データによる結合検証は実施可能。
+
+
+### A01の実装・検証記録（2026-09-18）
+
+- `/api/v1/me` は署名/issuer/client_id/token_use/sub/exp/iat/auth_timeを検査した後、現在のapp_users・失効時刻・顧客割当を照合する。招待時subの一致でのみ初回有効化し、操作記録と監査を同時保存。
+- ブラウザは仮パスワード変更、TOTP登録、TOTP入力を分ける。TOTP未実施のSDK成功を拒否し、token・OTP・セットアップキーは永続化しない。ログアウト後の遅いSDK書込みは破棄。
+- `/api/v1/session/revoke` はアプリ失効とoutboxを原子的に記録し、Cognito同期失敗でも遮断を維持。通常ログアウトは端末のメモリとSWRキャッシュを消去する。
+- `vp check` / `vp build`、Front 17件、Workers 43件、bootstrap 3件、Edge E2E 3件、ポート競合拒否が成功。E2Eは別構成の匿名SDK fixtureと製品API・ローカルD1を使用。通常ビルドへテスト認証が混入しない検査も成功。
+- 認証画面の表示を実ブラウザ画像で確認。運用手順は [AUTH_OPERATIONS.md](../AUTH_OPERATIONS.md)。Terraformは設定を変更したがapplyしていない。実CognitoのMFA・回復検証と本番条件はF04に残る。

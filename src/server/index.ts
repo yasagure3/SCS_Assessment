@@ -1,16 +1,11 @@
-import { Hono } from "hono";
-import { healthRoute } from "./modules/health/adapter/health";
-import { meRoute } from "./modules/auth/adapter/me";
+import { createApp } from "./app";
+import { verifyCognitoToken } from "./modules/auth/adapter/authenticate";
+import { D1AccessRepository } from "./modules/auth/adapter/d1AccessRepository";
+import { cognitoSessions } from "./modules/auth/adapter/cognitoSessions";
 
-type Env = {
-  Bindings: {
-    DB: D1Database;
-    COGNITO_ISSUER: string;
-    COGNITO_CLIENT_ID: string;
-    COGNITO_JWKS_URL: string;
-  };
-};
-
-const app = new Hono<Env>().basePath("/api").route("/", healthRoute).route("/", meRoute);
-
-export default app;
+// No request, environment flag, or browser claim can select a test identity.
+export default createApp({
+  verify: verifyCognitoToken,
+  access: (bindings) => new D1AccessRepository(bindings.DB),
+  sessions: (bindings) => cognitoSessions(bindings.COGNITO_ISSUER),
+});

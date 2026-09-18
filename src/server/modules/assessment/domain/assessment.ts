@@ -7,14 +7,8 @@ import {
   type Scope,
 } from "../../../../shared/contracts/assessment";
 
-export class DomainError extends Error {
-  readonly code: string;
-  constructor(code: string, message: string = code) {
-    super(message);
-    this.name = "DomainError";
-    this.code = code;
-  }
-}
+import { DomainError } from "../../../../shared/errors";
+export { DomainError } from "../../../../shared/errors";
 export function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
   if (value !== null && typeof value === "object")

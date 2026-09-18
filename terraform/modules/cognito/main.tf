@@ -4,9 +4,10 @@ resource "aws_cognito_user_pool" "this" {
 
   # 実際の AWS でもこの値は ForceNew のため明示しておく。
   username_attributes = ["email"]
+  mfa_configuration   = "ON"
 
   password_policy {
-    minimum_length                   = 8
+    minimum_length                   = 12
     require_lowercase                = true
     require_numbers                  = true
     require_symbols                  = true
@@ -15,15 +16,13 @@ resource "aws_cognito_user_pool" "this" {
   }
 
   admin_create_user_config {
-    allow_admin_create_user_only = false
+    allow_admin_create_user_only = true
   }
 
-  # 既知の制限（moto 使用時）: moto の describe_user_pool は
-  # software_token_mfa_configuration をレスポンスに含めないため、明示していても
-  # `terraform plan` は常に1件の差分 (このブロックの追加) を報告し続ける。実害は
-  # なく、実際の AWS に対しては正しく安定する。moto 固有の既知の非互換として許容する。
+  # 本番前に実 AWS で MFA 必須・招待専用の設定とチャレンジを検証する。
+  # moto の応答を MFA の受入証拠には使用しない。
   software_token_mfa_configuration {
-    enabled = false
+    enabled = true
   }
 }
 
@@ -32,10 +31,15 @@ resource "aws_cognito_user_pool_client" "this" {
   user_pool_id        = aws_cognito_user_pool.this.id
   generate_secret     = false
   explicit_auth_flows = ["ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
+  enable_token_revocation       = true
+  prevent_user_existence_errors = "ENABLED"
+  access_token_validity         = 15
+  id_token_validity             = 15
+  refresh_token_validity        = 1
 
   token_validity_units {
-    access_token  = "hours"
-    id_token      = "hours"
+    access_token  = "minutes"
+    id_token      = "minutes"
     refresh_token = "days"
   }
 }

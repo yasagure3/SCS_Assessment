@@ -7,6 +7,7 @@ import { getCurrentSession } from "../lib/cognitoClient";
 
 vi.mock("../lib/cognitoClient", () => ({
   getCurrentSession: vi.fn(),
+  signOut: vi.fn(),
 }));
 
 function renderWithRouter() {
@@ -32,6 +33,22 @@ function renderWithRouter() {
 describe("RequireAuth", () => {
   beforeEach(() => {
     vi.mocked(getCurrentSession).mockReset();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: {
+            id: "test",
+            role: "staff",
+            email: "test@example.invalid",
+            status: "active",
+            customerIds: [],
+          },
+          requestId: "test",
+        }),
+      }),
+    );
   });
 
   it("renders children when a session exists", async () => {
@@ -51,5 +68,26 @@ describe("RequireAuth", () => {
     renderWithRouter();
 
     expect(await screen.findByTestId("login-stub")).toBeInTheDocument();
+  });
+
+  it("hides all protected content if the server rejects the account", async () => {
+    vi.mocked(getCurrentSession).mockResolvedValue({
+      accessToken: "token",
+      email: "test@example.invalid",
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 403,
+        json: async () => ({
+          error: { code: "ACCOUNT_DISABLED", message: "利用停止されています。" },
+          requestId: "test",
+        }),
+      }),
+    );
+    renderWithRouter();
+    expect(await screen.findByRole("alert")).toHaveTextContent("利用停止");
+    expect(screen.queryByTestId("protected-content")).not.toBeInTheDocument();
   });
 });
