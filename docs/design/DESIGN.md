@@ -64,7 +64,7 @@ PDFは `poc/report` を作業ディレクトリとし `./bootstrap.ps1`、`node 
 
 ### アプリ基盤の検証コマンド
 
-2026-09-18、Windows/Node 24.21.0/Vite+ 0.2.4/pnpm 11.2.2で、下記の依存固定・型・lint・ビルド・Front 10件・Workers 9件・local migration・E2E 1件が成功した。ブラウザ実測はMicrosoft Edgeを使用。ポート競合時の起動拒否も成功。手順は [DEVELOPMENT.md](../DEVELOPMENT.md)。新規checkoutの再現確認はF01の完了条件として別途記録する。
+2026-09-18、Windows/Node 24.21.0/Vite+ 0.2.4/pnpm 11.2.2で、下記の依存固定・型・lint・ビルド・Front 10件・Workers 9件・local migration・E2E 1件が成功した。ブラウザ実測はMicrosoft Edgeを使用。ポート競合時の起動拒否も成功。さらにコミット `c417780` の新しいcheckout（独立したnode_modules/ローカルDB、ポート5183）で全コマンドを再実行して成功した。Windowsのautocrlfによる差分は `.gitattributes` で解消。手順は [DEVELOPMENT.md](../DEVELOPMENT.md)。
 
 | 用途 | コマンド |
 |---|---|

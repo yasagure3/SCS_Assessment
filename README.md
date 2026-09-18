@@ -13,7 +13,7 @@
 - [要件の回答記録](docs/design/REQUIREMENTS_INTERVIEW.md) / [制度調査](docs/design/DISCOVERY.md)
 - [PoCの結果と限界](docs/design/FEASIBILITY.md)
 
-基盤は指定の [fullstack-worker-template](https://github.com/skanehira/fullstack-worker-template)。[ローカル開発手順](docs/DEVELOPMENT.md)と[出典](docs/TEMPLATE_ORIGIN.md)を参照してください。基盤の検証はF01で進行中です。
+基盤は指定の [fullstack-worker-template](https://github.com/skanehira/fullstack-worker-template)。[ローカル開発手順](docs/DEVELOPMENT.md)と[出典](docs/TEMPLATE_ORIGIN.md)を参照してください。F01は新規checkoutで依存取得・型/lint・ビルド・Front 10件・API 9件・ブラウザ1件・ポート競合拒否を検証済みです。診断データの保存など業務機能は後続Issueで実装します。
 
 ## 局所PoC
 
