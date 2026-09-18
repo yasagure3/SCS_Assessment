@@ -1,0 +1,214 @@
+@import "tailwindcss";
+
+:root {
+  font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  color: #18273e;
+  background: #f4f6fa;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+a {
+  color: #2358ca;
+  text-decoration: none;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button,
+.button {
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 3px solid #377cf0;
+  outline-offset: 4px;
+}
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.app-header {
+  height: 76px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border-bottom: 1px solid #dce3ef;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #172945;
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 38px;
+  color: white;
+  background: #224d9a;
+  border-radius: 8px 8px 14px 14px;
+}
+.edition {
+  font-size: 12px;
+  color: #64748b;
+}
+.app-shell main {
+  flex: 1;
+}
+.welcome {
+  max-width: 1000px;
+  padding: 90px 32px 70px;
+  margin: auto;
+}
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #3566ba;
+  margin: 0 0 24px;
+}
+.welcome h1 {
+  font-size: clamp(32px, 4.5vw, 52px);
+  line-height: 1.5;
+  letter-spacing: -0.035em;
+  font-weight: 750;
+  margin: 0 0 22px;
+}
+.welcome-description {
+  font-size: 16px;
+  line-height: 2;
+  color: #54647a;
+  margin-bottom: 32px;
+}
+.button {
+  display: inline-flex;
+  padding: 13px 24px;
+  border-radius: 7px;
+  font-weight: 600;
+  border: 1px solid #d0daea;
+}
+.primary {
+  background: #285cc4;
+  color: white;
+  border-color: #285cc4;
+}
+.primary:hover {
+  background: #204aa0;
+}
+.subtle {
+  font-size: 12px;
+  color: #657388;
+  margin-top: 16px;
+}
+.service-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 48px;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8c99ad;
+}
+.status-dot.ok {
+  background: #209174;
+}
+.status-dot.error {
+  background: #c64b4b;
+}
+.app-footer {
+  border-top: 1px solid #e0e6ef;
+  padding: 22px 6%;
+  font-size: 11px;
+  color: #728096;
+}
+.loading-state {
+  padding: 48px;
+  text-align: center;
+}
+.login-card {
+  margin: 64px auto;
+  width: min(460px, calc(100% - 40px));
+  padding: 36px;
+  background: white;
+  border: 1px solid #dce3ef;
+  border-radius: 12px;
+}
+.login-card h1 {
+  font-size: 25px;
+  font-weight: 700;
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 28px;
+}
+.login-form label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.login-form input {
+  border: 1px solid #becbdf;
+  border-radius: 6px;
+  min-height: 44px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+.login-form button {
+  justify-content: center;
+  margin-top: 8px;
+}
+.login-form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.form-error {
+  margin-top: 20px;
+  color: #a83b3b;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  background: white;
+  padding: 12px;
+  z-index: 100;
+}
+.skip-link:focus {
+  top: 12px;
+}
+@media (max-width: 640px) {
+  .app-header {
+    padding: 0 20px;
+  }
+  .edition {
+    display: none;
+  }
+  .welcome {
+    padding: 60px 24px;
+  }
+  .welcome-description br {
+    display: none;
+  }
+}

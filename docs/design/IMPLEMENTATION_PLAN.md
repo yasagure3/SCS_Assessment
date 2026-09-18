@@ -1,6 +1,6 @@
 # SCS Assessment 実装計画
 
-2026-09-18。登録先は [yasagure3/SCS_Assessment](https://github.com/yasagure3/SCS_Assessment)。**親9件・子18件のドラフト。GitHubには未登録、アプリ製造は未着手。**
+2026-09-18。登録先は [yasagure3/SCS_Assessment](https://github.com/yasagure3/SCS_Assessment)。**設計書をmainへ反映済み。親9件・子18件のIssueと親子関係を登録・検証済み。実装ブランチ `feat/star3-assessment` でF01を進行中。**
 
 スケッチ確認と3件の局所PoCを終え、8機能の設計チェックはhigh 0。設計と本タスク群の独立レビューはhigh 0で完了した。設計の正本は[DESIGN.md](DESIGN.md)と[機能設計](features/)、確認記録は[REVIEW.md](REVIEW.md)。
 
@@ -45,7 +45,7 @@ UC-001〜008の見出しをそのまま親タイトルにし、基盤親を1件�
 
 ## 子タスクの本文
 
-以下はGitHub登録予定の本文。会話を参照しなくても設計と完了条件を確認できる形とする。
+以下は登録時の本文の正本。実IssueではDRAFT参照を番号へ解決済み。親は #1〜#9、子は一覧の順で #10〜#24、A02が #25、F03が #26、F04が #27。進捗は [GitHub Issues](https://github.com/yasagure3/SCS_Assessment/issues) で管理する。
 
 ### F01: 指定テンプレートとローカル検証環境を整備する
 

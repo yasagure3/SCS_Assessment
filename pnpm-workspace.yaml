@@ -1,0 +1,26 @@
+packages:
+  - "."
+
+# pnpm 11 reads package-manager options from this file, not .npmrc.
+fetchTimeout: 600000
+networkConcurrency: 4
+
+allowBuilds:
+  esbuild: true
+  workerd: true
+  sharp: true
+  lefthook: true
+
+minimumReleaseAgeExclude:
+  - "@cloudflare/workers-types@5.20260711.1"
+  - "undici@7.29.0"
+
+overrides:
+  vite: "npm:@voidzero-dev/vite-plus-core@0.2.4"
+  vitest: "4.1.10"
+  # GHSA-67mh-4wv8-2f99: drizzle-kit -> @esbuild-kit/esm-loader (deprecated) -> @esbuild-kit/core-utils -> esbuild@0.18.20 (vulnerable)
+  "@esbuild-kit/core-utils>esbuild": "^0.28.1"
+  # GHSA-8xcm-r25x-g524 / GHSA-4cwx-7wf7-3272 / GHSA-m8rv-5g2x-5cg5 / GHSA-jr45-8vmc-qm54 / GHSA-v3r7-h72x-cjcm: wrangler/vitest -> miniflare/jsdom -> undici@7.28.0 (vulnerable)
+  "undici": "^7.29.0"
+  # GHSA-2v37-7h3g-55p8: vite -> postcss -> nanoid@3.3.16/3.3.17 (vulnerable, patched >=3.3.18)
+  "nanoid": "^3.3.18"

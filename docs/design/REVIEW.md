@@ -20,4 +20,4 @@
 
 第2回: **high 0 / medium 0 / low 1**。lowのF03からユースケースへの明示参照も追加済み。全27本文とmanifest/実装計画の一致、循環依存なし、全UCと配置ファイルの所属を確認した。
 
-GitHubへの登録はまだ行っていない。登録予定本文と依存関係はIMPLEMENTATION_PLAN.md、登録時にDRAFT IDを実issue番号へ変換する。
+GitHubへ親9件・子18件を登録し、親子関係18件を検証済み。本文のDRAFT IDは実issue番号へ解決した。2026-09-18に製造を開始。登録本文と依存関係の正本はIMPLEMENTATION_PLAN.md。
