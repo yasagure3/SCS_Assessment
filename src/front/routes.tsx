@@ -8,6 +8,7 @@ import { CustomersPage } from "./pages/CustomersPage";
 import { CustomerPage } from "./pages/CustomerPage";
 import { CasePage } from "./pages/CasePage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { CriteriaPage } from "./pages/CriteriaPage";
 import { CriterionPage } from "./pages/CriterionPage";
 
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
   { path: "/home", element: <HomePage />, errorElement: <RouteError /> },
   { path: "/login", element: <LoginPage />, errorElement: <RouteError /> },
   ...[
+    { path: "/settings", element: <SettingsPage /> },
     { path: "/customers", element: <CustomersPage /> },
     { path: "/customers/:customerId", element: <CustomerPage /> },
     { path: "/cases/:caseId", element: <CasePage /> },

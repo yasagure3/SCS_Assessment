@@ -27,6 +27,7 @@
 | POST /users/invitations/:id/retry | Idempotency-Key | 同招待の再発行状態 |
 | PATCH /users/:id | {expectedRevision,mutationId,role,status:'active'|'suspended'} | 更新user/revision |
 | PUT /customers/:c/members | {expectedRevision,mutationId,userIds} | {customerId,revision,userIds} |
+| GET /customers/:c/members | 管理者のみ | {customerId,revision,userIds}。編集開始時の版と全割当を取得 |
 | POST /session/revoke | Idempotency-Key | {revokedAt} |
 
 招待管理/ユーザー変更/割当変更はadminのみ。membersはcustomer revisionのCAS。scope外ID又は不存在ユーザーは422で保存しない。self session revokeは本人のみでrevoked_beforeを設定しCognito全セッション失効も試みる。provider失敗でもアプリ側遮断は維持し再試行状態を監査に残す。端末内ログアウトはtoken/SWR/フォームを破棄するローカル操作で他端末を止めない。
@@ -55,3 +56,34 @@ JWT検証の時計差許容は5秒とし、失効境界は `max(既存のrevoked
 単体/Workers結合: JWT各claim/署名/期限/失効、未割当/停止/最後のadmin、割当CAS、招待重複/部分失敗/再発行。FrontはfakeのNEW_PASSWORD_REQUIRED/MFA_SETUP/TOTP challenge。E2E golden path: テスト招待→MFA→割当顧客だけ表示→停止で既存tokenも拒否。本番出荷前に実Cognitoで同フローと端末紛失回復を確認し、moto成功を代替にしない。
 
 時計差の回帰試験はローカル署名JWTと実D1の製品APIで、auth_time/iatの現在比-1/0/+1/+5/+6秒とprovider成功/失敗を組み合わせる。許容された旧tokenはprovider呼出し中から401、10秒経過後の旧token・同auth_timeのrefresh後tokenも401、許容外+6秒は失効前から401とする。新規ログインのauth_timeが失効境界と等しい場合の401、境界を越える場合の200、時計が戻った場合に既存境界が後退しないことも確認する。
+
+## A02 の実装上の決定
+
+招待は同じメール（前後空白除去・小文字化）の予約を重複作成しない。`pending → processing → sent / failed` を記録する。Cognitoのメール専用Poolでは任意のusernameを使えないため、作成時にimmutableな `custom:app_user_id` へ予約ユーザーIDを設定する。`AdminCreateUser(SUPPRESS)` のsubをD1へ保存した後、同subに `AdminCreateUser(RESEND)` を実行する。送信先は明示された社内メールだけで、電話番号/SMSや顧客担当者欄を使用しない。[AWS AdminCreateUser](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminCreateUser.html)
+
+作成応答を受け取れなかった場合、明示retry時の `AdminGetUser` が返す予約属性とsubを確認してから回復する。メール一致だけで別アカウントへ関連付けない。同じsubの再発行では新しいアカウントを作らない。署名済みIAM transportとPool IDはcompositionから注入し、未設定時は503。A02では本番接続を有効にせず、別compositionの匿名fakeだけを使用する。F04でimmutable属性の追加、権限、実Poolの7日期限・MFA・回復を検証してtransportを接続する。
+
+外部操作1回の上限は5秒。`attempt_id` と `processing_started_at` を予約時に保存し、同時retryはD1条件と共通operation ledgerで1回だけ獲得する。送信失敗の自動再試行はしない。`processing` の応答喪失・中断は5分経過後に管理者の明示retryだけを許可する（外部timeoutより十分長い待機）。既にメールが届いた可能性を画面・手順で伝える。古いattemptの結果は新attemptを上書きできない。仮パスワード、メール本文、TOTPはDBへ保存しない。
+
+予約直後・処理獲得前の中断で残った `pending` も管理者の明示retryを許可する。ページ再読込で元の操作キーが失われても、招待一覧から同じ予約を回復できる。元のPOST再送と新しい明示retryが競合してもDBの状態条件で1回だけ獲得する。
+
+招待処理の未設定は503 `SERVICE_UNAVAILABLE`、通常の失敗は502 `PROVIDER_FAILED`、5秒の上限到達は504 `PROVIDER_TIMEOUT` として記録・返却し、同じ操作キーの再送でも区別を保持する。初回POSTの再送は同じキーを使い、外部送信を繰り返さない。明示retryでAPIから確定した上記エラーを受けた後、管理者が再び再発行を選ぶと新しいキーで別attemptを開始する。通信切断や応答不明の場合は同じキーを保持し、結果確認の再送で二重送信を防ぐ。
+
+`sent` の期限が現在時刻以下なら一覧に `expired` を返し、初回有効化を拒否する。初回有効化済みの利用者を招待期限で停止しない。期限切れを再発行すると同subの期限が7日後へ進む。未使用の招待も停止でき、再有効化は `invited` へ戻して初回ログイン・期限検査を維持する。
+
+招待時の初期割当は予約と同じbatchで追加し、対象customerのrevisionを進める。割当置換はGETで取得した全userIdsを保持し、表示中の利用者ページ外の割当を消さない。顧客/ユーザーの不存在、保管顧客への初期割当、停止利用者への割当は保存しない。権限・CAS・最後のadmin条件はreceipt予約と同じbatch内で再検査する。招待一覧と利用者一覧はID順カーソルで50件（最大100件）。
+
+設定画面内の顧客・利用者・招待のページ切替では、招待メール・役割・全ページの顧客選択を保持する。顧客の割当下書きと基準revisionは顧客ごとに保持し、顧客切替後に戻った場合も編集途中の選択を維持する。利用者の役割編集もページ取得中に破棄しない。未編集フォームだけを新しいサーバーのrevisionへ追随させ、編集済みフォームは競合を明示して再読込を求める。
+
+### 試験の範囲
+
+| 利用者シナリオ | 優先度 | 根拠 |
+|---|---|---|
+| admin限定・割当解除・停止と回復後の旧token遮断 | Critical | access-management Workers実D1試験、既存署名JWT失効試験 |
+| 重複・部分失敗・同sub再発行・同時retry・期限境界・全体キー台帳 | Critical | access-management Workers試験 |
+| 応答喪失の予約一致確認・別予約拒否・未設定時閉鎖 | Critical | cognitoAdmin transport単体試験 |
+| フォームの入力保持・二重押下抑止・明示CAS再編集 | Major | AccessForms Front試験 |
+| 設定画面のページ往復・顧客別下書き・確定失敗と通信不明の操作キー | Major | access-management-regressions Edge E2E（実SettingsPage・匿名API fixture） |
+| 初回・retry・同キー再送の503/502/504契約 | Critical | access-management-errors Workers実D1試験（注入transport、実際の5秒上限） |
+| 管理者の招待→初回パスワード/TOTP→割当顧客→停止 | Critical | access-management Edge E2E（匿名fake） |
+| 実Cognito IAM/配信/immutable属性/MFA回復 | Critical・F04残 | ローカルfakeを本番合格の代替にしない |
