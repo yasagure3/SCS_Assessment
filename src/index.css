@@ -15,6 +15,10 @@
 .evidence-editor {
   margin: 1.25rem 0;
 }
+.file-attachment {
+  margin: 1.25rem 0;
+  overflow-wrap: anywhere;
+}
 .evidence-editor fieldset {
   min-width: 0;
   border: 0;

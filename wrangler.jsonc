@@ -22,6 +22,7 @@
       "database_id": "__D1_DATABASE_ID__",
     },
   ],
+  "r2_buckets": [{ "binding": "EVIDENCE_BUCKET", "bucket_name": "scs-evidence-local" }],
   "vars": {
     "COGNITO_ISSUER": "",
     "COGNITO_CLIENT_ID": "",
