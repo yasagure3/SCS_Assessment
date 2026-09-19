@@ -50,3 +50,5 @@ remote R2/本番設定/マルウェアスキャン/大量同時送信の実測�
 - 修正後: 正式Workers 25/25、変更していない独立probe 10/10、check（139 files、警告なし）、client/Worker build、diff-check成功。Front/画面の変更はない。
 - 修正前の親全体ゲートはFront67、Workers121、bootstrap3、E2E18成功。修正後の全体再検証は親が行う。r1 medium 2件（UI依存注入・エラーメッセージ部分一致assert）は本fix対象外で、親の保留リストに引き継ぐ。
 修正後の親全体ゲート（port5230）はFront67、Workers124、bootstrap3、Edge E2E18件が成功。型・lint・format、client/Worker build、production fixture除外、local migration、occupied-port guardも成功した（root .local/issue-17-all.log）。
+
+最新main（Excel取込I01・助言V01）との統合後はFront110、Workers152、bootstrap3、Edge E2E22件が成功。全静的検証・build・fixture除外・local migration・port guardも成功。統合時の共通413定義は重複を除き、ファイルとJSON双方に適用できる既存の共通メッセージを保持した。独立r2はhigh0、put/head/getの3変異を検出し製品コードの復元を確認した。

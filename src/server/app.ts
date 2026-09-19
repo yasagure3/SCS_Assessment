@@ -32,7 +32,6 @@ const errors: Record<string, [ContentfulStatusCode, string]> = {
     502,
     "ファイルの保存・取得を完了できませんでした。時間を置いてやり直してください。",
   ],
-  PAYLOAD_TOO_LARGE: [413, "ファイルは10MiB以下にしてください。"],
   PROVIDER_TIMEOUT: [
     504,
     "招待処理が時間内に完了しませんでした。招待一覧で状態を確認してください。",
@@ -53,6 +52,11 @@ const errors: Record<string, [ContentfulStatusCode, string]> = {
   ARCHIVED: [409, "保管済みの顧客・案件は編集できません。保管を解除してから操作してください。"],
   IDEMPOTENCY_CONFLICT: [409, "同じ操作番号で異なる更新はできません。"],
   VALIDATION_ERROR: [422, "入力内容を確認してください。"],
+  IMPORT_NOT_EMPTY: [
+    409,
+    "この診断は取込済み、または回答を手動保存済みです。新しい診断へ取り込んでください。",
+  ],
+  PAYLOAD_TOO_LARGE: [413, "送信内容が大きすぎます。"],
   SERVICE_UNAVAILABLE: [503, "認証サービスはまだ設定されていません。"],
 };
 

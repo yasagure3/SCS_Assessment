@@ -1,0 +1,1217 @@
+[
+  {
+    "id": "scs-20260327-star3:1-2-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "1-2-1-1",
+    "version": 1,
+    "gap": "不足点の候補：統括役員とセキュリティ担当部署の役割・責任が明文化されていない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "平時の推進体制として、役割分担と連絡先の管理者を決め、点検予定をまとめる。",
+      "経営判断、対策実施、承認の担当を統括役員と担当部署に割り当て、職務分掌に記載する。"
+    ],
+    "evidenceExamples": ["承認済み職務分掌", "組織図"],
+    "completionCheck": "統括役員と担当部署双方の役割・責任を規程の該当箇所で説明できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "a214b3ad41b1af5d5a7593b29488dc84aca18cf209122bf15f77af4054370383"
+  },
+  {
+    "id": "scs-20260327-star3:1-2-1-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "1-2-1-2",
+    "version": 1,
+    "gap": "不足点の候補：平時の推進活動で役員や担当部署へ連絡する先が不明確。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "平時の推進体制として、役割分担と連絡先の管理者を決め、点検予定をまとめる。",
+      "統括役員とセキュリティ担当部署の担当名、連絡手段、更新窓口を連絡先リストにまとめる。"
+    ],
+    "evidenceExamples": ["平時連絡先リスト", "連絡先の更新履歴"],
+    "completionCheck": "平時の推進活動に必要な役員・部署の連絡先がリストに載っている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "68ec1d1b710721db2ebb6cc221f186a2bb264fc9013ae2e32978f3a6c33c48a4"
+  },
+  {
+    "id": "scs-20260327-star3:1-2-1-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "1-2-1-3",
+    "version": 1,
+    "gap": "不足点の候補：平時体制と連絡先の年次点検を確認できない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "平時の推進体制として、役割分担と連絡先の管理者を決め、点検予定をまとめる。",
+      "1-2-1-1の役割分担と1-2-1-2の連絡先を人事情報と照合し、年1回以上の点検日を予定表へ登録する。"
+    ],
+    "evidenceExamples": ["点検日・点検者・差分・是正を記した体制点検票"],
+    "completionCheck": "役割分担と連絡先の両方を年1回以上点検した記録がある。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "edcd6195ff32e88d1f1b71a25a0fedcc469d58cccb0d37c1c5389e528a3dc3c8"
+  },
+  {
+    "id": "scs-20260327-star3:1-2-3-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "1-2-3-1",
+    "version": 1,
+    "gap": "不足点の候補：受入要員を含む守秘義務の適用対象やルールが不明。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "守秘義務を人事・受入れ手続へ組み込み、対象者別の説明窓口を決める。",
+      "役員、従業員、派遣社員、受入出向者の4区分について、秘密の持出し・開示・退職時の扱いを守秘規程に整理する。"
+    ],
+    "evidenceExamples": ["守秘規程", "対象者区分表"],
+    "completionCheck": "4区分すべてを対象とする自社の守秘義務ルールが定められている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "fb5aa26c8c9b8c5b791bd4750d6c8fbbe3edae03c0d2a5abb611c735142482c8"
+  },
+  {
+    "id": "scs-20260327-star3:1-2-3-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "1-2-3-2",
+    "version": 1,
+    "gap": "不足点の候補：入社・社外要員受入れ時の守秘ルール説明が抜けている。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "守秘義務を人事・受入れ手続へ組み込み、対象者別の説明窓口を決める。",
+      "入社手続と派遣・出向者の受入れ手続に守秘ルールの説明を組み込み、説明した版と日付を記録する。"
+    ],
+    "evidenceExamples": ["受入チェックリスト", "説明資料", "説明記録"],
+    "completionCheck": "入社時と社外要員受入れ時の両方で説明したことを確認できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "b58c13305be61ab7bbe53025e7046dd66cecadf04746541d1391b4774d782036"
+  },
+  {
+    "id": "scs-20260327-star3:1-3-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "1-3-1-1",
+    "version": 1,
+    "gap": "不足点の候補：自社のセキュリティ対応方針が定まっていない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "セキュリティ方針の策定・公開・改正を一つの版管理手順として整理する。",
+      "守る情報と事業上の目的、経営の関与、組織の基本姿勢を方針案にまとめ、社内の承認手順で決定する。"
+    ],
+    "evidenceExamples": ["自社のセキュリティ対応方針", "承認記録"],
+    "completionCheck": "自社が採用したセキュリティ対応方針を提示できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "1fb8d061509b87c3f16db190715e1fecee7896032a6f8584bd52e548ecefbc29"
+  },
+  {
+    "id": "scs-20260327-star3:1-3-1-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "1-3-1-2",
+    "version": 1,
+    "gap": "不足点の候補：最新の対応方針を日常的に参照できない対象者がいる。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "セキュリティ方針の策定・公開・改正を一つの版管理手順として整理する。",
+      "役員・従業員・派遣社員・受入出向者の参照経路と権限を確認し、掲示場所や社内保管先を案内する。"
+    ],
+    "evidenceExamples": ["最新版の掲載画面", "閲覧対象者一覧"],
+    "completionCheck": "4区分の対象者が定常的に最新版へ到達できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "ff178bf6c9fe43be806d57e6283826bd0a9bcf5c73af4f4fc0595def2ce93f7c"
+  },
+  {
+    "id": "scs-20260327-star3:1-3-1-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "1-3-1-3",
+    "version": 1,
+    "gap": "不足点の候補：方針改正の周知対象や改正内容の通知が不足。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "セキュリティ方針の策定・公開・改正を一つの版管理手順として整理する。",
+      "改正前後の差分を説明資料にし、役員・従業員・派遣社員・受入出向者に周知する手順を改訂作業へ組み込む。"
+    ],
+    "evidenceExamples": ["改正通知", "配布対象一覧", "掲示記録"],
+    "completionCheck": "方針を改正した際の改正内容が4区分へ周知されている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "82195763d13d516de5bcef21a40b7d3c391502bf97bea99b3e24d437185b144f"
+  },
+  {
+    "id": "scs-20260327-star3:2-1-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "2-1-1-1",
+    "version": 1,
+    "gap": "不足点の候補：自社資産が接続する外部組織のシステムを把握できない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "外部接続の申請・変更・廃止情報が接続先台帳へ集まる窓口を決める。",
+      "顧客・子会社・関係会社・クラウド提供者を含む取引先との接続を担当部署へ照会し、接続先システムと管理組織を一覧化する。"
+    ],
+    "evidenceExamples": ["外部接続台帳", "構成図", "接続申請"],
+    "completionCheck": "外部組織が管理・提供し自社資産が接続するシステムを把握する仕組みがある。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "c1937439a79b3b30fd8e0674c5e17d32d09742356f7c290a536e69f3e5f77a05"
+  },
+  {
+    "id": "scs-20260327-star3:2-1-1-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "2-1-1-2",
+    "version": 1,
+    "gap": "不足点の候補：外部接続情報の年次点検が未実施。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "外部接続の申請・変更・廃止情報が接続先台帳へ集まる窓口を決める。",
+      "2-1-1-1の台帳を接続設定・契約一覧と照合し、追加と廃止を反映して年1回以上点検する。"
+    ],
+    "evidenceExamples": ["外部接続台帳の年次点検記録"],
+    "completionCheck": "把握した外部接続情報を年1回以上点検した日付と結果がある。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "6ffc0e479507c003a09d9f4bae7f06e82674f1713db580da39f9f651c95e3562"
+  },
+  {
+    "id": "scs-20260327-star3:2-1-2-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "2-1-2-1",
+    "version": 1,
+    "gap": "不足点の候補：機密共有先との業務開始前の取扱合意が不足。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "機密共有を伴う取引を抽出し、契約担当と情報管理担当で開始前確認を行う。",
+      "共有先ごとに機密の定義、利用制限、保管方法、複製可否、第三者提供可否、返還・廃棄を契約条項にし、業務開始前に取り決める。"
+    ],
+    "evidenceExamples": ["秘密保持契約", "合意条項一覧", "業務開始日記録"],
+    "completionCheck": "子会社・取引先との合意が全項目を含み、業務開始より前に成立している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "ecb2111451bb610ed42d726897155302570260451b06e27fe1e09c1d5e15d762"
+  },
+  {
+    "id": "scs-20260327-star3:2-1-4-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "2-1-4-1",
+    "version": 1,
+    "gap": "不足点の候補：機密共有先とのインシデント時の責任分担が不明。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "機密共有先との契約・連絡窓口を洗い出し、インシデント時の分担を協議する。",
+      "自社と機密共有先の発見連絡・調査・封じ込め・報告を役割分担表にし、両者の役割と責任を取り決める。"
+    ],
+    "evidenceExamples": ["取引先との対応分担表", "契約のインシデント条項"],
+    "completionCheck": "機密を共有する子会社・取引先と自社双方の役割・責任を示せる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "55ab5c8b64edfe7062fd2e9e9b4fdef870da8f1f2a2575ebc0e9d347135d4096"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-1-1",
+    "version": 1,
+    "gap": "不足点の候補：PCとシンクライアントの製造元・OS・台数が不明。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "端末・サーバ資産台帳と機器管理規程を対応付け、更新担当を決める。",
+      "PCとシンクライアントの現物・配布記録を照合し、製造元、OS、台数が集計できる資産台帳を整える。"
+    ],
+    "evidenceExamples": ["端末資産台帳", "棚卸結果"],
+    "completionCheck": "PCとシンクライアント双方の製造元・OS・台数を把握できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "d46547a792174c356ff76340e891968167a274743e5ebeed27a2ab1edbd81dce"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-1-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-1-2",
+    "version": 1,
+    "gap": "不足点の候補：サーバ・仮想サーバ・ハイパーバイザの構成台数が不明。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "端末・サーバ資産台帳と機器管理規程を対応付け、更新担当を決める。",
+      "物理サーバ台帳と仮想基盤の一覧を突き合わせ、3区分それぞれの製造元、OS、台数を記録する。"
+    ],
+    "evidenceExamples": ["サーバ台帳", "仮想基盤一覧"],
+    "completionCheck": "サーバ・仮想サーバ・ハイパーバイザの製造元・OS・台数を把握できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "4b419c0d3faa930c8ee1e9dc0ce4954cd590c24550faf8f4dcbed21d580b8c61"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-1-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-1-3",
+    "version": 1,
+    "gap": "不足点の候補：機器・OS・ソフトウェアの管理ルールに導入からパッチまでの手順がない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "端末・サーバ資産台帳と機器管理規程を対応付け、更新担当を決める。",
+      "導入、設置、ネットワーク接続、セキュリティパッチ適用の4作業について担当と承認・記録方法を管理規程へ記載する。"
+    ],
+    "evidenceExamples": ["情報機器管理規程", "導入・接続・パッチ申請様式"],
+    "completionCheck": "機器・OS・ソフトウェアの管理ルールが4作業を含む。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "a70a71cda94409bafc77f8e264ae4d03a279f8d3087764f3419f551632b0842b"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-1-4:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-1-4",
+    "version": 1,
+    "gap": "不足点の候補：情報機器管理ルールの遵守点検が年1回以上行われていない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "端末・サーバ資産台帳と機器管理規程を対応付け、更新担当を決める。",
+      "3-1-1-3の各ルールと実際の導入・設置・接続・パッチ記録を対照し、年次の遵守点検と是正記録を残す。"
+    ],
+    "evidenceExamples": ["年次遵守点検票", "是正記録"],
+    "completionCheck": "管理ルールの内容だけでなく実運用の遵守を年1回以上点検している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "2af20693b8ae61f6462596db0cc30dd232ac014364397ecb953634c154db9bef"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-2-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-2-1",
+    "version": 1,
+    "gap": "不足点の候補：ネットワークの所在地や用途を説明できない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "ネットワーク構成図と機器台帳の管理担当を決め、変更情報を反映する。",
+      "拠点・クラウドを含むネットワークの一覧と構成図を作り、各ネットワークに所在地と用途を付す。"
+    ],
+    "evidenceExamples": ["ネットワーク台帳", "所在地・用途付き構成図"],
+    "completionCheck": "各ネットワークの所在地と用途を含めて把握する仕組みがある。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "54d987f911fa011cd2ab1c71e690ab2b9e0f07c602c0d1d3b554c5c761227994"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-2-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-2-2",
+    "version": 1,
+    "gap": "不足点の候補：ネットワーク機器の製造元・モデル・保守先が未整理。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "ネットワーク構成図と機器台帳の管理担当を決め、変更情報を反映する。",
+      "ルータやスイッチ等を構成図と現物から抽出し、製造元、モデル、保守事業者を機器台帳へ記載する。"
+    ],
+    "evidenceExamples": ["ネットワーク機器台帳", "保守契約一覧"],
+    "completionCheck": "対象機器ごとに製造元・モデル・保守事業者を把握できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "d8b6cce66f9934dede3908340a9fa2e9871d992209d60d394335e0cd902e079c"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-3-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-3-1",
+    "version": 1,
+    "gap": "不足点の候補：外部情報サービスを評価する自社セキュリティ要件がない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "外部サービスの利用申請で情報区分・セキュリティ要件・合意事項を一緒に確認する。",
+      "サービスの用途と情報区分から採用要件を定め、利用するサービスの仕様・契約を項目別に確認して判定を残す。"
+    ],
+    "evidenceExamples": ["外部サービス利用基準", "導入時評価票"],
+    "completionCheck": "自社が定めたセキュリティ要件を利用時にサービス内容と照合している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "7acfa5389e375a097a7e6bc19ccf380e69c267b2d1b08a8a68328d4048e4c34d"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-3-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-3-2",
+    "version": 1,
+    "gap": "不足点の候補：外部サービス提供者との機密情報取扱合意が不明。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "外部サービスの利用申請で情報区分・セキュリティ要件・合意事項を一緒に確認する。",
+      "契約・利用規約で機密情報の利用、保管、提供、返還・削除の扱いを確認し、提供事業者との合意文書を保存する。"
+    ],
+    "evidenceExamples": ["サービス契約", "合意済み機密取扱条項"],
+    "completionCheck": "提供事業者と機密情報の取扱いについて合意が成立している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "4b1dc349aa380fe4c49032d09ef999c7d9233a618ab25e69674e4dfbfe36fdbf"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-4-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-4-1",
+    "version": 1,
+    "gap": "不足点の候補：情報の機密区分と取扱場所の管理ルールが不足。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "情報の分類規程と重要機密情報台帳を対応付け、情報管理者を決める。",
+      "機密の特定、レベル判定・表示、区分別の取扱方法、取扱エリアの区分・制限を一つの情報管理規程に定める。"
+    ],
+    "evidenceExamples": ["情報分類規程", "表示例", "取扱エリア表"],
+    "completionCheck": "自社保有情報を対象とし4項目すべてが規程に含まれる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "480a5e48ecbe97859ad90fa6e1539df7997eb65ad86a9a899f37b57cc2541ece"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-4-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-4-2",
+    "version": 1,
+    "gap": "不足点の候補：機密情報管理ルールの内容を年次で見直していない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "情報の分類規程と重要機密情報台帳を対応付け、情報管理者を決める。",
+      "3-1-4-1の分類・表示・取扱方法・エリア制限を実業務と照合し、年1回以上の内容点検と改訂要否を記録する。"
+    ],
+    "evidenceExamples": ["情報管理規程の点検票", "改訂履歴"],
+    "completionCheck": "管理ルールの内容を年1回以上点検している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "b2f7a115d3fb71c150afc10e039f721c14deda65049d055323a85d1f579e2951"
+  },
+  {
+    "id": "scs-20260327-star3:3-1-4-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "3-1-4-3",
+    "version": 1,
+    "gap": "不足点の候補：重要な機密情報の所在と管理責任者を追えない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "情報の分類規程と重要機密情報台帳を対応付け、情報管理者を決める。",
+      "重要情報ごとに管理者名、部署名、保管場所、保管期限、開示先、管理者の連絡先を台帳の列に設定して記入する。"
+    ],
+    "evidenceExamples": ["重要機密情報台帳"],
+    "completionCheck": "重要な機密情報ごとに指定された6項目を把握できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "b3d76cab0d9beee21e866cf6a466b6c774e2a20b5e7b1daa00479eb897ea8e53"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-1-1",
+    "version": 1,
+    "gap": "不足点の候補：一般ユーザIDの発行・変更・削除が無承認で行われる。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "在籍・異動情報から一般ユーザIDと権限の発行から廃止までを追える管理台帳を用意する。",
+      "役員・従業員・派遣社員・受入出向者のID申請に承認欄を設け、承認後に発行・変更・削除を実施する。"
+    ],
+    "evidenceExamples": ["ユーザID申請書", "承認履歴"],
+    "completionCheck": "対象4区分のID付与・変更・削除が申請・承認制になっている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "4474b67321734bafb9b360294af4ed9389e952b87cc5a676f714e144edead6b7"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-1-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-1-2",
+    "version": 1,
+    "gap": "不足点の候補：共有ユーザIDの実利用者を特定できない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "在籍・異動情報から一般ユーザIDと権限の発行から廃止までを追える管理台帳を用意する。",
+      "個人別IDに切り替え、やむを得ず残る共有IDは理由と利用者を特定できる貸出記録・操作記録を整える。"
+    ],
+    "evidenceExamples": ["個人ID一覧", "共有例外台帳", "利用記録"],
+    "completionCheck": "共有しない運用又はやむを得ない共有時に利用者を特定できる運用のいずれかを満たす。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "e5897ab0767f42528c54b9b00fd45893e3bc90f4eb911d735125838cc4014d3f"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-1-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-1-3",
+    "version": 1,
+    "gap": "不足点の候補：退職・長期未使用など不要ユーザIDが残る。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "在籍・異動情報から一般ユーザIDと権限の発行から廃止までを追える管理台帳を用意する。",
+      "退職連絡と未使用IDの抽出結果を管理者へ渡す流れを作り、不要となったIDを速やかに削除又は無効化する。"
+    ],
+    "evidenceExamples": ["退職時ID処理票", "未使用ID点検記録", "無効化ログ"],
+    "completionCheck": "不要IDが速やかに削除又は無効化されたことを事由発生日と処理日で確認できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "47661e04e2a36971c19497a27617cb8388a2e3912e41c64dbf176f33839ba0ca"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-1-4:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-1-4",
+    "version": 1,
+    "gap": "不足点の候補：異動などで不要となったアクセス権が残る。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "在籍・異動情報から一般ユーザIDと権限の発行から廃止までを追える管理台帳を用意する。",
+      "異動・役割変更時に現在権限と新業務を照合し、不要な権限を速やかに削除又は無効化する。"
+    ],
+    "evidenceExamples": ["異動時権限見直し票", "権限変更履歴"],
+    "completionCheck": "ID自体が継続利用される場合も不要権限が速やかに取り除かれている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "d46f28e66b6f3e9b539e17924fc92de5b8596fce193d1ad2d0bb66a4d07164be"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-2-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-2-1",
+    "version": 1,
+    "gap": "不足点の候補：サーバとネットワーク機器の管理者・責任者が未指定。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "管理者IDを一般IDと区別し、機器・保有者・用途・権限・承認の対応を整理する。",
+      "すべてのサーバ・ネットワーク機器を資産台帳から列挙し、システム管理者と責任者を割り当てる。"
+    ],
+    "evidenceExamples": ["管理者・責任者付き機器台帳"],
+    "completionCheck": "全サーバと全ネットワーク機器に管理者及び責任者が定められている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "e6b50288dad7aecc67d7b75029f9d50b23e8fba6958712bc73a014833767113c"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-2-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-2-2",
+    "version": 1,
+    "gap": "不足点の候補：管理者IDの保有者が広く共有時の利用者も追えない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "管理者IDを一般IDと区別し、機器・保有者・用途・権限・承認の対応を整理する。",
+      "管理者権限の付与対象を業務上必要な者に限定し、個人別管理者ID又はやむを得ない共有時の利用者追跡を設ける。"
+    ],
+    "evidenceExamples": ["管理者付与対象者一覧", "共有例外と操作記録"],
+    "completionCheck": "管理者付与対象を限定し、非共有又は共有時の利用者特定を満たす。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "119a7623fa31457c90e56b99bc0d8d99783088ab8fe1f80521a87e5e7aaf7959"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-2-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-2-3",
+    "version": 1,
+    "gap": "不足点の候補：管理者IDに用途を超える権限がある。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "管理者IDを一般IDと区別し、機器・保有者・用途・権限・承認の対応を整理する。",
+      "各管理者IDの用途と実際の権限を対比し、不要な権限を削除して必要最低限の権限セットにする。"
+    ],
+    "evidenceExamples": ["管理者ID用途・権限対照表"],
+    "completionCheck": "各管理者IDの権限が当該IDの用途に必要な最小範囲に限定されている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "642508151d6e40d842908113ba42fe13763a9bc367d91baa131477a15ac4a01b"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-2-4:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-2-4",
+    "version": 1,
+    "gap": "不足点の候補：開発環境の管理者権限で本番を操作できる。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "管理者IDを一般IDと区別し、機器・保有者・用途・権限・承認の対応を整理する。",
+      "開発と本番の認証・権限割当を分離し、開発の管理者権限を使った本番操作が拒否されるか安全な検証環境で確認する。"
+    ],
+    "evidenceExamples": ["環境別権限表", "アクセス拒否の試験記録"],
+    "completionCheck": "開発利用者が開発の管理者権限を使って本番環境を操作できない。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "b1f7377f268517bc1e15ec05357ac2be245f0145029a75a131fe2af7472470cf"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-2-5:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-2-5",
+    "version": 1,
+    "gap": "不足点の候補：組織内の管理者ID保有者を把握できない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "管理者IDを一般IDと区別し、機器・保有者・用途・権限・承認の対応を整理する。",
+      "システムごとの管理者一覧を出力し、役員・従業員・派遣社員・受入出向者の在籍情報と照合して保有者台帳を整える。"
+    ],
+    "evidenceExamples": ["管理者IDと保有者の対応台帳"],
+    "completionCheck": "組織内の誰がどの管理者IDを持つか把握する仕組みがある。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "7e01ed025cafba3d2c335545d1ab82edd9321375f316b5a447bfcbdb4d5bdad9"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-2-6:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-2-6",
+    "version": 1,
+    "gap": "不足点の候補：不要になった管理者IDが有効のまま残る。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "管理者IDを一般IDと区別し、機器・保有者・用途・権限・承認の対応を整理する。",
+      "退職と未使用を管理者ID台帳で検出し、不要管理者IDを速やかに削除又は無効化して記録する。"
+    ],
+    "evidenceExamples": ["管理者ID廃止票", "無効化ログ"],
+    "completionCheck": "不要となった管理者IDについて速やかな削除又は無効化を確認できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "72e17b7c3a55241a60e8aae705d5498bb7669eb76a5bcc7f973f40150828e3f6"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-2-7:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-2-7",
+    "version": 1,
+    "gap": "不足点の候補：管理者IDの付与・変更・削除の承認が残らない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "管理者IDを一般IDと区別し、機器・保有者・用途・権限・承認の対応を整理する。",
+      "管理者IDの変更種別、申請理由、承認者を申請様式に定め、承認後に管理者が設定作業を行う。"
+    ],
+    "evidenceExamples": ["管理者ID申請・承認記録"],
+    "completionCheck": "付与・変更・削除のすべてが申請・承認制である。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "be09b86d109519bdcefe846528853848ed93cee1cb8433ca3c40ed50235f3e95"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-2-8:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-2-8",
+    "version": 1,
+    "gap": "不足点の候補：ID管理と機器設定変更を必要以上の人が行える。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "管理者IDを一般IDと区別し、機器・保有者・用途・権限・承認の対応を整理する。",
+      "管理者ID操作権限とサーバ・ネットワーク設定変更権限を別々に一覧化し、業務上必要な役員・従業員・派遣・出向者だけへ付与する。"
+    ],
+    "evidenceExamples": ["特権作業権限表", "権限削除記録"],
+    "completionCheck": "ID付与・変更・削除と機器設定変更の双方の権限が業務上必要な者に限定されている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "da90184583b52b16931ebbf5e1aa96f7f96bb7b109abec8ae89e9e0a0c2372e1"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-3-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-3-1",
+    "version": 1,
+    "gap": "不足点の候補：アクセス前に個々のIDの認証を要求しない経路がある。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "システム・機器の認証経路と扱う情報を一覧化し、ID別の認証方式を確認する。",
+      "全ユーザID・管理者IDとアクセス経路を調べ、IDごとの認証情報で認証を完了してからアクセスを許可する設定にする。"
+    ],
+    "evidenceExamples": ["認証設定一覧", "未認証アクセス拒否試験"],
+    "completionCheck": "すべてのユーザIDと管理者IDで、システム・機器へのアクセス前に認証する。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "7f08bf4a717cb9c1433a9295a14468753807f59cf6b753ab50accbd58fffc5f3"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-3-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-3-2",
+    "version": 1,
+    "gap": "不足点の候補：重要機密を扱うクラウドへの常時MFAが徹底されていない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "システム・機器の認証経路と扱う情報を一覧化し、ID別の認証方式を確認する。",
+      "重要機密情報を扱うクラウドとユーザ・管理者の経路を列挙し、4-1-3-3に沿うMFAを常に使用する設定と運用にする。"
+    ],
+    "evidenceExamples": ["対象クラウド一覧", "MFA設定", "認証動作記録"],
+    "completionCheck": "対象クラウドのユーザ及び管理者のアクセスで常に指定のMFAを使用する。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "ae30455f6af1295dee2134b512f0f8c4ea89043bcacdef7dc26bc7430c9157ed"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-3-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-3-3",
+    "version": 1,
+    "gap": "不足点の候補：多要素認証が異なる種類の要素で構成されていない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "システム・機器の認証経路と扱う情報を一覧化し、ID別の認証方式を確認する。",
+      "採用中の要素を知識・所有・生体・その他の情報へ分類し、公式の4区分のうち2種類以上となる組合せを設定する。"
+    ],
+    "evidenceExamples": ["認証要素の分類表", "MFA構成図"],
+    "completionCheck": "知識・所有・生体・その他の4区分から2種類以上を利用する（IP等のその他も本版の公式定義に従う）。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "7dca923d1008bfcf638e2993d98931ed0e0c1b1ae30f8eb9694c658ac2f1f107"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-3-4:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-3-4",
+    "version": 1,
+    "gap": "不足点の候補：MFAの知識要素のパスワードが8文字未満。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "システム・機器の認証経路と扱う情報を一覧化し、ID別の認証方式を確認する。",
+      "MFAで知識情報として用いるパスワードの長さポリシーを8文字以上に設定し、短い値が拒否されることを確認する。"
+    ],
+    "evidenceExamples": ["MFA用パスワード設定", "文字数境界の試験記録"],
+    "completionCheck": "MFAの知識情報として用いるパスワードが8文字以上である。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "46af2168ae10200f72339c70bd9eee6753e1cc62368ef0dc9ca6c0d57214d270"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-4-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-4-1",
+    "version": 1,
+    "gap": "不足点の候補：PCログオン・端末ロック解除の試行保護がない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "PCとスマートデバイスのロック解除ポリシーを機種別に整理する。",
+      "端末ごとに失敗時の試行間隔延長又は少なくとも10回以上の失敗でロックを設定し、設定できない端末は4-1-5より強いパスワード等の代替策を記録する。"
+    ],
+    "evidenceExamples": ["端末ロック設定", "対応不能端末の代替策記録"],
+    "completionCheck": "公式の3選択肢のいずれかを満たす（10回以上の条件を独自の10回以内へ読み替えない）。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "7cf50a18893621ea6031b1cba27c7a4c5db9a96c294ab57f90a2983e190c76b1"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-4-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-4-2",
+    "version": 1,
+    "gap": "不足点の候補：PCログオン・スマートデバイス解除の認証値が短い。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "PCとスマートデバイスのロック解除ポリシーを機種別に整理する。",
+      "PC及びスマートデバイスのパスワード又はPINの最小長を6文字以上に設定し、端末ごとの適用結果を確認する。"
+    ],
+    "evidenceExamples": ["端末のPIN・パスワード長設定一覧"],
+    "completionCheck": "PCログオンとスマートデバイス解除の両方で最低6文字以上を使用する。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "04f92e2204c878814163dccc7f88a20caad1af4a925803fa9d29bb28904b42d8"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-5-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-5-1",
+    "version": 1,
+    "gap": "不足点の候補：初期パスワードの変更が社内ルールにない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "パスワード設定の社内規程をシステム別の技術制約と照合して整備する。",
+      "PC・サーバ・スマートデバイス・クラウドの利用者と管理者に初期パスワードを変更させるルールを導入手順へ記載する。"
+    ],
+    "evidenceExamples": ["パスワード規程", "初期設定チェックリスト"],
+    "completionCheck": "対象機器・サービスの利用者及び管理者のデフォルトパスワード変更がルール化されている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "31403c118b2e7754847add57ad7f16b2d71af32f85efd4352d4ac0159cf80607"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-5-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-5-2",
+    "version": 1,
+    "gap": "不足点の候補：推測されやすい単語を禁止するルールがない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "パスワード設定の社内規程をシステム別の技術制約と照合して整備する。",
+      "組織名・個人名など推測されやすい単語を例示し、パスワードに設定しない旨を社内ルールに定める。"
+    ],
+    "evidenceExamples": ["パスワード禁止事項を記した規程"],
+    "completionCheck": "パスワード認証で推測されやすい単語の設定を禁止している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "38f74c34bf2a7a4c7b47dea0450d83e38316f833c5e682c8d418c5f07038fdb6"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-5-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-5-3",
+    "version": 1,
+    "gap": "不足点の候補：認証保護方式とパスワード強度の組合せが不足。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "パスワード設定の社内規程をシステム別の技術制約と照合して整備する。",
+      "システムごとにMFA又は少なくとも10回失敗時のロックと8文字以上の組合せを選び、どちらも実施不能なら英大文字小文字・数字を含む10文字以上とする社内ルールを定める。"
+    ],
+    "evidenceExamples": ["方式別パスワード規程", "実施不能理由と代替ルール"],
+    "completionCheck": "公式の条件分岐に沿い、MFA/試行制限と8文字以上、又は実施不能時の英大小・数字を含む10文字以上を規定している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "2ce751e3227606676409c1af4857f6bb12d779a7ef0d0599515e29b4d189c734"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-5-4:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-5-4",
+    "version": 1,
+    "gap": "不足点の候補：機器・サービス間のパスワード使い回しを禁止していない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "パスワード設定の社内規程をシステム別の技術制約と照合して整備する。",
+      "機器とサービスごとに異なるパスワードを使用するルールを定め、実パスワードを回収せずに運用方法を案内する。"
+    ],
+    "evidenceExamples": ["使い回し禁止規程", "利用者向け説明"],
+    "completionCheck": "情報機器及びサービス間で使い回さないことが社内ルールになっている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "4cb1ff8afcca1c014e5f4adf0942fd2f7631100b32808e546a6f22df357a7185"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-5-5:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-5-5",
+    "version": 1,
+    "gap": "不足点の候補：パスワード設定ルールの対象者への周知が不足。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "パスワード設定の社内規程をシステム別の技術制約と照合して整備する。",
+      "4-1-5-1から4-1-5-4の初期変更・推測語禁止・強度・使い回し禁止をまとめ、役員・従業員・派遣社員・受入出向者へ周知する。"
+    ],
+    "evidenceExamples": ["パスワード設定の周知資料", "対象一覧"],
+    "completionCheck": "4基準で定めたルールを4区分の対象者へ周知している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "a0092b330bb8a10ca082dae28b2c9e1aaa302f5d196fdd10e1b1b087c3eae1ba"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-6-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-6-1",
+    "version": 1,
+    "gap": "不足点の候補：パスワードの安全な保管方法が規定されていない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "パスワードの保管と漏洩疑い時の変更を利用者が実行できる運用手順にする。",
+      "施錠保管する紙又は管理アプリ等、自社に適した安全な保管方法とアクセスできる人を社内ルールにする。"
+    ],
+    "evidenceExamples": ["パスワード保管規程", "保管方法の案内"],
+    "completionCheck": "安全な保管方法がルール化されている。紙の施錠保管・アプリは例であり特定製品を必須扱いしない。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "259c02a7703918a88bbac20b51136b0dae25fe9af226a1338566cfc4cb053a1f"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-6-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-6-2",
+    "version": 1,
+    "gap": "不足点の候補：漏洩や漏洩の疑いがある際の変更手順がない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "パスワードの保管と漏洩疑い時の変更を利用者が実行できる運用手順にする。",
+      "漏洩の判明・疑いを受け付ける窓口、対象IDの特定、速やかなパスワード変更と実施確認を手順書にする。"
+    ],
+    "evidenceExamples": ["漏洩疑い時の変更手順書", "机上確認記録"],
+    "completionCheck": "漏洩の判明時と疑い時の両方で速やかに変更する手順がある。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "bc87fabb94e167bc78d6afdec365311b2e8ce369e2b43ca201fccf080fe65e34"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-6-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-6-3",
+    "version": 1,
+    "gap": "不足点の候補：保管・漏洩時変更ルールの周知が不足。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "パスワードの保管と漏洩疑い時の変更を利用者が実行できる運用手順にする。",
+      "4-1-6-1の保管と4-1-6-2の変更手順を役員・従業員・派遣社員・受入出向者に説明し参照先を案内する。"
+    ],
+    "evidenceExamples": ["管理ルール周知資料", "配布記録"],
+    "completionCheck": "保管と漏洩時変更の両ルールが4区分へ周知されている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "8a9e790aa23ce3a3b792ab4fe83e7224f183c38f26313c649c069a84f6ee40e4"
+  },
+  {
+    "id": "scs-20260327-star3:4-1-7-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-1-7-1",
+    "version": 1,
+    "gap": "不足点の候補：システム権限と機密エリア入室の管理ルールが不十分。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "システムのアクセス権と機密エリアの入室権を同じ申請・棚卸の枠組みで管理する。",
+      "ID権限と入室許可を一緒に棚卸し、発行・変更・削除の申請承認、必要範囲への限定、棚卸、申請書又は台帳管理の4事項を規定する。"
+    ],
+    "evidenceExamples": ["アクセス権規程", "入室権限規程", "権限台帳"],
+    "completionCheck": "業務システム・PCログオン権限と機密の場所・部屋の入室の双方で4事項を満たす。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "bf3b1f6478c853c29ca5c6edc5c2cd863f1aa508a2cc96f261e7b47de7847737"
+  },
+  {
+    "id": "scs-20260327-star3:4-2-2-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-2-2-1",
+    "version": 1,
+    "gap": "不足点の候補：新規受入れ時及び年次のインシデント教育が不足。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "受入れ・年次教育の対象者台帳を人事情報と照合し、教育責任者を決める。",
+      "役員・従業員・派遣社員・受入出向者向けに、資料配布・掲示に加えてeラーニング又は集合教育を新規受入れ時かつ年1回以上行う計画を組む。"
+    ],
+    "evidenceExamples": ["教育計画", "教育資料", "eラーニング又は集合教育実施記録"],
+    "completionCheck": "4区分への新規受入れ時と年1回以上の両条件を満たし、配布・掲示だけで終了していない。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "296b769db1962e8330a0143bd4e8f952c5dc4d372d28ea596dbba701106ea303"
+  },
+  {
+    "id": "scs-20260327-star3:4-2-2-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-2-2-2",
+    "version": 1,
+    "gap": "不足点の候補：教育内容・方法・時期・受講状況の記録が残らない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "受入れ・年次教育の対象者台帳を人事情報と照合し、教育責任者を決める。",
+      "4-2-2-1の各教育・訓練に実施内容、実施方法、実施時期、受講状況の欄を設けて保管担当を定める。"
+    ],
+    "evidenceExamples": ["教育・訓練台帳", "受講者一覧"],
+    "completionCheck": "教育・訓練の指定4項目が記録され保管されている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "caa38fd343b215ee5753b17f7530fa22ddf6fa9fa4bf9da0d37479f51c0cbe9b"
+  },
+  {
+    "id": "scs-20260327-star3:4-2-2-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-2-2-3",
+    "version": 1,
+    "gap": "不足点の候補：インシデント教育の内容を年1回以上点検していない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "受入れ・年次教育の対象者台帳を人事情報と照合し、教育責任者を決める。",
+      "最新の対応手順や事例に照らして教育・訓練の実施内容を見直し、年1回以上の点検記録を残す。"
+    ],
+    "evidenceExamples": ["教育内容の年次点検票", "改訂教材"],
+    "completionCheck": "教育・訓練の実施内容について年1回以上点検している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "e1399e95a1791a6d24e1ca7e3846f14b7b8e2c2e41f7dcd33e4a169e681aa36f"
+  },
+  {
+    "id": "scs-20260327-star3:4-3-4-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-3-4-1",
+    "version": 1,
+    "gap": "不足点の候補：バックアップの対象・頻度・保管期間が定まらない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "データと業務重要度からバックアップ計画を作り、取得・保管・復元の責任者を決める。",
+      "自社取扱データを一覧にし、取得対象、頻度、保管期間を決めてバックアップ設定へ反映し実行結果を確認する。"
+    ],
+    "evidenceExamples": ["バックアップ方針", "設定", "実行ログ"],
+    "completionCheck": "対象・頻度・保管期間を定めたうえでデータのバックアップを取得している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "7e911318e16aebd3481ae727dbad8e12439174dd22acbe4274d9469206a9677c"
+  },
+  {
+    "id": "scs-20260327-star3:4-3-4-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-3-4-2",
+    "version": 1,
+    "gap": "不足点の候補：重要機密情報の遠隔地バックアップがない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "データと業務重要度からバックアップ計画を作り、取得・保管・復元の責任者を決める。",
+      "重要な機密情報を区別し、4-3-4-1の取得に加えて遠隔地へのバックアップを設定しコピーの存在を確認する。"
+    ],
+    "evidenceExamples": ["重要機密情報のバックアップ一覧", "遠隔地保管記録"],
+    "completionCheck": "重要機密情報は通常バックアップに加え遠隔地にもバックアップされている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "0fd0a85fe9a534f4660af318ab5cfb3d475a8bcfa95d8f9eb0aa3d51f150606a"
+  },
+  {
+    "id": "scs-20260327-star3:4-3-4-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-3-4-3",
+    "version": 1,
+    "gap": "不足点の候補：対象別のリストア手順が未整備。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "データと業務重要度からバックアップ計画を作り、取得・保管・復元の責任者を決める。",
+      "バックアップ対象ごとに取出し先、復元操作、権限、復元後の確認を手順化し、作業者が参照できるよう整理する。"
+    ],
+    "evidenceExamples": ["対象別リストア手順書"],
+    "completionCheck": "すべてのバックアップ対象に対応するリストア手順書を提示できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "ade5ba1ace91324faa9c573eecae5bf24e33f2acb515ed92eafc5f8f99289660"
+  },
+  {
+    "id": "scs-20260327-star3:4-4-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-4-1-1",
+    "version": 1,
+    "gap": "不足点の候補：端末やサーバで未許可ソフトウェアを利用できる。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "機器区分ごとの標準設定と例外の承認方法を決め、構成変更を記録する。",
+      "PC・サーバ・スマートデバイスの許可ソフト一覧を決め、未許可をすべて削除・無効化するか許可以外を自由にインストールできない制御を設定する。"
+    ],
+    "evidenceExamples": ["許可ソフト一覧", "削除記録又はインストール制御設定"],
+    "completionCheck": "対象3区分で未許可ソフト削除/無効化又は自由なインストール制限のいずれかを満たす。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "b4bfcf726949ab542bd8b1a81777521571483c98905cf43fccb07444b9dd7a2d"
+  },
+  {
+    "id": "scs-20260327-star3:4-4-1-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-4-1-2",
+    "version": 1,
+    "gap": "不足点の候補：外部記録媒体の自動実行・自動再生が有効。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "機器区分ごとの標準設定と例外の承認方法を決め、構成変更を記録する。",
+      "外部記録媒体を使う端末を洗い出し、自動実行又は自動再生を無効にするポリシーを設定して反映結果を記録する。"
+    ],
+    "evidenceExamples": ["対象端末一覧", "auto-run/auto-play無効化設定"],
+    "completionCheck": "外部記録媒体を使用する端末で公式の自動実行又は自動再生の無効化を確認できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "3d0098233513c8b7ee961aa27eca38ad80e410e0f659b8790458db1fd2d17305"
+  },
+  {
+    "id": "scs-20260327-star3:4-4-1-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-4-1-3",
+    "version": 1,
+    "gap": "不足点の候補：サーバ・ネットワーク機器の設定変更に承認がない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "機器区分ごとの標準設定と例外の承認方法を決め、構成変更を記録する。",
+      "対象機器の設定変更について変更内容、影響、申請者、承認者を記録し、承認後に設定を変更する運用にする。"
+    ],
+    "evidenceExamples": ["設定変更申請", "承認記録", "作業記録"],
+    "completionCheck": "サーバ及びネットワーク機器の設定変更が申請・承認制である。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "e904d0999afa5b2419585817bb970a9629e968d67a908faafa6fc62e5c36a75a"
+  },
+  {
+    "id": "scs-20260327-star3:4-4-4-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-4-4-1",
+    "version": 1,
+    "gap": "不足点の候補：未ライセンス・サポート終了の製品や更新未設定が残る。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "資産台帳にライセンス・サポート期限・更新責任者を紐付け、脆弱性情報を確認する。",
+      "機器・ソフトのライセンスとサポート期限を台帳化し、サポート終了品は削除又はインターネット全トラフィック遮断で適用範囲から削除し、可能なら自動更新を有効化する。"
+    ],
+    "evidenceExamples": ["ライセンス・サポート台帳", "撤去/通信遮断記録", "自動更新設定"],
+    "completionCheck": "ライセンスとサポート、終了時の削除又は全通信遮断、可能な場合の自動更新を確認する。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "84eccc5b0031ee005a3a41cbd995dde36568c7f2ea44ad379cc730bcd9acc288"
+  },
+  {
+    "id": "scs-20260327-star3:4-4-4-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-4-4-2",
+    "version": 1,
+    "gap": "不足点の候補：高リスク更新の14日以内適用と延期時の低減策を確認できない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "資産台帳にライセンス・サポート期限・更新責任者を紐付け、脆弱性情報を確認する。",
+      "会社PCのOS・ブラウザ・Office、サーバOS・ミドルウェア、会社スマートデバイスOS・アプリ、境界機器OS・ファームウェアを管理し、Critical/High Risk、CVSS基本値7.0以上又は詳細未提供の修正は公開から14日以内に適用する。やむを得ない延期は機能無効化、ベンダー回避策、ネットワーク分離、不正通信の監視遮断のいずれかを適用まで実施する。"
+    ],
+    "evidenceExamples": ["リリース日・適用日台帳", "深刻度確認", "延期理由と低減策の記録"],
+    "completionCheck": "対象の機能・設定について3条件いずれかに該当する更新を14日以内に適用し、やむを得ない延期には公式4選択肢のいずれかを継続している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "c60b1d6e5418b16d59d8758b4830b86431d6af23f743eff581312eba6fb2ff33"
+  },
+  {
+    "id": "scs-20260327-star3:4-4-5-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-4-5-1",
+    "version": 1,
+    "gap": "不足点の候補：接続中のPC・サーバにマルウェア対策の未導入がある。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "PC・サーバ台帳とマルウェア対策管理情報を照合し、未保護・失敗を把握する。",
+      "ネットワークに接続する全PC・サーバを台帳から抽出し、マルウェア対策ソフトの導入状況を照合して未導入を解消する。"
+    ],
+    "evidenceExamples": ["PC・サーバ台帳", "マルウェア対策導入一覧"],
+    "completionCheck": "ネットワーク接続するすべてのPC及びサーバに対策ソフトが導入されている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "89eaee24b3aabe33cf8f31f855695ba31f7d178db8cdab4cf57e5b50f3a47441"
+  },
+  {
+    "id": "scs-20260327-star3:4-4-5-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-4-5-2",
+    "version": 1,
+    "gap": "不足点の候補：機器別のマルウェアスキャン範囲・頻度が不明。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "PC・サーバ台帳とマルウェア対策管理情報を照合し、未保護・失敗を把握する。",
+      "PC・サーバごとにスキャン範囲と頻度を定め、スケジュール設定と実際のスキャン実行記録を照合する。"
+    ],
+    "evidenceExamples": ["機器別スキャン設定", "実行ログ"],
+    "completionCheck": "PC・サーバごとに範囲と頻度を決めスキャンを実行している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "a858bea1e6cf7bacd8afb36ee5844dcacea94d33bb36efc87aecf4c7ebee4972"
+  },
+  {
+    "id": "scs-20260327-star3:4-4-5-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-4-5-3",
+    "version": 1,
+    "gap": "不足点の候補：パターンファイル更新がベンダー推奨に追随していない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "PC・サーバ台帳とマルウェア対策管理情報を照合し、未保護・失敗を把握する。",
+      "利用製品の推奨更新方法を確認し、自動又は運用による更新を設定して失敗端末の再更新を行う。"
+    ],
+    "evidenceExamples": ["ベンダー推奨手順", "パターン更新履歴"],
+    "completionCheck": "マルウェア対策のパターンファイルがベンダーの推奨に従って更新されている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "5611f049c31a1d698f006ca313f2844b866359d4e21bbe3e9447342475219242"
+  },
+  {
+    "id": "scs-20260327-star3:4-5-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-5-1-1",
+    "version": 1,
+    "gap": "不足点の候補：ファイアウォールやルータに初期管理パスワードが残る。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "境界機器の管理者・管理経路・通信ルールを構成図と台帳で対応付ける。",
+      "全ファイアウォール機能機器・ルータの管理設定を点検し、強固で一意の管理パスワードへ変更又はリモートアクセスを完全に無効化する。"
+    ],
+    "evidenceExamples": ["境界機器台帳", "初期変更記録又はリモート無効化設定"],
+    "completionCheck": "全対象機器で強固で一意のパスワードへの変更又はリモートアクセス完全無効化を満たす。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "0b6027c5ca192a59664c91d236635aa06eef03bb3c93bdf7f401777a5270b688"
+  },
+  {
+    "id": "scs-20260327-star3:4-5-1-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-5-1-2",
+    "version": 1,
+    "gap": "不足点の候補：境界機器のパスワード変更手順がない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "境界機器の管理者・管理経路・通信ルールを構成図と台帳で対応付ける。",
+      "ファイアウォール機能機器・ルータごとに変更権限、操作、変更後の確認と安全な保管先更新を手順書にする。"
+    ],
+    "evidenceExamples": ["機種別パスワード変更手順書"],
+    "completionCheck": "ファイアウォール機能機器及びルータの変更手順が定められている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "9a694d1de0c81a62b2669ad766b04c8917d0f685dc3f718406c55df436c8d475"
+  },
+  {
+    "id": "scs-20260327-star3:4-5-1-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-5-1-3",
+    "version": 1,
+    "gap": "不足点の候補：境界機器の認証がパスワード設定基準と不整合。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "境界機器の管理者・管理経路・通信ルールを構成図と台帳で対応付ける。",
+      "ファイアウォール機能機器・ルータの認証を4-1-5の初期変更、推測語禁止、保護方式別強度、使い回し禁止、周知と項目別に照合する。"
+    ],
+    "evidenceExamples": ["境界機器認証設定と4-1-5の対応表"],
+    "completionCheck": "対象機器の認証が参照先4-1-5のパスワード設定等の評価基準を満たす。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "a44e204f5c14e8be0d9263cc1327e837848f78cf58d0c177208164779f694a31"
+  },
+  {
+    "id": "scs-20260327-star3:4-5-1-4:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-5-1-4",
+    "version": 1,
+    "gap": "不足点の候補：認証されていないインバウンド通信が通る。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "境界機器の管理者・管理経路・通信ルールを構成図と台帳で対応付ける。",
+      "全ファイアウォール機能機器の受信ルールを洗い出し、認証されていないインバウンド通信を遮断する設定と安全な試験を行う。"
+    ],
+    "evidenceExamples": ["受信遮断ルール", "通信試験記録"],
+    "completionCheck": "全ファイアウォールで未認証インバウンド通信を遮断する。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "941fdd0c7ede411c986978bdc4afc6035c1fddd57bca7bf37c30e4762d936f5d"
+  },
+  {
+    "id": "scs-20260327-star3:4-5-1-5:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-5-1-5",
+    "version": 1,
+    "gap": "不足点の候補：インバウンド通信のファイアウォールルールが未定義。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "境界機器の管理者・管理経路・通信ルールを構成図と台帳で対応付ける。",
+      "全ファイアウォール機能機器について受信元・宛先・用途・許可条件を整理し、インバウンドルールとして定義する。"
+    ],
+    "evidenceExamples": ["受信ルール一覧", "設定資料"],
+    "completionCheck": "全対象機器にインバウンド通信のファイアウォールルールが定められている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "facd149fc8f6d3b948b6d25f95b262c61e6ccbb51d2781fe1113aea9eb571dba"
+  },
+  {
+    "id": "scs-20260327-star3:4-5-1-6:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-5-1-6",
+    "version": 1,
+    "gap": "不足点の候補：不要となったファイアウォールルールが残る。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "境界機器の管理者・管理経路・通信ルールを構成図と台帳で対応付ける。",
+      "サービス廃止や接続終了をルールの用途一覧へ反映し、不要になったルールを速やかに削除又は無効化する。"
+    ],
+    "evidenceExamples": ["廃止申請", "ルール差分", "削除・無効化記録"],
+    "completionCheck": "全対象ファイアウォールで不要ルールを速やかに削除又は無効化している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "6726a0b7f8a98ec84809868ef5c6916dcaf0d647844b936637c777638d05ca47"
+  },
+  {
+    "id": "scs-20260327-star3:4-5-1-7:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "4-5-1-7",
+    "version": 1,
+    "gap": "不足点の候補：インターネット経由のルール変更経路の制限が不足。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "境界機器の管理者・管理経路・通信ルールを構成図と台帳で対応付ける。",
+      "インターネットからの管理経路を確認し、4-1-3-3の要素によるMFA又は信頼できるIPアドレスだけのアクセス制限を設定する。"
+    ],
+    "evidenceExamples": ["管理経路図", "MFA又はIP制限設定", "接続試験"],
+    "completionCheck": "インターネット経由でルール変更する場合に指定MFA又は信頼IPへの制限を満たす。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "cd6534ecf27adfc6da7d1a05111ba3cd2b9e246944bb3be881953b32a7073d87"
+  },
+  {
+    "id": "scs-20260327-star3:5-1-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "5-1-1-1",
+    "version": 1,
+    "gap": "不足点の候補：外部からの侵入と内部から不正サーバへの通信を検知・遮断できない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "監視対象、担当、アラート受付、インシデント判断、通知までの流れを整理する。",
+      "境界又は端末の保護範囲を確認し、インターネットから社内と社内から不正サーバへの双方をリアルタイム検知・遮断する仕組みを構成する。"
+    ],
+    "evidenceExamples": ["監視構成図", "双方向の検知・遮断試験"],
+    "completionCheck": "境界又は端末で2方向の不正アクセスをリアルタイムに検知し遮断する。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "1fbe5fe3ddf09d22c8c36acb3c8fc446fe911161935dfcc12876ee9e4fe7d8a0"
+  },
+  {
+    "id": "scs-20260327-star3:5-1-1-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "5-1-1-2",
+    "version": 1,
+    "gap": "不足点の候補：ログ・アラートの分析とインシデント該当判断の担当が不明。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "監視対象、担当、アラート受付、インシデント判断、通知までの流れを整理する。",
+      "ネットワーク機器のログとアラートを分析する手順を設け、不審事象をセキュリティ担当部署の担当者又は管理者が判定して記録する。"
+    ],
+    "evidenceExamples": ["ログ分析記録", "不審事象の判定票"],
+    "completionCheck": "不審事象を発見した場合に担当者又は管理者がインシデント該当性を判断している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "65abc670e50c243b04ca0f30bbce04cd31c5153f00aa72fb42781f6f13c39b2a"
+  },
+  {
+    "id": "scs-20260327-star3:5-1-1-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "5-1-1-3",
+    "version": 1,
+    "gap": "不足点の候補：監視異常の速報通知が行われない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "監視対象、担当、アラート受付、インシデント判断、通知までの流れを整理する。",
+      "5-1-1-1の機器又はサービスで異常時に速やかにアラートを発報し、速報レポートを作成・通知する流れを設定する。"
+    ],
+    "evidenceExamples": ["アラート設定", "模擬異常の通知時刻", "速報レポート"],
+    "completionCheck": "速やかなアラート発報とインシデント速報レポートの作成・通知の両方を確認できる。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "1507736ed03330cfe7cf2f95c108b5af633ac8b9c49a0bd4e5e8aadc52832671"
+  },
+  {
+    "id": "scs-20260327-star3:6-1-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "6-1-1-1",
+    "version": 1,
+    "gap": "不足点の候補：インシデント対応手順に初動から最終報告までの段階がない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "インシデント対応規程に手順・体制・連絡・報告・振り返りの参照先をまとめる。",
+      "発見報告、初動、調査・対応、復旧、最終報告の5段階を手順書に設け、各段階の判断と引継ぎを具体化する。"
+    ],
+    "evidenceExamples": ["5段階を含むインシデント対応手順書"],
+    "completionCheck": "公式指定の5つの手順すべてが定められている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "16a2caa4f8de72d0934d274e8e2a73fbd5c457da3c9da0a44f6b7627dcc4d736"
+  },
+  {
+    "id": "scs-20260327-star3:6-1-1-2:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "6-1-1-2",
+    "version": 1,
+    "gap": "不足点の候補：インシデント時の社内外連絡先と報告ルートが不明。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "インシデント対応規程に手順・体制・連絡・報告・振り返りの参照先をまとめる。",
+      "社内、取引先、支援先、関係当局、所管省庁の連絡先を整理し、報告・情報共有のルートを図示する。"
+    ],
+    "evidenceExamples": ["社内外連絡先表", "報告・情報共有ルート図"],
+    "completionCheck": "関係当局と所管省庁を含む社内外組織の連絡先と共有ルートが定まっている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "e8e19688ec74a9479b87693f1f86f7c4ba674de7a854cfee50bdd8fb627993d7"
+  },
+  {
+    "id": "scs-20260327-star3:6-1-1-3:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "6-1-1-3",
+    "version": 1,
+    "gap": "不足点の候補：インシデント時の統括役員と担当部署の責任が不明。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "インシデント対応規程に手順・体制・連絡・報告・振り返りの参照先をまとめる。",
+      "意思決定・対外報告・技術対応を統括役員とセキュリティ担当部署に割り当て、事故時の役割・責任を定める。"
+    ],
+    "evidenceExamples": ["緊急時役割分担表", "対応規程"],
+    "completionCheck": "インシデント時の統括役員及び担当部署の役割・責任が定まっている。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "a4249fc0191892b3a30f1c00434a2048a74c3ad8ff76233f91c8e1eb96faab1e"
+  },
+  {
+    "id": "scs-20260327-star3:6-1-1-4:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "6-1-1-4",
+    "version": 1,
+    "gap": "不足点の候補：インシデント対応体制の年次点検がない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "インシデント対応規程に手順・体制・連絡・報告・振り返りの参照先をまとめる。",
+      "6-1-1-2の連絡先・報告ルートと6-1-1-3の役割責任を人事・組織情報に照合し、年1回以上の点検日と結果を残す。"
+    ],
+    "evidenceExamples": ["対応体制の年次点検票", "連絡先更新履歴"],
+    "completionCheck": "連絡ルートと役割責任を含む対応体制を年1回以上点検している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "8df0310e665736a991f202e13e6f0b8edd5f3269d57edf419ddc421436a1a919"
+  },
+  {
+    "id": "scs-20260327-star3:6-1-1-5:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "6-1-1-5",
+    "version": 1,
+    "gap": "不足点の候補：インシデントを報告する統一様式がない。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "インシデント対応規程に手順・体制・連絡・報告・振り返りの参照先をまとめる。",
+      "発見日時、影響、対応、連絡先、更新状況を記入できる報告フォーマットを整備し、記入例を用意する。"
+    ],
+    "evidenceExamples": ["インシデント報告様式", "匿名の記入例"],
+    "completionCheck": "インシデントの報告フォーマットが整備されている（提案する記入項目自体は公式の指定項目ではない）。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "8589787f1f08fe6aed5962588f0e61b294f2f4e4bc414e70451d110a26aa33a6"
+  },
+  {
+    "id": "scs-20260327-star3:6-1-1-6:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "6-1-1-6",
+    "version": 1,
+    "gap": "不足点の候補：年次と重大事案発生時の事例共有が不足。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "インシデント対応規程に手順・体制・連絡・報告・振り返りの参照先をまとめる。",
+      "年1回以上の事例共有を計画し、社内又は社外の重大インシデントが発生した際も事例と対応策を社内部署へ共有する手順を設ける。"
+    ],
+    "evidenceExamples": ["年次共有記録", "重大事案の事例・対応策通知"],
+    "completionCheck": "年1回以上及び社内外の重大インシデント発生時の両契機で事例と対応策を社内部署へ共有している。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "90d4ded51a4b3c39c8d6a6be8ad1dafb5f1db0a42c3c2c7629c0387d9cef1b2c"
+  },
+  {
+    "id": "scs-20260327-star3:7-1-1-1:v1",
+    "standardId": "scs-20260327-star3",
+    "criterionId": "7-1-1-1",
+    "version": 1,
+    "gap": "不足点の候補：重要システムの業務目標復旧レベルと回復策が未定。該当する場合は、以下の実施例を対象範囲に合わせて検討してください。",
+    "steps": [
+      "事業責任者とシステム担当者で重要業務と復旧の優先順を確認する。",
+      "事業継続上重要なシステムを選定し、サイバー攻撃時の業務の目標復旧レベルを定め、その水準へ回復する対策を整備する。待機系や人手の代替業務等を比較して自社に合う方法を選ぶ。"
+    ],
+    "evidenceExamples": ["重要システム一覧", "業務目標復旧レベル", "復旧対策計画"],
+    "completionCheck": "サイバー攻撃を念頭に目標復旧レベルと必要対策を整備している（予備機・クラウド・電話・FAX等は例で一律必須ではない）。",
+    "sourceUrls": ["https://www.ipa.go.jp/security/scs/rcu1hd0000007a2i-att/20260327001-c.xlsx"],
+    "contentSha256": "b6465074e2ded55094b01fc2d8fdf985e2e9ec7f23e2375e688de76c68949838"
+  }
+]

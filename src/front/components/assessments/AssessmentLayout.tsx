@@ -63,6 +63,7 @@ export function AssessmentLayout({
               現状ダッシュボード
             </NavLink>
             <NavLink to={`/assessments/${assessment.data.id}/criteria`}>評価基準一覧</NavLink>
+            <NavLink to={`/assessments/${assessment.data.id}/import`}>Excel取込</NavLink>
             <NavLink to={`/assessments/${assessment.data.id}/evidence`}>証跡</NavLink>
           </nav>
           {readOnly && (

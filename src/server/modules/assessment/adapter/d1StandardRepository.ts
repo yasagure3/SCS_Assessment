@@ -2,6 +2,9 @@ import type { StandardDto } from "../../../../shared/contracts/assessments";
 import type { Criterion } from "../../../../shared/contracts/assessment";
 import type { StandardRepository } from "../domain/standard";
 import { DomainError } from "../domain/assessment";
+import { digest } from "../domain/assessment";
+import importRows from "../../../db/seed/scs-20260327-import.json";
+import { STANDARD_ID } from "../../../../shared/contracts/assessment";
 export class D1StandardRepository implements StandardRepository {
   private readonly db: D1Database;
   constructor(db: D1Database) {
@@ -22,5 +25,10 @@ export class D1StandardRepository implements StandardRepository {
       .bind(id)
       .all<Criterion>();
     return { ...metadata, criteria: rows.results };
+  }
+  async getImportMaster(id: string) {
+    if (id !== STANDARD_ID) throw new DomainError("NOT_FOUND");
+    await this.get(id);
+    return { standardId: id, masterContentSha256: await digest(importRows), rows: importRows };
   }
 }
