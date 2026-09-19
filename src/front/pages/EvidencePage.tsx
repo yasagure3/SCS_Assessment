@@ -3,9 +3,27 @@ import { Link, useSearchParams } from "react-router";
 import { AssessmentLayout } from "../components/assessments/AssessmentLayout";
 import { EvidenceForm, reviewLabels, type EvidenceSelection } from "../components/EvidenceForm";
 import { useWrite } from "../lib/api";
+import useSWR from "swr";
+import { getCurrentSession } from "../lib/cognitoClient";
+import { browserFileClient } from "../lib/fileClient";
 
 export function EvidencePage() {
   const write = useWrite();
+  const { data: session } = useSWR("cognito-session", getCurrentSession);
+  const [downloadError, setDownloadError] = useState(""),
+    [downloading, setDownloading] = useState<string | null>(null);
+  async function download(id: string) {
+    if (!session || downloading) return;
+    setDownloading(id);
+    setDownloadError("");
+    try {
+      await browserFileClient.download(session.accessToken, id);
+    } catch (reason) {
+      setDownloadError(reason instanceof Error ? reason.message : "取得できませんでした。");
+    } finally {
+      setDownloading(null);
+    }
+  }
   const [selection, setSelection] = useState<EvidenceSelection | null>(null),
     [message, setMessage] = useState("");
   const [params] = useSearchParams();
@@ -42,6 +60,11 @@ export function EvidencePage() {
             {message && (
               <p className="success-message" role="status">
                 {message}
+              </p>
+            )}
+            {downloadError && (
+              <p className="form-error" role="alert">
+                {downloadError}
               </p>
             )}
             <section className="panel">
@@ -100,6 +123,18 @@ export function EvidencePage() {
                             ) : (
                               "URLなし"
                             )}
+                            {item.fileId && (
+                              <p>
+                                <button
+                                  className="text-button"
+                                  disabled={Boolean(downloading)}
+                                  onClick={() => void download(item.fileId!)}
+                                  aria-label={`${item.name}の添付をダウンロード`}
+                                >
+                                  {downloading === item.fileId ? "取得中…" : "添付をダウンロード"}
+                                </button>
+                              </p>
+                            )}
                           </td>
                           <td>
                             <button
@@ -126,6 +161,15 @@ export function EvidencePage() {
                 selection={selection}
                 readOnly={readOnly}
                 write={write}
+                uploadFile={(file, key, signal) =>
+                  browserFileClient.upload(
+                    session?.accessToken ?? "",
+                    record.caseId,
+                    file,
+                    key,
+                    signal,
+                  )
+                }
                 onSaved={(result, text) => {
                   void assessment.replace(result);
                   setSelection(null);

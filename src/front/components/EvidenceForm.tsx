@@ -7,6 +7,7 @@ import { evidenceFieldsSchema, reviewEvidenceSchema } from "../../shared/contrac
 import type { EvidenceCommand } from "../../shared/contracts/evidence";
 import { applyEvidenceChange, evidenceSizeContext } from "../../shared/evidenceChange";
 import { ApiError } from "../lib/fetcher";
+import { FileAttachment, type AttachmentState, type UploadFile } from "./FileAttachment";
 export type EvidenceWriter = {
   pending: boolean;
   error: Error | null;
@@ -34,6 +35,7 @@ export function EvidenceForm({
   onSaved,
   onRefresh,
   onCancel,
+  uploadFile,
 }: {
   record: AssessmentDto;
   standard: StandardDto;
@@ -43,7 +45,13 @@ export function EvidenceForm({
   onSaved: (result: ApiSuccess<AssessmentDto>, message: string) => void;
   onRefresh: () => unknown;
   onCancel: () => void;
+  uploadFile?: UploadFile;
 }) {
+  const [attachment, setAttachment] = useState<AttachmentState>({
+    fileId: null,
+    pending: false,
+    incomplete: false,
+  });
   const [fields, setFields] = useState(() => fieldsOf(selection.item));
   const [review, setReview] = useState<Pick<Review, "state" | "note">>(() => ({
     state: selection.criterionId
@@ -77,7 +85,7 @@ export function EvidenceForm({
       }
     : selection.item
       ? { kind: "edit", evidenceId: selection.item.id, input: { ...mutation, ...metadata } }
-      : { kind: "add", input: { ...mutation, ...metadata, fileId: null } };
+      : { kind: "add", input: { ...mutation, ...metadata, fileId: attachment.fileId } };
   let projected = record.document,
     projectionError = false;
   if (checked.success && !missing && !reviewMissing) {
@@ -89,7 +97,7 @@ export function EvidenceForm({
   }
   const tooLarge =
     new TextEncoder().encode(JSON.stringify(projected)).byteLength > MAX_DOCUMENT_BYTES;
-  const disabled = readOnly || write.pending;
+  const disabled = readOnly || write.pending || attachment.pending;
   async function save(remove = false) {
     const base = `/api/v1/assessments/${record.id}/evidence`;
     const path = `${base}${selection.item ? `/${selection.item.id}` : ""}${reviewMode ? `/reviews/${selection.criterionId}` : ""}`;
@@ -97,7 +105,11 @@ export function EvidenceForm({
       ? { expectedRevision: revision }
       : reviewMode
         ? { expectedRevision: revision, ...review }
-        : { expectedRevision: revision, ...metadata, ...(selection.item ? {} : { fileId: null }) };
+        : {
+            expectedRevision: revision,
+            ...metadata,
+            ...(selection.item ? {} : { fileId: attachment.fileId }),
+          };
     const result = await write.send(
       path,
       remove ? "DELETE" : reviewMode || !selection.item ? "POST" : "PATCH",
@@ -157,12 +169,13 @@ export function EvidenceForm({
             !missing &&
             !reviewMissing &&
             !tooLarge &&
-            !projectionError
+            !projectionError &&
+            !attachment.incomplete
           )
             void save();
         }}
       >
-        <fieldset disabled={disabled}>
+        <fieldset disabled={readOnly || write.pending}>
           {reviewMode ? (
             <>
               <label>
@@ -238,6 +251,19 @@ export function EvidenceForm({
                   ))}
                 </div>
               </fieldset>
+              {!selection.item && uploadFile && (
+                <FileAttachment
+                  disabled={readOnly || write.pending}
+                  upload={uploadFile}
+                  newId={() => crypto.randomUUID()}
+                  onChange={setAttachment}
+                />
+              )}
+              {selection.item?.fileId && (
+                <p className="field-help">
+                  添付の差替えは、新しい証跡の追加後に古い証跡の関連を解除してください。
+                </p>
+              )}
               <p className="field-help">
                 文書名200文字・該当箇所2000文字・URL2048文字まで。参照URLは http / https
                 を指定してください。
@@ -271,7 +297,8 @@ export function EvidenceForm({
               tooLarge ||
               missing ||
               reviewMissing ||
-              projectionError
+              projectionError ||
+              attachment.incomplete
             }
           >
             {write.pending ? "保存しています…" : reviewMode ? "確認を保存" : "証跡を保存"}
@@ -279,7 +306,7 @@ export function EvidenceForm({
           <button
             type="button"
             className="button secondary"
-            disabled={write.pending}
+            disabled={write.pending || attachment.pending}
             onClick={onCancel}
           >
             閉じる

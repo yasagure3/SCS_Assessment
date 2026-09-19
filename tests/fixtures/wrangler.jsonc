@@ -15,5 +15,6 @@
       "migrations_dir": "../../migrations",
     },
   ],
+  "r2_buckets": [{ "binding": "EVIDENCE_BUCKET", "bucket_name": "scs-evidence-test-fixture" }],
   "vars": { "COGNITO_ISSUER": "", "COGNITO_CLIENT_ID": "", "COGNITO_JWKS_URL": "" },
 }
