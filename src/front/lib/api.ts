@@ -29,7 +29,7 @@ export function useWrite() {
   const busy = useRef(false);
   async function send<T>(
     path: string,
-    method: "POST" | "PATCH" | "PUT",
+    method: "POST" | "PATCH" | "PUT" | "DELETE",
     body: Record<string, unknown>,
     options?: { newAttemptOnConfirmedFailure?: boolean },
   ): Promise<ApiSuccess<T> | null> {
@@ -53,7 +53,7 @@ export function useWrite() {
           "Idempotency-Key": key,
         },
         body: JSON.stringify(
-          method === "PATCH" || method === "PUT" ? { ...body, mutationId: key } : body,
+          method !== "POST" || "expectedRevision" in body ? { ...body, mutationId: key } : body,
         ),
       });
       operations.current.delete(signature);

@@ -123,4 +123,13 @@ export class D1AssessmentRepository implements AssessmentRepository {
       },
     });
   }
+  async replay(
+    id: string,
+    actorId: string,
+    mutationId: string,
+    requestHash: string,
+  ): Promise<AssessmentRecord | null> {
+    await this.get(id, actorId);
+    return this.ledger.replay<AssessmentRecord>(actorId, mutationId, requestHash);
+  }
 }

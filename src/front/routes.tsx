@@ -11,6 +11,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { CriteriaPage } from "./pages/CriteriaPage";
 import { CriterionPage } from "./pages/CriterionPage";
+import { EvidencePage } from "./pages/EvidencePage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/home" replace /> },
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
     { path: "/assessments/:assessmentId", element: <DashboardPage /> },
     { path: "/assessments/:assessmentId/criteria", element: <CriteriaPage /> },
     { path: "/assessments/:assessmentId/criteria/:criterionId", element: <CriterionPage /> },
+    { path: "/assessments/:assessmentId/evidence", element: <EvidencePage /> },
   ].map((route) => ({
     ...route,
     element: <RequireAuth>{route.element}</RequireAuth>,
