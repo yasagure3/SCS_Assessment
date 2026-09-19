@@ -1,6 +1,8 @@
 # SCS Assessment 実装計画
 
-2026-09-18。登録先は [yasagure3/SCS_Assessment](https://github.com/yasagure3/SCS_Assessment)。**設計書をmainへ反映済み。親9件・子18件のIssueと親子関係を登録・検証済み。F01は `feat/star3-assessment` へ実装し、新規checkoutとGitHub CIを含め検証済み。F02は `feat/assessment-core` の分離worktreeで実装・検証済み。A01は `feat/staff-auth` で招待限定MFA、API認可、全端末失効、初期管理者の準備手順まで実装し、匿名のブラウザ結合検証を完了。C01以降の業務画面・Excel・助言・レポートは未実装。**
+2026-09-19。登録先は [yasagure3/SCS_Assessment](https://github.com/yasagure3/SCS_Assessment)。**設計書をmainへ反映済み。親9件・子18件のIssueと親子関係を登録・検証済み。F01/F02はmainへ統合済み。A01は `feat/staff-auth`、C01は `feat/customer-cases` で実装し、認証・顧客・案件・81未回答の初期診断・対象範囲の編集までローカルの全検証が成功。独立レビューで指摘された時刻差を含むセッション失効、一覧・JSONのAPI契約、権限喪失時のキャッシュ表示を修正した。D01以降の評価基準編集・Excel・証跡・助言・レポートは未実装。**
+
+C01ローカル検証（2026-09-19）: check/build成功、Front 22件、Workers 72件（C01 18件）、初期管理者スクリプト3件、Edge E2E 4件が成功。権限境界、作成のrollback、二重送信、保管/復元、50件の既定ページングと100件上限、不正JSON400と入力検証422、競合・通信失敗時の入力保持、各依存APIが401/403/404になったときの顧客名・案件名の非表示を確認。匿名fixtureで顧客→案件→未回答81→対象範囲保存の画面を目視確認。A01の失効は許容時刻差5秒を含む境界とrefreshの古いauth_timeを検証し、運用手順も同じ境界へ統一。保留mediumはA01/C01各2件をdocs/pending-reviewへ記録。本番リソースは作成・公開していない。
 
 スケッチ確認と3件の局所PoCを終え、8機能の設計チェックはhigh 0。設計と本タスク群の独立レビューはhigh 0で完了した。設計の正本は[DESIGN.md](DESIGN.md)と[機能設計](features/)、確認記録は[REVIEW.md](REVIEW.md)。
 

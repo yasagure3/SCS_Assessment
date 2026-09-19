@@ -1,8 +1,8 @@
-import { createApp } from "../../src/server/app";
+import { createBusinessApp } from "../../src/server/businessApp";
 import { DomainError } from "../../src/shared/errors";
 import { D1AccessRepository } from "../../src/server/modules/auth/adapter/d1AccessRepository";
 // Only loaded by the local test configuration. Real production routes have no fixture endpoints.
-const app = createApp({
+const app = createBusinessApp({
   verify: async (token) => {
     if (!/^E2E_ONLY_TOKEN_\d+$/.test(token)) throw new DomainError("UNAUTHORIZED");
     const authTime = Number(token.slice("E2E_ONLY_TOKEN_".length));

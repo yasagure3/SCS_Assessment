@@ -20,11 +20,13 @@ export type AppDependencies = {
   sessions: (bindings: Bindings) => SessionProvider;
 };
 const errors: Record<string, [ContentfulStatusCode, string]> = {
+  MALFORMED_JSON: [400, "JSONの形式を確認してください。"],
   UNAUTHORIZED: [401, "ログインし直してください。"],
   ACCOUNT_DISABLED: [403, "利用可能な招待またはアカウントがありません。管理者へ確認してください。"],
   FORBIDDEN: [403, "この操作を行う権限がありません。"],
   NOT_FOUND: [404, "対象が見つからないか、閲覧権限がありません。"],
   CONFLICT: [409, "他の担当者が更新しました。再読み込みして内容を確認してください。"],
+  ARCHIVED: [409, "保管済みの顧客・案件は編集できません。保管を解除してから操作してください。"],
   IDEMPOTENCY_CONFLICT: [409, "同じ操作番号で異なる更新はできません。"],
   VALIDATION_ERROR: [422, "入力内容を確認してください。"],
   SERVICE_UNAVAILABLE: [503, "認証サービスはまだ設定されていません。"],
