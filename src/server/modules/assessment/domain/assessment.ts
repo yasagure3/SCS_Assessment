@@ -148,7 +148,9 @@ export async function editResponse(
   const changed = Object.entries(values).some(
     ([key, value]) => response[key as keyof typeof values] !== value,
   );
-  Object.assign(response, values, { manualEdited: true });
+  Object.assign(response, values, {
+    manualEdited: response.manualEdited || changed || !document.importInfo,
+  });
   if (changed) response.adviceBasisVersion++;
   response.basisHash = await basisHash(next, id);
   return next;

@@ -9,6 +9,8 @@ import { CustomerPage } from "./pages/CustomerPage";
 import { CasePage } from "./pages/CasePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { CriteriaPage } from "./pages/CriteriaPage";
+import { CriterionPage } from "./pages/CriterionPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/home" replace /> },
@@ -20,6 +22,8 @@ export const router = createBrowserRouter([
     { path: "/customers/:customerId", element: <CustomerPage /> },
     { path: "/cases/:caseId", element: <CasePage /> },
     { path: "/assessments/:assessmentId", element: <DashboardPage /> },
+    { path: "/assessments/:assessmentId/criteria", element: <CriteriaPage /> },
+    { path: "/assessments/:assessmentId/criteria/:criterionId", element: <CriterionPage /> },
   ].map((route) => ({
     ...route,
     element: <RequireAuth>{route.element}</RequireAuth>,

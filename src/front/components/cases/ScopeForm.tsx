@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { AssessmentRecord, Scope } from "../../../shared/contracts/assessment";
+import type { Scope } from "../../../shared/contracts/assessment";
+import type { AssessmentDto } from "../../../shared/contracts/assessments";
 import type { ApiSuccess } from "../../../shared/contracts/api";
 import { useWrite } from "../../lib/api";
 import { ApiError } from "../../lib/fetcher";
@@ -15,9 +16,9 @@ export function ScopeForm({
   onSaved,
   onRefresh,
 }: {
-  record: AssessmentRecord;
+  record: AssessmentDto;
   readOnly: boolean;
-  onSaved: (result: ApiSuccess<AssessmentRecord>) => unknown;
+  onSaved: (result: ApiSuccess<AssessmentDto>) => unknown;
   onRefresh: () => unknown;
 }) {
   const [scope, setScope] = useState(record.document.scope),
@@ -31,7 +32,7 @@ export function ScopeForm({
     today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   async function save() {
     setSaved(false);
-    const result = await write.send<AssessmentRecord>(
+    const result = await write.send<AssessmentDto>(
       `/api/v1/assessments/${record.id}/scope`,
       "PATCH",
       { scope, diagnosisDate: date || null, expectedRevision: revision },
@@ -93,6 +94,7 @@ export function ScopeForm({
         disabled={
           readOnly ||
           write.pending ||
+          conflict ||
           Object.values(scope).some((value) => Array.from(value).length > 2000)
         }
       >
@@ -107,6 +109,11 @@ export function ScopeForm({
         <p className="form-error" role="alert">
           {write.error.message}
         </p>
+      )}
+      {write.error && !conflict && (
+        <button type="button" className="text-button" onClick={() => void onRefresh()}>
+          最新の内容を再確認
+        </button>
       )}
       {conflict && (
         <aside className="conflict-panel">

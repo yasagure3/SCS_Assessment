@@ -59,6 +59,9 @@ export function useWrite() {
       operations.current.delete(signature);
       return result;
     } catch (reason) {
+      // Unknown network outcomes retain their key; only confirmed rejection starts a new attempt.
+      if (reason instanceof ApiError && reason.code === "IDEMPOTENCY_CONFLICT")
+        operations.current.delete(signature);
       if (
         options?.newAttemptOnConfirmedFailure &&
         reason instanceof ApiError &&
