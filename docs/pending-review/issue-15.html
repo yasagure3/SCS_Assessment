@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Issue 15 保留レビュー</title>
+<style>body{font:16px/1.8 system-ui,sans-serif;max-width:880px;margin:40px auto;padding:0 24px;color:#1d304a;background:#f5f7fb}article{background:white;border:1px solid #d7e0ef;border-radius:12px;padding:24px}h1{font-size:24px}code{overflow-wrap:anywhere}label{font-weight:700}</style>
+<h1>Issue 15 — 保留レビュー</h1>
+<p>Excel取込の独立レビューで確認したテスト品質上の項目です。dev-implの運用に従い、mediumは今回の修正ループから保留しています。</p>
+<article data-severity="medium" data-category="test-quality">
+  <label><input type="checkbox"> 入力エラーの原因・シート・行・列を完全一致で検証する</label>
+  <p><strong>対象:</strong> <code>src/front/workers/excel.test.ts:97</code>（r1レビュー時の行）</p>
+  <p><strong>根拠:</strong> unknown・duplicate・public・header・levelの5ケースはエラー件数が正であることのみを検証し、数式列7ケースは部分包含で検証しています。期待するエラーの理由や位置が変わっても成功し得ます。型エラーと欠落後の除外行数式のケースでは完全一致を確認しています。何もしない実装は通らないため、空虚なテストではありません。</p>
+  <p><strong>対応案:</strong> パラメータ表に期待するエラー配列全体を持たせ、code・sheet・row・columnの完全一致を検証します。</p>
+  <p><strong>出典:</strong> Issue 15 r1のtest-qualityレビュー。製品に求めるエラー案内は変更しません。</p>
+</article>
+<article data-severity="medium" data-category="code-quality">
+  <label><input type="checkbox"> 取込画面の操作ID生成を注入する</label>
+  <p><strong>対象:</strong> <code>src/front/pages/ImportPage.tsx:98</code>（r2レビュー時の行）</p>
+  <p><strong>根拠:</strong> ImportFormのpreview成功時にcrypto.randomUUID()を直接呼び、非決定的な処理を外部から渡す設計規約を満たしていません。importer・preview・commitは既に注入しています。動作不良を再現した指摘ではありません。</p>
+  <p><strong>対応案:</strong> 操作ID生成をprops等で注入し、確認から確定・再試行まで同じIDを保持する契約を制御可能にします。</p>
+  <p><strong>出典:</strong> Issue 15 r2のcode-qualityレビュー。</p>
+</article>
+</html>

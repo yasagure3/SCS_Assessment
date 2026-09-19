@@ -11,6 +11,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { CriteriaPage } from "./pages/CriteriaPage";
 import { CriterionPage } from "./pages/CriterionPage";
+import { ImportPage } from "./pages/ImportPage";
 import { EvidencePage } from "./pages/EvidencePage";
 
 export const router = createBrowserRouter([
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
     { path: "/customers/:customerId", element: <CustomerPage /> },
     { path: "/cases/:caseId", element: <CasePage /> },
     { path: "/assessments/:assessmentId", element: <DashboardPage /> },
+    { path: "/assessments/:assessmentId/import", element: <ImportPage /> },
     { path: "/assessments/:assessmentId/criteria", element: <CriteriaPage /> },
     { path: "/assessments/:assessmentId/criteria/:criterionId", element: <CriterionPage /> },
     { path: "/assessments/:assessmentId/evidence", element: <EvidencePage /> },
