@@ -17,9 +17,9 @@
 ## MFA端末紛失・不正利用
 
 - 既存の連絡経路で本人確認し、対応者と日時を記録する。メールから申告された情報だけで解除しない。
-- 管理者が対象アカウントを停止し、`revoked_before` を現在のUNIX秒に進める。別のactive adminを確保し、最後の管理者保護を解除しない。
+- 管理者が対象アカウントを停止し、`revoked_before` を `max(既存の境界値, floor(サーバー現在時刻のUNIX秒) + 5)` に進める。JWTが許容する5秒の時計ずれを含め、停止時点で受理できるすべての既存セッションを失効させる。別のactive adminを確保し、最後の管理者保護を解除しない。
 - 実CognitoでAdminUserGlobalSignOutを実行する。紛失端末のTOTP設定を運用者が回復し、次回ログインで再登録する。無認証の回復APIは用意しない。
-- 本人のTOTP再登録を確認した後で再有効化する。`revoked_before` は消さない。古いaccess tokenとrefresh由来の古いauth_timeをアプリが拒否することを確認する。
+- 本人のTOTP再登録を確認した後で再有効化する。`revoked_before` は消さず、過去の値へ戻さない。`auth_time <= revoked_before` の古いaccess tokenとrefresh由来の同じauth_timeをアプリが拒否することを確認する。新規ログインのauth_timeも境界以下なら拒否されるため、境界を過ぎてから改めてログインする（失効直後は数秒の待機が必要な場合がある）。
 
 管理画面からの停止・割当変更はA02で接続する。運用設定・AWS権限・復旧実機テストはF04の完了条件。
 
@@ -27,7 +27,7 @@
 
 `POST /api/v1/session/revoke` はIdempotency-Keyを要求する。D1でcutoff・操作記録・監査・`auth_revocations` を同時保存した後、Cognito GlobalSignOutを最大5秒で試行する。失敗してもアプリの既存セッション遮断を維持し、failedと固定エラーコードを保存する。トークン本文は保存しない。
 
-pending/processing/failedを運用者が確認し、対象subに対するAdminUserGlobalSignOutを実施する。再試行結果は作業記録と追加監査に残す。新規ログイン以外はcutoffを超えないため、同じ失効済みtokenによるAPI再送も401になる。JWTの署名・有効期限チェックだけではCognitoの失効を検知できないため、このアプリ側cutoffを必ず適用する。
+cutoffは `max(既存の境界値, floor(サーバー現在時刻のUNIX秒) + 5)` とし、`auth_time <= cutoff` を拒否する。pending/processing/failedを運用者が確認し、対象subに対するAdminUserGlobalSignOutを実施する。再試行結果は作業記録と追加監査に残す。新規ログイン以外はcutoffを超えないため、同じ失効済みtokenによるAPI再送も401になる。JWTの署名・有効期限チェックだけではCognitoの失効を検知できないため、このアプリ側cutoffを必ず適用する。
 
 ## 参考と検証の境界
 
