@@ -12,10 +12,13 @@ import {
 import type { CaseRepository, WriteContext } from "../domain/case";
 import { createCase, updateScope } from "../usecase/manageCases";
 import { operationHash, type AssessmentRepository } from "../../assessment/domain/assessment";
+import type { StandardRepository } from "../../assessment/domain/standard";
+import { summarize } from "../../assessment/domain/summarize";
 
 export function caseRoutes(
   cases: (bindings: Bindings) => CaseRepository,
   assessments: (bindings: Bindings) => AssessmentRepository,
+  standards: (bindings: Bindings) => StandardRepository,
 ) {
   const app = new Hono<AppEnv>();
   async function context(
@@ -115,22 +118,18 @@ export function caseRoutes(
       requestId: c.get("requestId"),
     }),
   );
-  app.get("/assessments/:assessmentId", async (c) =>
-    c.json({
-      data: await assessments(c.env).get(id(c, "assessmentId"), c.get("principal").id),
-      requestId: c.get("requestId"),
-    }),
-  );
   app.patch("/assessments/:assessmentId/scope", async (c) => {
     const body = editScopeSchema.parse(await readJson(c));
+    const saved = await updateScope(
+      assessments(c.env),
+      id(c, "assessmentId"),
+      body,
+      c.get("principal").id,
+      c.get("requestId"),
+    );
+    const standard = await standards(c.env).get(saved.standardId);
     return c.json({
-      data: await updateScope(
-        assessments(c.env),
-        id(c, "assessmentId"),
-        body,
-        c.get("principal").id,
-        c.get("requestId"),
-      ),
+      data: { ...saved, ...summarize(saved.document, standard.criteria) },
       requestId: c.get("requestId"),
     });
   });

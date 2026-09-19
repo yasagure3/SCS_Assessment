@@ -58,6 +58,10 @@ export function useWrite() {
       operation.current = { signature: "", key: "" };
       return result;
     } catch (reason) {
+      // A rejected key is known to belong to a different operation; retry only on the user's next save.
+      // Unknown network outcomes retain their key so successful writes can be replayed safely.
+      if (reason instanceof ApiError && reason.code === "IDEMPOTENCY_CONFLICT")
+        operation.current = { signature: "", key: "" };
       setError(reason instanceof Error ? reason : new Error("通信を完了できませんでした。"));
       return null;
     } finally {

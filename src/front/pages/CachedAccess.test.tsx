@@ -6,6 +6,9 @@ import { CasePage } from "./CasePage";
 import { DashboardPage } from "./DashboardPage";
 import { CustomerPage } from "./CustomerPage";
 import { CustomersPage } from "./CustomersPage";
+import { assessmentFixture } from "../components/assessments/assessmentFixtures";
+import { CriteriaPage } from "./CriteriaPage";
+import { CriterionPage } from "./CriterionPage";
 const state = vi.hoisted(() => ({ error: undefined as unknown, failedPath: "all" }));
 vi.mock("../lib/api", async (original) => {
   const real = await original<typeof import("../lib/api")>();
@@ -23,25 +26,23 @@ vi.mock("../lib/api", async (original) => {
       };
       const record = { ...customer, id: "k", name: "案件秘匿名", customerId: "c" };
       const assessment = {
+        ...assessmentFixture().record,
         id: "a",
         caseId: "k",
         customerId: "c",
         revision: 1,
-        document: {
-          scope: { companies: "", sites: "", departments: "", systems: "" },
-          diagnosisDate: null,
-          responses: {},
-        },
       };
-      const data = path?.startsWith("/api/v1/assessments/")
-        ? assessment
-        : path?.startsWith("/api/v1/customers?q=")
-          ? { items: [customer], nextCursor: null }
-          : path?.endsWith("/assessments") || path?.endsWith("/cases")
-            ? { items: [], nextCursor: null }
-            : path?.startsWith("/api/v1/cases/")
-              ? record
-              : customer;
+      const data = path?.startsWith("/api/v1/standards/")
+        ? assessmentFixture().standard
+        : path?.startsWith("/api/v1/assessments/")
+          ? assessment
+          : path?.startsWith("/api/v1/customers?q=")
+            ? { items: [customer], nextCursor: null }
+            : path?.endsWith("/assessments") || path?.endsWith("/cases")
+              ? { items: [], nextCursor: null }
+              : path?.startsWith("/api/v1/cases/")
+                ? record
+                : customer;
       return {
         data,
         error: state.failedPath === "all" || path === state.failedPath ? state.error : undefined,
@@ -75,7 +76,35 @@ describe("cached labels after access failure", () => {
       [
         "DashboardPage",
         DashboardPage,
-        ["all", "/api/v1/assessments/undefined", "/api/v1/cases/k", "/api/v1/customers/c"],
+        [
+          "all",
+          "/api/v1/assessments/undefined",
+          "/api/v1/cases/k",
+          "/api/v1/customers/c",
+          "/api/v1/standards/standard",
+        ],
+      ],
+      [
+        "CriteriaPage",
+        CriteriaPage,
+        [
+          "all",
+          "/api/v1/assessments/undefined",
+          "/api/v1/cases/k",
+          "/api/v1/customers/c",
+          "/api/v1/standards/standard",
+        ],
+      ],
+      [
+        "CriterionPage",
+        CriterionPage,
+        [
+          "all",
+          "/api/v1/assessments/undefined",
+          "/api/v1/cases/k",
+          "/api/v1/customers/c",
+          "/api/v1/standards/standard",
+        ],
       ],
     ] as const;
     for (const [name, Page, paths] of pages)
