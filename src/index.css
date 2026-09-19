@@ -62,6 +62,27 @@
   max-width: 22rem;
 }
 
+.access-record {
+  flex-wrap: wrap;
+  gap: 16px;
+  overflow-wrap: anywhere;
+}
+.access-user {
+  border-bottom: 1px solid #dce3ef;
+  padding: 18px 0;
+}
+.access-user summary {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.access-user .data-form {
+  margin-top: 20px;
+}
+
 :root {
   font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
   color: #18273e;
@@ -385,6 +406,9 @@ button,
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr);
   gap: 24px;
+}
+.access-intro {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
 }
 .search-form {
   display: flex;

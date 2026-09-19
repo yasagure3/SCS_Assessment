@@ -10,6 +10,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
           <nav aria-label="業務メニュー">
             <NavLink to="/customers">顧客・案件</NavLink>
             <NavLink to="/mypage">担当者アカウント</NavLink>
+            <NavLink to="/settings">管理・利用設定</NavLink>
           </nav>
           <p className="sidebar-note">
             SCS ★3

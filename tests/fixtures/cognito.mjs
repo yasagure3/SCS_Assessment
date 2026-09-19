@@ -50,7 +50,9 @@ export class CognitoUser {
       callbacks.onFailure({ code: "CodeMismatchException" });
       return;
     }
-    const token = `E2E_ONLY_TOKEN_${Math.floor(Date.now() / 1000)}`;
+    const token = this.username.startsWith("access-")
+      ? `E2E_ACCESS_TOKEN_${encodeURIComponent(this.username)}_${Math.floor(Date.now() / 1000)}`
+      : `E2E_ONLY_TOKEN_${Math.floor(Date.now() / 1000)}`;
     this.storage.setItem("fixture-user", this.username);
     this.storage.setItem("fixture-token", token);
     callbacks.onSuccess(new Session(token));

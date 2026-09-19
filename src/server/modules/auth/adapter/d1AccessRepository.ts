@@ -30,7 +30,13 @@ export class D1AccessRepository implements AccessRepository {
     return rows.results.map((row) => row.id);
   }
   async activate(user: AppUser, claims: AccessTokenClaims, requestId: string): Promise<void> {
-    const now = new Date().toISOString();
+    const now = new Date(this.now()).toISOString();
+    const invitation = await this.db
+      .prepare("SELECT status,expires_at AS expiresAt FROM invitations WHERE user_id=?")
+      .bind(user.id)
+      .first<{ status: string; expiresAt: string }>();
+    if (invitation && (invitation.status !== "sent" || invitation.expiresAt <= now))
+      throw new DomainError("ACCOUNT_DISABLED");
     await new D1OperationLedger(this.db).execute({
       actorId: user.id,
       key: `activate:${user.id}`,
@@ -38,8 +44,8 @@ export class D1AccessRepository implements AccessRepository {
       resourceId: user.id,
       response: { activated: true },
       conditionSql:
-        "EXISTS(SELECT 1 FROM app_users WHERE id=? AND cognito_sub=? AND status='invited' AND revision=? AND (revoked_before IS NULL OR revoked_before<?))",
-      conditionParams: [user.id, claims.sub, user.revision, claims.auth_time],
+        "EXISTS(SELECT 1 FROM app_users WHERE id=? AND cognito_sub=? AND status='invited' AND revision=? AND (revoked_before IS NULL OR revoked_before<?)) AND NOT EXISTS(SELECT 1 FROM invitations WHERE user_id=? AND (status<>'sent' OR expires_at<=?))",
+      conditionParams: [user.id, claims.sub, user.revision, claims.auth_time, user.id, now],
       writes: (reservationId) => [
         this.db
           .prepare(

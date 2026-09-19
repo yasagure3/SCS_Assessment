@@ -6,6 +6,19 @@ resource "aws_cognito_user_pool" "this" {
   username_attributes = ["email"]
   mfa_configuration   = "ON"
 
+  # A02: bind a recoverable provider reservation to one application identity.
+  schema {
+    name                     = "app_user_id"
+    attribute_data_type      = "String"
+    mutable                  = false
+    developer_only_attribute = false
+    required                 = false
+    string_attribute_constraints {
+      min_length = 1
+      max_length = 128
+    }
+  }
+
   password_policy {
     minimum_length                   = 12
     require_lowercase                = true
