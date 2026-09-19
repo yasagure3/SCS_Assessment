@@ -25,12 +25,13 @@ export function useWrite() {
   const { data: session } = useSWR("cognito-session", getCurrentSession);
   const [pending, setPending] = useState(false),
     [error, setError] = useState<Error | null>(null);
-  const operation = useRef({ signature: "", key: "" });
+  const operations = useRef(new Map<string, string>());
   const busy = useRef(false);
   async function send<T>(
     path: string,
-    method: "POST" | "PATCH",
+    method: "POST" | "PATCH" | "PUT",
     body: Record<string, unknown>,
+    options?: { newAttemptOnConfirmedFailure?: boolean },
   ): Promise<ApiSuccess<T> | null> {
     if (busy.current) return null;
     if (!session) {
@@ -38,8 +39,8 @@ export function useWrite() {
       return null;
     }
     const signature = JSON.stringify({ path, method, body });
-    if (signature !== operation.current.signature)
-      operation.current = { signature, key: crypto.randomUUID() };
+    const key = operations.current.get(signature) ?? crypto.randomUUID();
+    operations.current.set(signature, key);
     busy.current = true;
     setPending(true);
     setError(null);
@@ -49,15 +50,24 @@ export function useWrite() {
         headers: {
           Authorization: `Bearer ${session.accessToken}`,
           "Content-Type": "application/json",
-          "Idempotency-Key": operation.current.key,
+          "Idempotency-Key": key,
         },
         body: JSON.stringify(
-          method === "PATCH" ? { ...body, mutationId: operation.current.key } : body,
+          method === "PATCH" || method === "PUT" ? { ...body, mutationId: key } : body,
         ),
       });
-      operation.current = { signature: "", key: "" };
+      operations.current.delete(signature);
       return result;
     } catch (reason) {
+      if (
+        options?.newAttemptOnConfirmedFailure &&
+        reason instanceof ApiError &&
+        reason.requestId &&
+        ((reason.status === 502 && reason.code === "PROVIDER_FAILED") ||
+          (reason.status === 503 && reason.code === "SERVICE_UNAVAILABLE") ||
+          (reason.status === 504 && reason.code === "PROVIDER_TIMEOUT"))
+      )
+        operations.current.delete(signature);
       setError(reason instanceof Error ? reason : new Error("通信を完了できませんでした。"));
       return null;
     } finally {

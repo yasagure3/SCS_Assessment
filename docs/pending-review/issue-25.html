@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Issue 25 保留レビュー</title>
+<style>body{font:16px/1.8 system-ui,sans-serif;max-width:880px;margin:40px auto;padding:0 24px;color:#1d304a;background:#f5f7fb}article{background:white;border:1px solid #d7e0ef;border-radius:12px;padding:24px}h1{font-size:24px}code{overflow-wrap:anywhere}label{font-weight:700}</style>
+<h1>Issue 25 — 保留レビュー</h1>
+<p>管理者設定の独立レビューで確認した内部品質上の項目です。dev-implの運用に従い、mediumは今回の修正ループから保留しています。</p>
+<article data-severity="medium" data-category="code-quality">
+  <label><input type="checkbox"> 招待管理RepositoryのID生成を注入する</label>
+  <p><strong>対象:</strong> <code>src/server/modules/auth/adapter/d1AccessManagementRepository.ts:82</code>（初回レビュー時の行）</p>
+  <p><strong>根拠:</strong> audit、user、invitation、attemptの4種類でcrypto.randomUUID()を直接呼んでいます。時計は注入されていますが、ID生成は外界をDIする設計規約を満たしていません。</p>
+  <p><strong>対応案:</strong> RepositoryへnewId関数を注入し、4種類の採番を統一します。composition rootからcrypto.randomUUIDを渡します。</p>
+  <p><strong>出典:</strong> Issue 25 r1のcode-qualityレビュー。既存のledger等にある採番は本項目の対象外です。</p>
+</article>
+<article data-severity="medium" data-category="test-quality">
+  <label><input type="checkbox"> ブラウザ試験の利用者データを実行ごとに分離する</label>
+  <p><strong>対象:</strong> <code>tests/fixtures/worker.ts:46</code>（r2レビュー時の行）</p>
+  <p><strong>根拠:</strong> access-resetは利用者を追加し続けます。利用者一覧はUUID順の50件表示で、招待から停止する試験は対象利用者が先頭ページにいると仮定しています。独立した実D1検証では過去50人を置くと今回の利用者が2ページ目に移ることを確認しました。通常のブラウザ実行ではこの蓄積条件の失敗はまだ再現していません。</p>
+  <p><strong>対応案:</strong> 試験ごとの新規ローカルDBで履歴を分離し、同一実行内でもページをまたいで対象者を探すようにします。顧客一覧は更新日時順で、同じ問題には直結していません。</p>
+  <p><strong>出典:</strong> Issue 25 r2のtest-qualityレビュー。現在の15シナリオは成功しています。</p>
+</article>
+</html>

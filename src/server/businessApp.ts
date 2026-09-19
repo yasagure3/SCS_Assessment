@@ -3,9 +3,19 @@ import { createApp, type AppDependencies } from "./app";
 import { D1CaseRepository } from "./modules/cases/adapter/d1CaseRepository";
 import { D1AssessmentRepository } from "./modules/assessment/adapter/d1AssessmentRepository";
 import { caseRoutes } from "./modules/cases/adapter/routes";
+import { accessRoutes } from "./modules/auth/adapter/routes";
+import { D1AccessManagementRepository } from "./modules/auth/adapter/d1AccessManagementRepository";
+import type { CognitoAdministration } from "./modules/auth/domain/accessManagement";
+import type { Bindings } from "./app";
+import { cognitoAdmin } from "./modules/auth/adapter/cognitoAdmin";
 
 // The composition root selects persistent adapters. Tests replace only external identity services.
-export function createBusinessApp(dependencies: AppDependencies) {
+export function createBusinessApp(
+  dependencies: AppDependencies & {
+    administration?: (bindings: Bindings) => CognitoAdministration;
+    now?: () => number;
+  },
+) {
   const app = createApp(dependencies);
   app.use(
     "/api/v1/*",
@@ -20,6 +30,13 @@ export function createBusinessApp(dependencies: AppDependencies) {
           413,
         ),
     }),
+  );
+  app.route(
+    "/api/v1",
+    accessRoutes(
+      (bindings) => new D1AccessManagementRepository(bindings.DB, dependencies.now ?? Date.now),
+      dependencies.administration ?? (() => cognitoAdmin()),
+    ),
   );
   return app.route(
     "/api/v1",
