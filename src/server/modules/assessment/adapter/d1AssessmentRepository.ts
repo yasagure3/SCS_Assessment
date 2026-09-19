@@ -47,6 +47,13 @@ export class D1AssessmentRepository implements AssessmentRepository {
       input.requestHash,
     );
     if (replay !== null) return replay;
+    const archived = await this.db
+      .prepare(
+        "SELECT 1 FROM cases k JOIN customers c ON c.id=k.customer_id WHERE k.id=? AND (k.archived_at IS NOT NULL OR c.archived_at IS NOT NULL)",
+      )
+      .bind(current.caseId)
+      .first();
+    if (archived) throw new DomainError("ARCHIVED");
     if (current.revision !== input.expectedRevision) throw new DomainError("CONFLICT");
     const document = validateDocument(
       await finalizeChange(current.document, input.record.document),

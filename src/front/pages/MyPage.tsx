@@ -1,6 +1,6 @@
 import { useSWRConfig } from "swr";
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { signOut } from "../lib/cognitoClient";
 import { useAccess } from "../lib/useAccess";
 import { AppShell } from "../components/AppShell";
@@ -45,6 +45,11 @@ export function MyPage() {
       <section className="login-card">
         <p className="eyebrow">STAFF ACCOUNT</p>
         <h1>担当者アカウント</h1>
+        <p>
+          <Link className="button primary" to="/customers">
+            顧客・案件を開く
+          </Link>
+        </p>
         {me.data && (
           <>
             <p data-testid="my-email">{me.data.data.email}</p>
