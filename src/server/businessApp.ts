@@ -11,6 +11,8 @@ import { cognitoAdmin } from "./modules/auth/adapter/cognitoAdmin";
 import { assessmentRoutes } from "./modules/assessment/adapter/routes";
 import { D1StandardRepository } from "./modules/assessment/adapter/d1StandardRepository";
 import { evidenceRoutes } from "./modules/evidence/adapter/routes";
+import { adviceRoutes } from "./modules/advice/adapter/routes";
+import { D1AdviceRepository } from "./modules/advice/adapter/d1AdviceRepository";
 
 // The composition root selects persistent adapters. Tests replace only external identity services.
 export function createBusinessApp(
@@ -33,6 +35,15 @@ export function createBusinessApp(
           413,
         ),
     }),
+  );
+  app.route(
+    "/api/v1",
+    adviceRoutes(
+      (bindings) => new D1AssessmentRepository(bindings.DB),
+      (bindings) => new D1StandardRepository(bindings.DB),
+      (bindings) => new D1AdviceRepository(bindings.DB),
+      dependencies.now ?? Date.now,
+    ),
   );
   app.route(
     "/api/v1",
