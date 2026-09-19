@@ -1,0 +1,4 @@
+# Empty values keep login disabled. Configure a separately approved user pool.
+COGNITO_ISSUER=
+COGNITO_CLIENT_ID=
+COGNITO_JWKS_URL=

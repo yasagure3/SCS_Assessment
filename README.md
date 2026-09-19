@@ -2,7 +2,7 @@
 
 社内担当者が顧客のSCS ★3取得に向けた課題を可視化し、根拠・改善策・進捗を整理してPDFとExcelで報告する診断支援サービス。
 
-現在は**設計と局所技術検証の段階**です。アプリ本体の製造・クラウド公開はまだ行っていません。初回は★3、★4は次段階を予定します。正式な審査・取得判定を代行するものではありません。
+現在は**ローカル実装の段階**です。レビュー済み設計と親9件・子18件の[実装Issue](https://github.com/yasagure3/SCS_Assessment/issues)を登録し、`feat/star3-assessment` で開発しています。クラウド公開はまだ行っていません。初回は★3、★4は次段階を予定します。正式な審査・取得判定を代行するものではありません。
 
 ## 設計資料
 
@@ -13,7 +13,7 @@
 - [要件の回答記録](docs/design/REQUIREMENTS_INTERVIEW.md) / [制度調査](docs/design/DISCOVERY.md)
 - [PoCの結果と限界](docs/design/FEASIBILITY.md)
 
-基盤は指定の [fullstack-worker-template](https://github.com/skanehira/fullstack-worker-template)。テンプレート展開後にセットアップ・起動コマンドを実測して確定します。
+基盤は指定の [fullstack-worker-template](https://github.com/skanehira/fullstack-worker-template)。[ローカル開発手順](docs/DEVELOPMENT.md)と[出典](docs/TEMPLATE_ORIGIN.md)を参照してください。F01は新規checkoutで依存取得・型/lint・ビルド・Front 10件・API 9件・ブラウザ1件・ポート競合拒否を検証済みです。診断データの保存など業務機能は後続Issueで実装します。
 
 ## 局所PoC
 

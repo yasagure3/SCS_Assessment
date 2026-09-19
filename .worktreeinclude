@@ -1,0 +1,3 @@
+# No secrets or customer files are copied into a worktree.
+.env.local.example
+.dev.vars.example

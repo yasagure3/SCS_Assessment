@@ -3,7 +3,7 @@
 
 - 種別: 横断設計書 / 2026-09-18
 - 保存先: [yasagure3/SCS_Assessment](https://github.com/yasagure3/SCS_Assessment)
-- 状態: UIスケッチ確認済み。設計・局所PoCまで。アプリ本体は未製造。
+- 状態: UIスケッチ・設計レビュー完了。GitHub登録済み、F01からローカル製造を開始。
 - 要件の正本: [ヒアリング](REQUIREMENTS_INTERVIEW.md)、[ユースケース](USECASES.md)。外観は [UIスケッチ](UI_SKETCH.html)、技術検証は [FEASIBILITY.md](FEASIBILITY.md)。
 
 ## 目的とスコープ
@@ -16,7 +16,7 @@ Excel取込、現状集計、回答編集、証跡管理、定型助言と任意
 
 ## アーキテクチャと技術選定
 
-指定の `skanehira/fullstack-worker-template`、コミット `fab841832525a39d13b0c259336fc4b28fc37f0a` を基盤にする。参照cloneは `.reference/` に隔離し、基盤タスクで必要ファイルをルートへ展開する。上流MITライセンスを保持する。既存の設計・PoC・Git履歴を上書きしない。
+指定の `skanehira/fullstack-worker-template`、コミット `fab841832525a39d13b0c259336fc4b28fc37f0a` を基盤にする。参照cloneは `.reference/` に隔離し、基盤タスクで必要ファイルをルートへ展開する。出典と原READMEを保持する。取得版に独立LICENSEファイルはないため独自にMITを付与せず、公開配布前のNOTICE確認事項に含める。既存の設計・PoC・Git履歴を上書きしない。
 
 ```mermaid
 flowchart LR
@@ -52,7 +52,7 @@ flowchart LR
 
 ### 現時点で実行済み
 
-ルートにはまだアプリのpackage.jsonがない。以下はPoCだけの実測コマンド。依存・固定配布物の取得手順は各README。
+ルートへ指定テンプレートを展開済み。以下はPoCの実測コマンド。アプリ基盤の検証結果はF01完了時に追記する。依存・固定配布物の取得手順は各README。
 
 ```powershell
 node poc/excel/verify-anonymous.cjs
@@ -62,23 +62,24 @@ python poc/domain/check_sqlite.py
 
 PDFは `poc/report` を作業ディレクトリとし `./bootstrap.ps1`、`node build.mjs`、`node test.mjs`、`python verify.py`。Pythonは3.11以降＋pdfplumber、Popplerが必要。当該PCではバンドルruntimeのPythonを`-X utf8`で使用。結果と限界はFEASIBILITY.md参照。
 
-### セットアップissueの完了後に確定するコマンド
+### アプリ基盤の検証コマンド
 
-下記はテンプレートで定義を確認した予定値であり、本リポジトリで成功したという意味ではない。基盤タスクF01が新規checkoutから実行し、実測値・E2E準備を本節へ反映する。それまでは後続DoDの実行前提が成立しない。
+2026-09-18、Windows/Node 24.21.0/Vite+ 0.2.4/pnpm 11.2.2で、下記の依存固定・型・lint・ビルド・Front 10件・Workers 9件・local migration・E2E 1件が成功した。ブラウザ実測はMicrosoft Edgeを使用。ポート競合時の起動拒否も成功。さらにコミット `c417780` の新しいcheckout（独立したnode_modules/ローカルDB、ポート5183）で全コマンドを再実行して成功した。Windowsのautocrlfによる差分は `.gitattributes` で解消。手順は [DEVELOPMENT.md](../DEVELOPMENT.md)。
 
-| 用途 | 予定コマンド |
+| 用途 | コマンド |
 |---|---|
 | 依存 | 固定版Vite+を導入後 `vp install --frozen-lockfile` |
 | 型生成 | binding変更時 `vp exec wrangler types` |
-| ローカルDB | `vp exec wrangler d1 migrations apply scs-assessment-db --local`（binding名はF01で実測確定） |
+| ローカルDB | `vp exec wrangler d1 migrations apply scs-assessment-db --local` |
 | 起動 | `vp dev --port 5173 --strictPort`。別worktreeは別ポートを必ず指定 |
 | Frontテスト | `vp test --run` |
 | APIテスト | `vp exec vitest run -c vitest.workers.config.ts` |
 | 静的検証/ビルド | `vp check`、`vp build` |
-| E2E導入 | `vp exec playwright install chromium`（Playwright追加後） |
-| E2E実行 | `vp exec playwright test`。F01で設定を追加し実測確定 |
+| E2E導入 | `vp exec playwright install chromium`。既存Edgeでは `E2E_CHANNEL=msedge` を使用可 |
+| E2E実行 | `E2E_PORT=5181` を設定後 `vp exec playwright test tests/e2e/smoke.spec.ts` |
+| ポート競合 | `vp exec node scripts/check-port-conflict.mjs` |
 
-新しいworktreeでは依存をインストールし、`.dev.vars.example` / `.env.example`から秘密を含まないローカル設定を作り、ローカルD1へmigrationと匿名seedを適用する。実秘密をworktree間で自動コピーしない。`.worktreeinclude`は必要な非秘密ローカル設定だけを対象にする。ポートを `E2E_PORT` 環境変数で注入し、PlaywrightのwebServerは `reuseExistingServer:false`、`--strictPort`。既存サーバーへ相乗りしない。
+新しいworktreeでは依存をインストールし、`.dev.vars.example` / `.env.local.example`を参照してローカルD1へmigrationを適用する。認証未設定での検証はenvファイルのコピー不要。匿名seedはF02以降のテストで用意する。実秘密をworktree間で自動コピーしない。`.worktreeinclude`は非秘密の設定例だけを対象にする。ポートを `E2E_PORT` 環境変数で注入し、PlaywrightのwebServerは `reuseExistingServer:false`、`--strictPort`。既存サーバーへ相乗りしない。
 
 認証fakeはテスト専用compositionで注入し、production bundleや環境変数だけで有効化できる迂回ログインを作らない。Cognito motoはパスワード署名を検証しないため、本番MFAの合格根拠にはしない。Frontはjsdom、APIは `test/worker/` のWorkersランナーを分離する。Cognito実機試験は最後の接続検証に分ける。
 
