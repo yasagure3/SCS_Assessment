@@ -1,4 +1,5 @@
 import { jwtVerify, type JWTVerifyGetKey } from "jose";
+import { ACCESS_TOKEN_CLOCK_TOLERANCE_SECONDS } from "./tokenTime";
 
 export type AccessTokenClaims = {
   sub: string;
@@ -13,18 +14,21 @@ export type VerifyAccessTokenOptions = {
   issuer: string;
   clientId: string;
   getKey: JWTVerifyGetKey;
+  now?: () => number;
 };
 
 export async function verifyAccessToken(
   token: string,
-  { issuer, clientId, getKey }: VerifyAccessTokenOptions,
+  { issuer, clientId, getKey, now = Date.now }: VerifyAccessTokenOptions,
 ): Promise<AccessTokenClaims> {
   if (!issuer || !clientId) throw new Error("authentication configuration is missing");
+  const currentDate = new Date(now());
   const { payload } = await jwtVerify(token, getKey, {
     issuer,
     algorithms: ["RS256"],
     requiredClaims: ["sub", "exp", "iat", "auth_time", "client_id", "token_use"],
-    clockTolerance: 5,
+    clockTolerance: ACCESS_TOKEN_CLOCK_TOLERANCE_SECONDS,
+    currentDate,
   });
 
   if (payload.token_use !== "access") {
@@ -33,7 +37,7 @@ export async function verifyAccessToken(
   if (payload.client_id !== clientId) {
     throw new Error("client_id mismatch");
   }
-  const now = Math.floor(Date.now() / 1000);
+  const currentSecond = Math.floor(currentDate.getTime() / 1000);
   const { sub, exp, iat, auth_time: authTime } = payload;
   if (
     typeof sub !== "string" ||
@@ -47,7 +51,7 @@ export async function verifyAccessToken(
     !Number.isSafeInteger(authTime) ||
     iat <= 0 ||
     authTime <= 0 ||
-    iat > now + 5 ||
+    iat > currentSecond + ACCESS_TOKEN_CLOCK_TOLERANCE_SECONDS ||
     authTime > iat ||
     exp <= iat
   ) {

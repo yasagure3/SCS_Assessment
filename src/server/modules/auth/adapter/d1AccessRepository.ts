@@ -3,13 +3,16 @@ import { eq } from "drizzle-orm";
 import { appUsers } from "../../../db/schema";
 import type { AccessRepository, AppUser } from "../domain/authorize";
 import type { AccessTokenClaims } from "../domain/verifyAccessToken";
+import { ACCESS_TOKEN_CLOCK_TOLERANCE_SECONDS } from "../domain/tokenTime";
 import { D1OperationLedger } from "../../assessment/adapter/d1OperationLedger";
 import { operationHash, DomainError } from "../../assessment/domain/assessment";
 
 export class D1AccessRepository implements AccessRepository {
   private readonly db: D1Database;
-  constructor(db: D1Database) {
+  private readonly now: () => number;
+  constructor(db: D1Database, now: () => number = Date.now) {
     this.db = db;
+    this.now = now;
   }
   async findBySubject(sub: string): Promise<AppUser | null> {
     return (
@@ -66,8 +69,12 @@ export class D1AccessRepository implements AccessRepository {
     requestId: string,
   ): Promise<{ id: string; revokedAt: string }> {
     const id = crypto.randomUUID(),
-      cutoff = Math.max(Math.floor(Date.now() / 1000), user.revokedBefore ?? 0),
-      now = new Date().toISOString();
+      timestamp = this.now(),
+      cutoff = Math.max(
+        Math.floor(timestamp / 1000) + ACCESS_TOKEN_CLOCK_TOLERANCE_SECONDS,
+        user.revokedBefore ?? 0,
+      ),
+      now = new Date(timestamp).toISOString();
     return new D1OperationLedger(this.db).execute({
       actorId: user.id,
       key,
