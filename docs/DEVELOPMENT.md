@@ -7,7 +7,7 @@
 ```powershell
 git clone https://github.com/yasagure3/SCS_Assessment.git
 Set-Location SCS_Assessment
-git switch feat/star3-assessment
+git switch feat/staff-auth
 .\scripts\setup-vp.ps1
 .\scripts\vp.ps1 install --frozen-lockfile
 .\scripts\vp.ps1 exec wrangler d1 migrations apply scs-assessment-db --local
@@ -27,7 +27,7 @@ git switch feat/star3-assessment
 .\scripts\vp.ps1 build
 .\scripts\vp.ps1 exec playwright install chromium
 $env:E2E_PORT = '5181'
-.\scripts\vp.ps1 exec playwright test tests/e2e/smoke.spec.ts
+.\scripts\vp.ps1 exec playwright test
 ```
 
 既存のMicrosoft Edgeで実行する場合のみ `$env:E2E_CHANNEL = 'msedge'` を指定できる。通常とCIはPlaywrightに対応するChromiumを使用する。E2Eは指定ポートに新しいサーバーを起動するため、ポートが使用中の場合は失敗する。起動済みサーバーへの相乗りはしない。
@@ -51,3 +51,12 @@ $env:E2E_PORT = '5182'
 ## 公開範囲
 
 ビルドの静的配信先は `dist/client` のみ。GitHub Actionsは検証のみで、デプロイworkflowは設けない。顧客原本、証跡、キー、Terraform state、生成レポートはGit管理外。`terraform/` は候補構成のソースであり、この手順ではapplyしない。
+
+
+## 認証機能の検証
+
+運用・初期管理者の準備は [AUTH_OPERATIONS.md](AUTH_OPERATIONS.md)。通常の起動ではCognito設定が空ならログインを受け付けない。ユーザー情報は `/api/v1/me` で取得する。
+
+`vp exec playwright test` は通常アプリと別構成の匿名fixtureアプリを起動する。fixtureではSDKのみ代替し、Hono・D1・アカウント有効化・停止・失効は製品のコードを使う。fixture専用D1とViteキャッシュを `.local/` に分離し、ブラウザ試験は1 workerで直列実行する。`E2E_PORT` とその次のポートが空いている必要がある。fixture構成はserve専用でbuild不可、通常build後は `vp exec node scripts/check-production-build.mjs` でテスト認証の混入を検査する。
+
+初期管理者SQLの再送・二重作成防止は `vp exec node --test tests/scripts/bootstrap-admin.check.mjs` で匿名JSONとインメモリSQLiteを使って検証する。Node 24が必要。

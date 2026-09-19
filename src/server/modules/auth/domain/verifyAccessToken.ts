@@ -1,35 +1,69 @@
 import { jwtVerify, type JWTVerifyGetKey } from "jose";
+import { ACCESS_TOKEN_CLOCK_TOLERANCE_SECONDS } from "./tokenTime";
 
 export type AccessTokenClaims = {
   sub: string;
   client_id: string;
   token_use: "access";
   exp: number;
+  iat: number;
+  auth_time: number;
 };
 
 export type VerifyAccessTokenOptions = {
   issuer: string;
   clientId: string;
   getKey: JWTVerifyGetKey;
+  now?: () => number;
 };
 
 export async function verifyAccessToken(
   token: string,
-  { issuer, clientId, getKey }: VerifyAccessTokenOptions,
+  { issuer, clientId, getKey, now = Date.now }: VerifyAccessTokenOptions,
 ): Promise<AccessTokenClaims> {
-  const { payload } = await jwtVerify(token, getKey, { issuer });
+  if (!issuer || !clientId) throw new Error("authentication configuration is missing");
+  const currentDate = new Date(now());
+  const { payload } = await jwtVerify(token, getKey, {
+    issuer,
+    algorithms: ["RS256"],
+    requiredClaims: ["sub", "exp", "iat", "auth_time", "client_id", "token_use"],
+    clockTolerance: ACCESS_TOKEN_CLOCK_TOLERANCE_SECONDS,
+    currentDate,
+  });
 
   if (payload.token_use !== "access") {
-    throw new Error(`unexpected token_use: ${String(payload.token_use)}`);
+    throw new Error("unexpected token_use");
   }
   if (payload.client_id !== clientId) {
     throw new Error("client_id mismatch");
   }
+  const currentSecond = Math.floor(currentDate.getTime() / 1000);
+  const { sub, exp, iat, auth_time: authTime } = payload;
+  if (
+    typeof sub !== "string" ||
+    !sub.trim() ||
+    sub.length > 200 ||
+    typeof exp !== "number" ||
+    !Number.isSafeInteger(exp) ||
+    typeof iat !== "number" ||
+    !Number.isSafeInteger(iat) ||
+    typeof authTime !== "number" ||
+    !Number.isSafeInteger(authTime) ||
+    iat <= 0 ||
+    authTime <= 0 ||
+    iat > currentSecond + ACCESS_TOKEN_CLOCK_TOLERANCE_SECONDS ||
+    authTime > iat ||
+    exp <= iat
+  ) {
+    throw new Error("invalid token claims");
+  }
 
   return {
-    sub: payload.sub as string,
-    client_id: payload.client_id as string,
+    sub,
+    client_id: clientId,
     token_use: "access",
-    exp: payload.exp as number,
+    exp,
+    iat,
+    auth_time: authTime,
   };
 }

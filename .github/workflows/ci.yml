@@ -40,11 +40,16 @@ jobs:
       - name: Build
         run: vp build
 
+      - name: Production separation and administrator bootstrap
+        run: |
+          vp exec node scripts/check-production-build.mjs
+          vp exec node --test tests/scripts/bootstrap-admin.check.mjs
+
       - name: Install browser
         run: vp exec playwright install --with-deps chromium
 
-      - name: Browser smoke test
-        run: vp exec playwright test tests/e2e/smoke.spec.ts
+      - name: Browser smoke and feature flows
+        run: vp exec playwright test
         env:
           E2E_PORT: "5180"
 

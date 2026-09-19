@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -7,12 +8,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         本文へ移動
       </a>
       <header className="app-header">
-        <a className="brand" href="/home">
+        <Link className="brand" to="/home">
           <span className="brand-mark" aria-hidden="true">
             S
           </span>
           SCS Assessment
-        </a>
+        </Link>
         <span className="edition">★3 診断・助言サービス</span>
       </header>
       <main id="main-content" tabIndex={-1}>

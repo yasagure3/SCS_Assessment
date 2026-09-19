@@ -49,13 +49,23 @@ describe("auth flow across routes", () => {
     );
     vi.mocked(signIn).mockImplementation(async () => {
       authenticated = true;
-      return session;
+      return { kind: "signed-in", session };
     });
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ sub: "user-123" }),
+        json: () =>
+          Promise.resolve({
+            data: {
+              id: "user-123",
+              email: "test@example.com",
+              role: "staff",
+              status: "active",
+              customerIds: [],
+            },
+            requestId: "test",
+          }),
       } as Response),
     );
 
@@ -70,6 +80,6 @@ describe("auth flow across routes", () => {
     await user.click(screen.getByRole("button", { name: "ログイン" }));
 
     expect(await screen.findByText("test@example.com")).toBeInTheDocument();
-    expect(await screen.findByText("user-123")).toBeInTheDocument();
+    expect(await screen.findByTestId("my-role")).toBeInTheDocument();
   });
 });

@@ -9,16 +9,18 @@ let privateKey: CryptoKey;
 let jwks: { keys: JWK[] };
 
 async function signAccessToken(overrides: Record<string, unknown> = {}) {
+  const now = Math.floor(Date.now() / 1000);
   return new SignJWT({
     token_use: "access",
     client_id: clientId,
+    iss: issuer,
+    sub: "user-123",
+    iat: now,
+    auth_time: now,
+    exp: now + 3600,
     ...overrides,
   })
     .setProtectedHeader({ alg: "RS256", kid: "test-key" })
-    .setIssuedAt()
-    .setIssuer(issuer)
-    .setSubject("user-123")
-    .setExpirationTime("1h")
     .sign(privateKey);
 }
 
@@ -75,16 +77,29 @@ describe("verifyAccessToken", () => {
   });
 
   it("rejects an expired token", async () => {
-    const token = await new SignJWT({ token_use: "access", client_id: clientId })
-      .setProtectedHeader({ alg: "RS256", kid: "test-key" })
-      .setIssuedAt()
-      .setIssuer(issuer)
-      .setSubject("user-123")
-      .setExpirationTime("-1h")
-      .sign(privateKey);
+    const now = Math.floor(Date.now() / 1000);
+    const token = await signAccessToken({
+      iat: now - 7200,
+      auth_time: now - 7200,
+      exp: now - 3600,
+    });
 
     await expect(
       verifyAccessToken(token, { issuer, clientId, getKey: createLocalJWKSet(jwks) }),
     ).rejects.toThrow();
+  });
+  it.each(["sub", "exp", "iat", "auth_time"])("requires claim %s", async (claim) => {
+    const token = await signAccessToken({ [claim]: undefined });
+    await expect(
+      verifyAccessToken(token, { issuer, clientId, getKey: createLocalJWKSet(jwks) }),
+    ).rejects.toThrow();
+  });
+  it.each(["iat", "auth_time"])("rejects non-integer or future %s", async (claim) => {
+    for (const value of ["123", 1.5, -1, Math.floor(Date.now() / 1000) + 60]) {
+      const token = await signAccessToken({ [claim]: value });
+      await expect(
+        verifyAccessToken(token, { issuer, clientId, getKey: createLocalJWKSet(jwks) }),
+      ).rejects.toThrow();
+    }
   });
 });

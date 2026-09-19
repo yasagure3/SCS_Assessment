@@ -32,7 +32,7 @@ describe("MyPage", () => {
     vi.mocked(signOut).mockReset();
   });
 
-  it("shows the signed-in user's sub and email", async () => {
+  it("shows the authorized staff role and email", async () => {
     vi.mocked(getCurrentSession).mockResolvedValue({
       accessToken: "fake-access-token",
       email: "test@example.com",
@@ -41,13 +41,23 @@ describe("MyPage", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ sub: "user-123" }),
+        json: () =>
+          Promise.resolve({
+            data: {
+              id: "user-123",
+              email: "test@example.com",
+              role: "staff",
+              status: "active",
+              customerIds: [],
+            },
+            requestId: "test",
+          }),
       } as Response),
     );
 
     renderWithFreshSWRCache();
 
-    await waitFor(() => expect(screen.getByTestId("my-sub")).toHaveTextContent("user-123"));
+    await waitFor(() => expect(screen.getByTestId("my-role")).toHaveTextContent("担当者"));
     expect(screen.getByTestId("my-email")).toHaveTextContent("test@example.com");
   });
 
@@ -60,14 +70,24 @@ describe("MyPage", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ sub: "user-123" }),
+        json: () =>
+          Promise.resolve({
+            data: {
+              id: "user-123",
+              email: "test@example.com",
+              role: "staff",
+              status: "active",
+              customerIds: [],
+            },
+            requestId: "test",
+          }),
       } as Response),
     );
 
     const user = userEvent.setup();
     renderWithFreshSWRCache();
 
-    await user.click(await screen.findByRole("button", { name: /sign out/i }));
+    await user.click(await screen.findByRole("button", { name: "ログアウト" }));
 
     expect(signOut).toHaveBeenCalled();
     expect(await screen.findByTestId("login-stub")).toBeInTheDocument();

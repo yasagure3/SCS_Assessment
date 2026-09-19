@@ -29,5 +29,6 @@ EOF
 echo "moto (local Cognito emulator) bootstrap complete:"
 echo "  User Pool ID: ${USER_POOL_ID}"
 echo "  Client ID:    ${CLIENT_ID}"
-echo "  Test user:    test@example.com / Passw0rd1!"
+echo "  Local fixture user: test@example.com (see Terraform local-only settings)"
+echo "  moto is not proof of MFA or password enforcement. See docs/AUTH_OPERATIONS.md."
 echo "Wrote .dev.vars and .env.local"

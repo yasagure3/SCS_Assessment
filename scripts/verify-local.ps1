@@ -11,11 +11,13 @@ if ($Scope -eq 'all') {
 Invoke-ScsVp -Arguments @('install', '--frozen-lockfile')
 Invoke-ScsVp -Arguments @('check')
 Invoke-ScsVp -Arguments @('build')
+Invoke-ScsVp -Arguments @('exec','node','scripts/check-production-build.mjs')
+Invoke-ScsVp -Arguments @('exec','node','--test','tests/scripts/bootstrap-admin.check.mjs')
 Invoke-ScsVp -Arguments @('test', '--run')
 Invoke-ScsVp -Arguments @('exec', 'vitest', 'run', '-c', 'vitest.workers.config.ts')
 Invoke-ScsVp -Arguments @('exec', 'wrangler', 'd1', 'migrations', 'apply', 'scs-assessment-db', '--local')
 }
 $env:E2E_PORT = [string]$Port
 $env:E2E_CHANNEL = $Channel
-Invoke-ScsVp -Arguments @('exec', 'playwright', 'test', 'tests/e2e/smoke.spec.ts')
+Invoke-ScsVp -Arguments @('exec', 'playwright', 'test')
 Invoke-ScsVp -Arguments @('exec', 'node', 'scripts/check-port-conflict.mjs')

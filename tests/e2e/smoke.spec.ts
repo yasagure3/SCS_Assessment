@@ -9,7 +9,7 @@ test("SPA and Worker start together and anonymous access is protected", async ({
   const health = await request.get("/api/health");
   expect(health.status()).toBe(200);
   expect(await health.json()).toEqual({ status: "ok" });
-  const me = await request.get("/api/me");
+  const me = await request.get("/api/v1/me");
   expect(me.status()).toBe(401);
   await page.goto("/");
   await expect(

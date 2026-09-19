@@ -25,6 +25,6 @@ variable "test_user_email" {
 variable "test_user_password" {
   description = "create_test_user=true のとき作成するテストユーザーの恒久パスワード"
   type        = string
-  default     = "Passw0rd1!"
+  default     = "LocalOnly-Passw0rd1!"
   sensitive   = true
 }

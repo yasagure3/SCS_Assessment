@@ -31,6 +31,8 @@
 
 招待管理/ユーザー変更/割当変更はadminのみ。membersはcustomer revisionのCAS。scope外ID又は不存在ユーザーは422で保存しない。self session revokeは本人のみでrevoked_beforeを設定しCognito全セッション失効も試みる。provider失敗でもアプリ側遮断は維持し再試行状態を監査に残す。端末内ログアウトはtoken/SWR/フォームを破棄するローカル操作で他端末を止めない。
 
+JWT検証の時計差許容は5秒とし、失効境界は `max(既存のrevoked_before, floor(アプリ現在時刻/1000)+5)` にする。検証と失効は同じ許容幅を参照し、失効時点ですでに許容された未来のauth_timeも含めて遮断する。比較は引き続き `auth_time <= revoked_before` で、iatだけ更新されたrefresh後tokenも拒否する。返却するrevokedAtはこの境界のUTC時刻。境界と同秒までの新規ログインも拒否されるため、失効直後の再ログインは数秒待ち、auth_timeが境界を越えた新しいセッションを取得する必要がある。provider失敗や時間経過で古いセッションが再有効化されることはない。
+
 初期管理者は公開APIで作らず、運用者用bootstrap手順でCognito招待とapp_usersを一度だけ作る。最後のactive adminの停止/降格は409 LAST_ADMIN。停止後の再有効化は管理者操作で可能だが、回復時はrevoked_beforeを維持する。
 
 ## 実装の配置
@@ -51,3 +53,5 @@
 ## テスト方針
 
 単体/Workers結合: JWT各claim/署名/期限/失効、未割当/停止/最後のadmin、割当CAS、招待重複/部分失敗/再発行。FrontはfakeのNEW_PASSWORD_REQUIRED/MFA_SETUP/TOTP challenge。E2E golden path: テスト招待→MFA→割当顧客だけ表示→停止で既存tokenも拒否。本番出荷前に実Cognitoで同フローと端末紛失回復を確認し、moto成功を代替にしない。
+
+時計差の回帰試験はローカル署名JWTと実D1の製品APIで、auth_time/iatの現在比-1/0/+1/+5/+6秒とprovider成功/失敗を組み合わせる。許容された旧tokenはprovider呼出し中から401、10秒経過後の旧token・同auth_timeのrefresh後tokenも401、許容外+6秒は失効前から401とする。新規ログインのauth_timeが失効境界と等しい場合の401、境界を越える場合の200、時計が戻った場合に既存境界が後退しないことも確認する。

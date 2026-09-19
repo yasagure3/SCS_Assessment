@@ -2,11 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vite-plus/test";
 import { render, screen, waitFor } from "@testing-library/react";
 import { SWRConfig } from "swr";
 import { HomePage } from "./HomePage";
+import { MemoryRouter } from "react-router";
 
 function renderWithFreshSWRCache() {
   return render(
     <SWRConfig value={{ provider: () => new Map() }}>
-      <HomePage />
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>
     </SWRConfig>,
   );
 }

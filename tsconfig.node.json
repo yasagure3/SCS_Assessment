@@ -25,6 +25,7 @@
     "drizzle.config.ts",
     "vitest.workers.config.ts",
     "playwright.config.ts",
-    "tests/e2e/**/*.ts"
+    "tests/e2e/**/*.ts",
+    "tests/fixtures/vite.config.ts"
   ]
 }
