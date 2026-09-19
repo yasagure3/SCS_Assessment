@@ -46,7 +46,7 @@ export async function commitImport(
 ) {
   const record = await repository.get(id, actorId);
   const requestHash = await operationHash("POST", `/api/v1/assessments/${id}/imports`, id, input);
-  const replay = await repository.replay(actorId, input.mutationId, requestHash);
+  const replay = await repository.replay(id, actorId, input.mutationId, requestHash);
   if (replay) {
     const standard = await standards.get(replay.standardId);
     const assessment = { ...replay, ...summarize(replay.document, standard.criteria) };

@@ -92,6 +92,9 @@ export function CriterionPage() {
             <div className="criterion-detail">
               <section className="panel" id="criterion-evidence">
                 <h2>関連する証跡</h2>
+                <Link to={`/assessments/${record.id}/evidence?criterionId=${criterion.id}`}>
+                  証跡を登録・確認する
+                </Link>
                 {related.length ? (
                   related.map((item) => (
                     <div className="evidence-entry" key={item.id}>
@@ -106,7 +109,7 @@ export function CriterionPage() {
                       </p>
                       <p className="preline">{item.reviews[criterion.id].note}</p>
                       {item.url && (
-                        <a href={item.url} target="_blank" rel="noreferrer">
+                        <a href={item.url} target="_blank" rel="noopener noreferrer">
                           証跡の参照先を開く
                         </a>
                       )}

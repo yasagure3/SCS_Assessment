@@ -61,3 +61,5 @@ Windows、Playwrightのmsedge指定、UAのChromium版153.0.8010.12でキャッ�
 修正後の全体検証はFront75件・Workers96件・初期管理者準備3件・Edge E2E8件が成功した。匿名xlsxのO〜Rに書式付き文字列を含めたgolden pathも成功した。型/lint/整形・build・本番fixture除外・migration・占有ポート拒否を確認し、3画像を開いて確認した。独立r2レビューで前回high2件の解消を確認し、medium2件を `docs/pending-review/issue-15.html` に保留した。
 
 同環境の再測定では、entry上限拒否993ms、合計上限拒否2,581ms、取消159.1ms、10秒期限10,013ms、残存Worker0件。GC後の親ページusedSizeは12,028,308→12,078,160 bytes、backingStorageSizeは7,197,531→7,202,922 bytesだった。専用Workerのpeak/RSSを測った値ではない。最新mainとの統合後にも全体検証を行う。
+
+担当者管理・証跡管理を含むmain（96437c2）との統合後は、Front99件・Workers125件・初期準備3件・Edge E2E20件と全チェックが成功した。保存済み操作の再送は診断IDを受けて現在認可を確認する共通Repositoryへ統一した。Excelプレビューは読取用POSTとして共有送信処理に明示し、更新用mutationIdを追加しない。E2Eでプレビュー/確定の送信キー全体と保存原文を完全一致で検証した。

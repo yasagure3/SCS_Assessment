@@ -20,6 +20,17 @@ export type AppDependencies = {
   sessions: (bindings: Bindings) => SessionProvider;
 };
 const errors: Record<string, [ContentfulStatusCode, string]> = {
+  PROVIDER_TIMEOUT: [
+    504,
+    "招待処理が時間内に完了しませんでした。招待一覧で状態を確認してください。",
+  ],
+  LAST_ADMIN: [409, "最後の有効な管理者は停止・降格できません。"],
+  INVITATION_EXISTS: [409, "このメールアドレスは登録済みです。招待一覧を確認してください。"],
+  INVITATION_NOT_RETRYABLE: [409, "この招待は再発行できません。状態を再読み込みしてください。"],
+  PROVIDER_FAILED: [
+    502,
+    "招待を送信できませんでした。招待一覧から状態を確認し、明示的に再発行してください。",
+  ],
   MALFORMED_JSON: [400, "JSONの形式を確認してください。"],
   UNAUTHORIZED: [401, "ログインし直してください。"],
   ACCOUNT_DISABLED: [403, "利用可能な招待またはアカウントがありません。管理者へ確認してください。"],

@@ -3,8 +3,27 @@ import { DomainError } from "../../src/shared/errors";
 import { D1AccessRepository } from "../../src/server/modules/auth/adapter/d1AccessRepository";
 import { seedAssessment } from "./assessment";
 // Only loaded by the local test configuration. Real production routes have no fixture endpoints.
+const invitationDeliveries: { email: string; sub: string }[] = [];
 const app = createBusinessApp({
-  verify: async (token) => {
+  verify: async (token, bindings) => {
+    const access = /^E2E_ACCESS_TOKEN_(.+)_(\d+)$/.exec(token);
+    if (access) {
+      const user = await bindings.DB.prepare(
+        "SELECT cognito_sub AS sub FROM app_users WHERE email_normalized=?",
+      )
+        .bind(decodeURIComponent(access[1]))
+        .first<{ sub: string | null }>();
+      if (!user?.sub) throw new DomainError("UNAUTHORIZED");
+      const authTime = Number(access[2]);
+      return {
+        sub: user.sub,
+        client_id: "fixture-client",
+        token_use: "access",
+        auth_time: authTime,
+        iat: authTime,
+        exp: authTime + 3600,
+      };
+    }
     if (!/^E2E_ONLY_TOKEN_\d+$/.test(token)) throw new DomainError("UNAUTHORIZED");
     const authTime = Number(token.slice("E2E_ONLY_TOKEN_".length));
     return {
@@ -18,7 +37,37 @@ const app = createBusinessApp({
   },
   access: (bindings) => new D1AccessRepository(bindings.DB),
   sessions: () => ({ revoke: async () => {} }),
+  administration: () => ({
+    provision: async (user) => `fixture-invited-${user.id}`,
+    sendInvitation: async (user) => {
+      invitationDeliveries.push({ email: user.email, sub: user.sub });
+    },
+  }),
 });
+app.post("/__fixture/access-reset", async (c) => {
+  invitationDeliveries.length = 0;
+  const id = crypto.randomUUID(),
+    stamp = new Date().toISOString();
+  await c.env.DB.prepare(
+    "UPDATE app_users SET email_normalized=id||'@example.invalid',cognito_sub=NULL WHERE email_normalized='access-admin@example.invalid'",
+  ).run();
+  await c.env.DB.prepare(
+    "INSERT INTO app_users(id,cognito_sub,email_normalized,role,status,created_at,updated_at) VALUES(?,?,'access-admin@example.invalid','admin','active',?,?)",
+  )
+    .bind(id, `fixture-admin-${id}`, stamp, stamp)
+    .run();
+  const assigned = crypto.randomUUID(),
+    unassigned = crypto.randomUUID();
+  for (const [customerId, name] of [
+    [assigned, `割当会社-${assigned}`],
+    [unassigned, `非割当会社-${unassigned}`],
+  ])
+    await c.env.DB.prepare("INSERT INTO customers VALUES(?,?,NULL,1,?,?,?)")
+      .bind(customerId, name, id, stamp, stamp)
+      .run();
+  return c.json({ assigned, unassigned });
+});
+app.get("/__fixture/invitation-deliveries", (c) => c.json(invitationDeliveries));
 app.post("/__fixture/reset", async (c) => {
   const stamp = new Date().toISOString();
   // A new identity per run avoids reusing immutable activation receipts.

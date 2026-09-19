@@ -396,6 +396,7 @@ function ImportContent({
                   `/api/v1/assessments/${record.id}/imports/preview`,
                   "POST",
                   input,
+                  { readOnly: true },
                 )
               )?.data ?? null
             }

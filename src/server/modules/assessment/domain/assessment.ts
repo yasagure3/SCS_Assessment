@@ -42,6 +42,7 @@ export async function basisHash(document: AssessmentDocument, id: string): Promi
     .filter((item) => item.criterionIds.includes(id))
     .map((item) => ({
       id: item.id,
+      criterionIds: [...item.criterionIds].sort(),
       name: item.name,
       url: item.url,
       location: item.location,
@@ -195,6 +196,7 @@ export async function finalizeChange(
 }
 export interface AssessmentRepository {
   replay(
+    id: string,
     actorId: string,
     mutationId: string,
     requestHash: string,

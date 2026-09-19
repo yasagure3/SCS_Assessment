@@ -217,6 +217,8 @@ export const invitations = sqliteTable("invitations", {
   }).notNull(),
   expiresAt: required("expires_at"),
   providerRequestId: text("provider_request_id"),
+  attemptId: text("attempt_id"),
+  processingStartedAt: text("processing_started_at"),
   lastErrorCode: text("last_error_code"),
   createdBy: required("created_by").references(() => appUsers.id),
   createdAt: required("created_at"),
