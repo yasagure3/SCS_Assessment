@@ -1,3 +1,5 @@
 * text=auto eol=lf
 *.cmd text eol=crlf
 *.bat text eol=crlf
+# Official criterion literals contain intentional source whitespace; content hashes protect them.
+migrations/0002_public_standard.sql -whitespace

@@ -85,6 +85,8 @@ PDFは `poc/report` を作業ディレクトリとし `./bootstrap.ps1`、`node 
 
 ## データスキーマ
 
+F02検証（2026-09-18）: 固定81基準/26要求事項とcontent hash、seed再適用、同版の並行更新、通常/no-opの共通キー競合、途中失敗時の全取消、履歴/原値/レポートの不変性、1MiB/1.5MiB上限、他顧客/案件の関連拒否を含む19件がWorkers poolで成功。全体ではFront 10件、Workers 28件、ブラウザ1件、ポート競合拒否、型/lint/ビルド、ローカルDBの全migrationが成功。API・画面からの利用は後続タスクで接続する。
+
 全IDはサーバー採番UUID、JSONはschemaVersion付き、時刻はサーバーUTCのISO8601、日付は`YYYY-MM-DD`。期限超過の表示はJSTの当日で比較。IDの辞書順を時系列に使わない。TEXT長・JSON byte数をAPIで検査し、DBにもCHECK/UNIQUE/FKを置く。FKを有効にし、顧客/案件をまたぐ関連は複合FK又は書込時の対応検証で拒否する。
 
 | テーブル | 主要カラム・制約 | インデックス/用途 |
@@ -102,7 +104,7 @@ PDFは `poc/report` を作業ディレクトリとし `./bootstrap.ps1`、`node 
 | reports | id PK, assessment_id/customer_id FK, assessment_revision, snapshot_json TEXT, snapshot_sha256, schema_version, renderer_version, created_by, created_at | assessment_id/created_at/id。UTF8<=1.5MiB、UPDATE/DELETE禁止 |
 | invitations | id PK, user_id FK, status pending/processing/sent/failed/expired, expires_at, provider_request_id nullable, last_error_code nullable, created_by, created_at | user_id/status。仮パスワードやメール本文は保管しない |
 | ai_runs | id PK, assessment_id, criterion_id, input_hash, basis_hash, status pending/running/succeeded/failed/stale, provider_model nullable, draft_json nullable, requested_by, created_at | assessment_id/created_at。生の入力/プロンプトをログへ残さない |
-| operation_receipts | actor_id, operation_key, request_hash, resource_id, response_json, created_at, PK(actor_id,operation_key) | 全更新の共通冪等キー台帳。通常更新と成功no-opを同じUNIQUEで排他する |
+| operation_receipts | actor_id, operation_key, request_hash, resource_id, reservation_id UNIQUE, response_json, created_at, PK(actor_id,operation_key) | 全更新の共通冪等キー台帳。通常更新と成功no-opを同じUNIQUEで排他する。reservation_idはサーバーが各試行で新規採番 |
 | audit_events | id PK, actor_id, customer_id nullable, action, resource_type/id, from_revision nullable, to_revision nullable, request_id, created_at | resource_type/id/created_at。本文・token・証跡URLは含めない |
 
 1MiB=1,048,576 bytes。JSON全文の保管は小さい診断単位で原子性と履歴の再現性を優先した判断。項目横断の全文検索は初回に含めない。customer_idの複製値はcaseから導出し、body指定を信用しない。
@@ -152,7 +154,7 @@ Reviewのby/at/hash、basisHash、確認版はサーバー計算。basisHashは�
 | 管理者/割当変更 | ユーザー又は顧客revisionのCAS＋割当差分＋監査。最後のactive管理者を失わせる変更は同一batch内条件で拒否 |
 | 外部R2/Cognito/AI | DBと分散transactionは組まない。状態を先に予約→外部処理→結果確定。中断状態を可視化し同じ操作IDで回復。失敗を成功扱いしない |
 
-D1 batchの原子性は公式資料で確認済みだがremote実測は接続検証に残す。全更新・成功no-opでoperation_receiptsを共通のキー台帳にする。最初にreceiptを検索してhash一致なら保存結果を返し、不一致は409。書込batchでは、expectedRevisionと全業務条件を満たす場合だけreceiptをINSERT SELECTし、そのreceiptのkey/hash/resourceと前提revisionを条件に本体を書き換える。receiptと本体更新が同じtransactionで可視化される。0件予約なら後続書込も0件とし409、成功receiptを残さない。同じkeyの並行予約はPKで一方を失敗させ全rollback、確定済みreceiptを再読込する。historyのmutation_idは追跡/整合検査にも残すが排他の正本は共通台帳。異なるkeyによる旧版更新はCASで拒否する。
+D1 batchの原子性は公式資料とローカルWorkers試験で確認済みだがremote実測は接続検証に残す。全更新・成功no-opでoperation_receiptsを共通のキー台帳にする。最初にreceiptを検索してhash一致なら保存結果を返し、不一致は409。書込batchでは、expectedRevisionと全業務条件を満たす場合だけreceiptをINSERT SELECTし、今回の試行に固有なreservation_idと前提revisionを条件に本体/監査を書き換える。既存の同key/hashのreceiptが並行処理で作成されても、今回の予約が0行なら後続書込は全て0行となる。0行又は同keyの一意制約競合時は台帳を再読込し、同hashの確定結果があればそれを返し、なければ409。途中のエラーは本体/履歴/receipt/監査を全rollbackする。historyのmutation_idは追跡/整合検査にも残すが排他の正本は共通台帳。異なるkeyによる旧版更新はCASで拒否する。
 
 request_hashはHTTP method・正規化path・認可されたresource ID・body（mutationIdを除く）のcanonical SHA-256。成功no-opもexpectedRevisionを条件にreceiptを保存し、診断revisionは増やさず再送時は保存時の結果を返す。競合の0行と成功no-opを混同しない。レポート等の作成は新resource IDを先に生成し同じbatchに固定する。
 

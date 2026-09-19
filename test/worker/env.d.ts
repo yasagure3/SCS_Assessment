@@ -1,4 +1,4 @@
-import type { D1Migration } from "@cloudflare/vitest-pool-workers/config";
+import type { D1Migration } from "cloudflare:test";
 
 declare global {
   namespace Cloudflare {
