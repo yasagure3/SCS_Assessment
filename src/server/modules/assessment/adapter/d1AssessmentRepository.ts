@@ -25,6 +25,9 @@ export class D1AssessmentRepository implements AssessmentRepository {
       .all<{ id: string }>();
     return rows.results.map((row) => row.id);
   }
+  replay(actorId: string, mutationId: string, requestHash: string) {
+    return this.ledger.replay<AssessmentRecord>(actorId, mutationId, requestHash);
+  }
   async get(id: string, actorId: string): Promise<AssessmentRecord> {
     const row = await this.db
       .prepare(

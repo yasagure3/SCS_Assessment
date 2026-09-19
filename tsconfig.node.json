@@ -26,6 +26,7 @@
     "vitest.workers.config.ts",
     "playwright.config.ts",
     "tests/e2e/**/*.ts",
+    "tests/fixtures/importExcel.ts",
     "tests/fixtures/vite.config.ts"
   ]
 }

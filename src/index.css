@@ -1,5 +1,114 @@
 @import "tailwindcss";
 
+.import-workspace {
+  display: grid;
+  gap: 1.25rem;
+}
+.import-workspace .table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.import-workspace table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+.import-workspace th,
+.import-workspace td {
+  padding: 0.85rem;
+  border-bottom: 1px solid #e1e7ef;
+  vertical-align: top;
+}
+.import-workspace th {
+  background: #f5f7fb;
+  color: #50617a;
+  font-weight: 600;
+}
+.import-workspace .danger {
+  border-left: 3px solid #b64444;
+  color: #963c3c;
+}
+.import-steps {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  border-bottom: 1px solid #dce4ef;
+  gap: 2rem;
+  color: #66748a;
+}
+.import-steps li {
+  padding: 0.9rem 0;
+}
+.import-steps [aria-current] {
+  color: #1856ba;
+  border-bottom: 3px solid #1856ba;
+  font-weight: 700;
+}
+.import-select,
+.import-preview {
+  display: grid;
+  gap: 1.3rem;
+  padding: 1.5rem;
+}
+.import-select input[type="file"] {
+  display: block;
+  margin-top: 0.75rem;
+  max-width: 100%;
+}
+.import-counts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+.import-counts > div {
+  display: grid;
+  gap: 0.4rem;
+  border-left: 3px solid #cfddf0;
+  padding-left: 1rem;
+}
+.import-counts strong {
+  font-size: 2rem;
+  color: #173259;
+}
+.import-counts span {
+  font-size: 0.85rem;
+  color: #576b85;
+}
+.import-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.import-raw {
+  white-space: pre-wrap;
+  min-width: 12rem;
+  overflow-wrap: anywhere;
+}
+.import-preview details {
+  min-width: 0;
+}
+.import-preview details summary {
+  cursor: pointer;
+  color: #1856ba;
+  font-weight: 600;
+  padding: 0.5rem 0;
+}
+@media (max-width: 700px) {
+  .import-steps {
+    gap: 0.7rem;
+    font-size: 0.8rem;
+  }
+  .import-counts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .import-select,
+  .import-preview {
+    padding: 1rem;
+  }
+}
+
 :root {
   font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
   color: #18273e;

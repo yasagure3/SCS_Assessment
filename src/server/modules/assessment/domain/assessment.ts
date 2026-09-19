@@ -194,6 +194,11 @@ export async function finalizeChange(
   return next;
 }
 export interface AssessmentRepository {
+  replay(
+    actorId: string,
+    mutationId: string,
+    requestHash: string,
+  ): Promise<AssessmentRecord | null>;
   get(id: string, actorId: string): Promise<AssessmentRecord>;
   save(input: {
     record: AssessmentRecord;
