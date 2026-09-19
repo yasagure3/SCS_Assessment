@@ -1,6 +1,7 @@
 import { createBusinessApp } from "../../src/server/businessApp";
 import { DomainError } from "../../src/shared/errors";
 import { D1AccessRepository } from "../../src/server/modules/auth/adapter/d1AccessRepository";
+import { seedAssessment } from "./assessment";
 // Only loaded by the local test configuration. Real production routes have no fixture endpoints.
 const app = createBusinessApp({
   verify: async (token) => {
@@ -37,5 +38,12 @@ app.post("/__fixture/suspend", async (c) => {
     "UPDATE app_users SET status='suspended',revision=revision+1 WHERE cognito_sub='fixture-sub'",
   ).run();
   return c.json({ ok: true });
+});
+app.post("/__fixture/assessment/:id", async (c) => {
+  const actor = await c.env.DB.prepare(
+    "SELECT id FROM app_users WHERE cognito_sub='fixture-sub'",
+  ).first<{ id: string }>();
+  if (!actor) return c.json({ error: "fixture actor missing" }, 404);
+  return c.json(await seedAssessment(c.env.DB, c.req.param("id"), actor.id));
 });
 export default app;

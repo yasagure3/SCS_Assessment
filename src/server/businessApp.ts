@@ -3,6 +3,8 @@ import { createApp, type AppDependencies } from "./app";
 import { D1CaseRepository } from "./modules/cases/adapter/d1CaseRepository";
 import { D1AssessmentRepository } from "./modules/assessment/adapter/d1AssessmentRepository";
 import { caseRoutes } from "./modules/cases/adapter/routes";
+import { assessmentRoutes } from "./modules/assessment/adapter/routes";
+import { D1StandardRepository } from "./modules/assessment/adapter/d1StandardRepository";
 
 // The composition root selects persistent adapters. Tests replace only external identity services.
 export function createBusinessApp(dependencies: AppDependencies) {
@@ -21,11 +23,19 @@ export function createBusinessApp(dependencies: AppDependencies) {
         ),
     }),
   );
+  app.route(
+    "/api/v1",
+    assessmentRoutes(
+      (bindings) => new D1AssessmentRepository(bindings.DB),
+      (bindings) => new D1StandardRepository(bindings.DB),
+    ),
+  );
   return app.route(
     "/api/v1",
     caseRoutes(
       (bindings) => new D1CaseRepository(bindings.DB),
       (bindings) => new D1AssessmentRepository(bindings.DB),
+      (bindings) => new D1StandardRepository(bindings.DB),
     ),
   );
 }
