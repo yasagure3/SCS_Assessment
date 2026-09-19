@@ -8,6 +8,7 @@ export default defineConfig(({ command }) => {
   if (command !== "serve") throw new Error("The test fixture cannot be built or deployed.");
   return {
     cacheDir: resolve(".local/e2e-vite-cache"),
+    optimizeDeps: { include: ["exceljs", "fflate"] },
     plugins: [
       react(),
       tailwindcss(),

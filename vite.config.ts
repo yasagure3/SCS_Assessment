@@ -12,6 +12,9 @@ export default defineConfig({
   define: {
     global: "globalThis",
   },
+  // Worker-only lazy dependencies must be optimized before the first file selection.
+  // Discovering them during import otherwise reloads the page and discards its session/draft.
+  optimizeDeps: { include: ["exceljs", "fflate"] },
   fmt: {
     ignorePatterns: [
       ".reference/**",

@@ -31,7 +31,7 @@ export function useWrite() {
     path: string,
     method: "POST" | "PATCH" | "PUT" | "DELETE",
     body: Record<string, unknown>,
-    options?: { newAttemptOnConfirmedFailure?: boolean },
+    options?: { newAttemptOnConfirmedFailure?: boolean; readOnly?: boolean },
   ): Promise<ApiSuccess<T> | null> {
     if (busy.current) return null;
     if (!session) {
@@ -53,7 +53,9 @@ export function useWrite() {
           "Idempotency-Key": key,
         },
         body: JSON.stringify(
-          method !== "POST" || "expectedRevision" in body ? { ...body, mutationId: key } : body,
+          !options?.readOnly && (method !== "POST" || "expectedRevision" in body)
+            ? { ...body, mutationId: key }
+            : body,
         ),
       });
       operations.current.delete(signature);
