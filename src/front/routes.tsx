@@ -13,6 +13,7 @@ import { CriteriaPage } from "./pages/CriteriaPage";
 import { CriterionPage } from "./pages/CriterionPage";
 import { ImportPage } from "./pages/ImportPage";
 import { EvidencePage } from "./pages/EvidencePage";
+import { TasksPage } from "./pages/TasksPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/home" replace /> },
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
     { path: "/assessments/:assessmentId/criteria", element: <CriteriaPage /> },
     { path: "/assessments/:assessmentId/criteria/:criterionId", element: <CriterionPage /> },
     { path: "/assessments/:assessmentId/evidence", element: <EvidencePage /> },
+    { path: "/assessments/:assessmentId/tasks", element: <TasksPage /> },
   ].map((route) => ({
     ...route,
     element: <RequireAuth>{route.element}</RequireAuth>,

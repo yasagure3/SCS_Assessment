@@ -949,6 +949,81 @@ button,
   border-bottom: 1px solid #e2e8f0;
   font-size: 13px;
 }
+.task-toolbar,
+.task-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.task-toolbar {
+  justify-content: space-between;
+  margin: 20px 0;
+}
+.task-table {
+  min-width: 650px;
+}
+.task-table td:first-child {
+  width: 40%;
+}
+.task-table td:last-child {
+  min-width: 155px;
+}
+.task-editor {
+  margin-top: 24px;
+}
+.task-editor fieldset,
+.task-editor label {
+  min-width: 0;
+}
+.task-editor input,
+.task-editor select,
+.task-editor textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+.task-editor select {
+  width: 100%;
+}
+.task-fields-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.task-evidence {
+  padding: 14px;
+  border: 1px solid #d9e0ea;
+  border-radius: 6px;
+}
+.task-evidence label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-wrap: anywhere;
+}
+.task-evidence input[type="checkbox"] {
+  width: 18px;
+  min-height: 18px;
+  flex-shrink: 0;
+}
+.task-review-context {
+  padding: 16px;
+  background: #f6f8fb;
+  border-radius: 6px;
+}
+.task-review-context dt {
+  font-weight: 700;
+}
+.task-review-context dd {
+  margin: 4px 0 16px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .task-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 1100px) {
   .assessment-overview {
     grid-template-columns: 1fr;
