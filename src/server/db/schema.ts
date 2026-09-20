@@ -236,6 +236,7 @@ export const aiRuns = sqliteTable(
     }).notNull(),
     providerModel: text("provider_model"),
     draftJson: text("draft_json"),
+    errorCode: text("error_code"),
     requestedBy: required("requested_by").references(() => appUsers.id),
     createdAt: required("created_at"),
   },

@@ -13,12 +13,17 @@ import { D1StandardRepository } from "./modules/assessment/adapter/d1StandardRep
 import { evidenceRoutes } from "./modules/evidence/adapter/routes";
 import { adviceRoutes } from "./modules/advice/adapter/routes";
 import { D1AdviceRepository } from "./modules/advice/adapter/d1AdviceRepository";
+import { D1AiRunRepository } from "./modules/advice/adapter/d1AiRunRepository";
+import { unconfiguredAiProvider } from "./modules/advice/adapter/aiProvider";
+import type { AiPort } from "./modules/advice/domain/aiPort";
 
 // The composition root selects persistent adapters. Tests replace only external identity services.
 export function createBusinessApp(
   dependencies: AppDependencies & {
     administration?: (bindings: Bindings) => CognitoAdministration;
     now?: () => number;
+    ai?: (bindings: Bindings) => AiPort;
+    aiTimeoutMs?: number;
   },
 ) {
   const app = createApp(dependencies);
@@ -43,6 +48,9 @@ export function createBusinessApp(
       (bindings) => new D1StandardRepository(bindings.DB),
       (bindings) => new D1AdviceRepository(bindings.DB),
       dependencies.now ?? Date.now,
+      (bindings) => new D1AiRunRepository(bindings.DB, dependencies.now ?? Date.now),
+      dependencies.ai ?? unconfiguredAiProvider,
+      dependencies.aiTimeoutMs,
     ),
   );
   app.route(

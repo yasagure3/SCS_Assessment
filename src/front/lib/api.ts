@@ -31,7 +31,7 @@ export function useWrite() {
     path: string,
     method: "POST" | "PATCH" | "PUT" | "DELETE",
     body: Record<string, unknown>,
-    options?: { newAttemptOnConfirmedFailure?: boolean; readOnly?: boolean },
+    options?: { newAttemptOnConfirmedFailure?: boolean; readOnly?: boolean; operationKey?: string },
   ): Promise<ApiSuccess<T> | null> {
     if (busy.current) return null;
     if (!session) {
@@ -39,7 +39,7 @@ export function useWrite() {
       return null;
     }
     const signature = JSON.stringify({ path, method, body });
-    const key = operations.current.get(signature) ?? crypto.randomUUID();
+    const key = options?.operationKey ?? operations.current.get(signature) ?? crypto.randomUUID();
     operations.current.set(signature, key);
     busy.current = true;
     setPending(true);
@@ -80,5 +80,11 @@ export function useWrite() {
       setPending(false);
     }
   }
-  return { pending, error, send, clearError: () => setError(null) };
+  async function read<T>(path: string): Promise<ApiSuccess<T>> {
+    if (!session) throw new ApiError(401);
+    return fetcher<ApiSuccess<T>>(path, {
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+    });
+  }
+  return { pending, error, send, read, clearError: () => setError(null) };
 }
