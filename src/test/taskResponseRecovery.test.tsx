@@ -27,6 +27,26 @@ const families = [
   "confirm-limit",
 ] as const;
 type Family = (typeof families)[number];
+type FailedResponse = { name: string; response: () => Response; message: string };
+const genericFailure = "通信を完了できませんでした。もう一度お試しください。";
+const responseLosses: FailedResponse[] = [
+  {
+    name: "TypeError",
+    response: () => {
+      throw new TypeError("保存応答だけが切断されました。");
+    },
+    message: "保存応答だけが切断されました。",
+  },
+  {
+    name: "HTML502",
+    response: () =>
+      new Response("<html>Bad Gateway</html>", {
+        status: 502,
+        headers: { "Content-Type": "text/html" },
+      }),
+    message: genericFailure,
+  },
+];
 const size = (value: unknown) => new TextEncoder().encode(JSON.stringify(value)).byteLength;
 function makeScenario(kind: Family) {
   const { record, standard } = assessmentFixture();
@@ -171,7 +191,12 @@ function RecoveryForm({
 }
 async function loseResponse(
   scenario: ReturnType<typeof makeScenario>,
-  options: { readOnly?: boolean; replayDenied?: boolean } = {},
+  failure: FailedResponse,
+  options: {
+    readOnly?: boolean;
+    replayDenied?: boolean;
+    replayRejection?: { status: number; code: string };
+  } = {},
 ) {
   let stored = scenario.record;
   const writes: { path: string; method: string; key: string; body: Record<string, unknown> }[] = [];
@@ -205,12 +230,20 @@ async function loseResponse(
         };
         receipt.request = JSON.stringify(write);
         receipt.response = stored;
-        throw new TypeError("保存応答だけが切断されました。");
+        return failure.response();
       }
       if (options.replayDenied)
         return Response.json(
           { error: { code: "FORBIDDEN", message: "利用権限がありません。" }, requestId: "denied" },
           { status: 403 },
+        );
+      if (options.replayRejection)
+        return Response.json(
+          {
+            error: { code: options.replayRejection.code, message: "確定した業務拒否です。" },
+            requestId: "application-refusal",
+          },
+          { status: options.replayRejection.status },
         );
       if (JSON.stringify(write) === receipt.request)
         return Response.json({ data: receipt.response, requestId: "replayed" });
@@ -267,7 +300,7 @@ async function loseResponse(
   expect(screen.getByRole("button", { name: scenario.buttonName })).toBeEnabled();
   fireEvent.click(screen.getByRole("button", { name: scenario.buttonName }));
   await waitFor(() => expect(screen.getByLabelText("取得した診断版")).toHaveTextContent("2"));
-  expect(screen.getByText("保存応答だけが切断されました。")).toBeInTheDocument();
+  expect(screen.getByText(failure.message)).toBeInTheDocument();
   expect(stored.document).toEqual(
     applyTaskChange(scenario.record.document, scenario.command, taskSizeContext),
   );
@@ -283,12 +316,12 @@ async function loseResponse(
   expect(writes[0].key).toBe(writes[0].body.mutationId);
   return { writes };
 }
-describe("task response recovery", () => {
+describe.each(responseLosses)("task response recovery after $name", (failure) => {
   it.each(families)(
     "replays exactly the same body and mutation after committed %s response loss and successful GET",
     async (kind) => {
       const scenario = makeScenario(kind),
-        f = await loseResponse(scenario);
+        f = await loseResponse(scenario, failure);
       expect(screen.getByRole("button", { name: scenario.buttonName })).toBeEnabled();
       fireEvent.click(screen.getByRole("button", { name: scenario.buttonName }));
       expect((await screen.findByRole("status")).textContent).toBe(
@@ -302,7 +335,7 @@ describe("task response recovery", () => {
     "validates edited %s input as a new request and restores exact-body retry if the edit is reverted",
     async (kind) => {
       const scenario = makeScenario(kind),
-        f = await loseResponse(scenario);
+        f = await loseResponse(scenario, failure);
       const label = scenario.selection.review
         ? "確認メモ"
         : kind.startsWith("edit")
@@ -343,7 +376,7 @@ describe("task response recovery", () => {
     "sends edited %s with a different operation key and preserves the revision conflict",
     async (kind) => {
       const scenario = makeScenario(kind),
-        f = await loseResponse(scenario);
+        f = await loseResponse(scenario, failure);
       const label = kind === "add" ? "課題名" : "結果";
       fireEvent.change(screen.getByLabelText(label), { target: { value: "別の入力" } });
       expect(screen.getByRole("button", { name: scenario.buttonName })).toBeEnabled();
@@ -366,7 +399,7 @@ describe("task response recovery", () => {
     "keeps %s retry disabled when the refreshed case is read only",
     async (kind) => {
       const scenario = makeScenario(kind),
-        f = await loseResponse(scenario, { readOnly: true });
+        f = await loseResponse(scenario, failure, { readOnly: true });
       expect(screen.getByRole("button", { name: scenario.buttonName })).toBeDisabled();
       fireEvent.click(screen.getByRole("button", { name: scenario.buttonName }));
       expect(f.writes).toHaveLength(1);
@@ -374,11 +407,33 @@ describe("task response recovery", () => {
   );
   it("keeps server authorization authoritative on a confirmation replay", async () => {
     const scenario = makeScenario("confirm"),
-      f = await loseResponse(scenario, { replayDenied: true });
+      f = await loseResponse(scenario, failure, { replayDenied: true });
     expect(screen.getByRole("button", { name: scenario.buttonName })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: scenario.buttonName }));
     await screen.findByText("利用権限がありません。");
     expect(screen.getByRole("button", { name: scenario.buttonName })).toBeDisabled();
     expect(f.writes).toEqual([f.writes[0], f.writes[0]]);
   });
+  it.each([
+    [401, "UNAUTHORIZED"],
+    [403, "FORBIDDEN"],
+    [404, "NOT_FOUND"],
+    [409, "CONFLICT"],
+    [409, "IDEMPOTENCY_CONFLICT"],
+    [413, "PAYLOAD_TOO_LARGE"],
+    [422, "VALIDATION_ERROR"],
+    [429, "RATE_LIMIT"],
+  ] as const)(
+    "does not bypass current validation after a confirmed %s %s rejection",
+    async (status, code) => {
+      const scenario = makeScenario("confirm");
+      const f = await loseResponse(scenario, failure, { replayRejection: { status, code } });
+      expect(screen.getByRole("button", { name: scenario.buttonName })).toBeEnabled();
+      fireEvent.click(screen.getByRole("button", { name: scenario.buttonName }));
+      await screen.findByText("確定した業務拒否です。");
+      expect(screen.getByRole("button", { name: scenario.buttonName })).toBeDisabled();
+      expect(f.writes).toEqual([f.writes[0], f.writes[0]]);
+      expect(screen.getByLabelText("取得した診断版")).toHaveTextContent("2");
+    },
+  );
 });

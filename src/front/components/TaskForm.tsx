@@ -9,7 +9,7 @@ import {
   type TaskCommand,
 } from "../../shared/contracts/improvement";
 import { applyTaskChange, taskSizeContext } from "../../shared/taskChange";
-import { ApiError } from "../lib/fetcher";
+import { ApiError, isUnknownWriteOutcome } from "../lib/fetcher";
 
 export const taskStateLabels = {
   todo: "未着手",
@@ -95,9 +95,7 @@ export function TaskForm({
   // The exact previously validated request is a receipt replay, not a new transition.
   // useWrite retains its operation key; changed input must pass normal validation.
   const retryingUnknownOutcome =
-    submittedRequest === requestSignature &&
-    write.error !== null &&
-    !(write.error instanceof ApiError);
+    submittedRequest === requestSignature && isUnknownWriteOutcome(write.error);
   const checked = (
     command.kind === "add"
       ? addTaskSchema
