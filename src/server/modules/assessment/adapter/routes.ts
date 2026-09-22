@@ -9,11 +9,52 @@ import { reviewAssessment, updateResponse } from "../usecase/reviewAssessment";
 import type { ImportMasterRepository } from "../domain/importAssessment";
 import { previewImport, commitImport } from "../usecase/commitImport";
 import { previewImportSchema, commitImportSchema } from "../../../../shared/contracts/imports";
+import {
+  addTaskSchema,
+  editTaskSchema,
+  reviewTaskSchema,
+  type TaskCommand,
+} from "../../../../shared/contracts/improvement";
+import { manageTasks } from "../usecase/manageTasks";
 export function assessmentRoutes(
   assessments: (bindings: Bindings) => AssessmentRepository,
   standards: (bindings: Bindings) => StandardRepository & ImportMasterRepository,
+  runtime = { now: () => new Date().toISOString(), newId: () => crypto.randomUUID() },
 ) {
   const app = new Hono<AppEnv>();
+  for (const kind of ["add", "edit", "review"] as const) {
+    app.on(
+      kind === "edit" ? "PATCH" : "POST",
+      `/assessments/:assessmentId/tasks${kind === "add" ? "" : "/:taskId"}${kind === "review" ? "/review" : ""}`,
+      async (c) => {
+        const body = await readJson(c);
+        const command: TaskCommand =
+          kind === "add"
+            ? { kind, input: addTaskSchema.parse(body) }
+            : kind === "edit"
+              ? {
+                  kind,
+                  taskId: z.uuid().parse(c.req.param("taskId")),
+                  input: editTaskSchema.parse(body),
+                }
+              : {
+                  kind,
+                  taskId: z.uuid().parse(c.req.param("taskId")),
+                  input: reviewTaskSchema.parse(body),
+                };
+        return c.json({
+          data: await manageTasks(
+            assessments(c.env),
+            standards(c.env),
+            z.uuid().parse(c.req.param("assessmentId")),
+            command,
+            { actorId: c.get("principal").id, requestId: c.get("requestId"), ...runtime },
+          ),
+          requestId: c.get("requestId"),
+        });
+      },
+    );
+  }
   app.get("/standards/:id/import-master", async (c) =>
     c.json({
       data: await standards(c.env).getImportMaster(c.req.param("id")),
