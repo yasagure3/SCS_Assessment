@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router";
 import { AssessmentLayout } from "../components/assessments/AssessmentLayout";
 import { ResponseForm } from "../components/assessments/ResponseForm";
 import { useWrite } from "../lib/api";
+import { AdvicePanel } from "../components/AdvicePanel";
 export function CriterionPage() {
   const { criterionId } = useParams(),
     write = useWrite();
@@ -141,6 +142,16 @@ export function CriterionPage() {
                       ))}
                     </ol>
                     <p className="preline">{response.confirmedAdvice.content.completionCheck}</p>
+                    <h3>確定した証跡例</h3>
+                    <ul>
+                      {response.confirmedAdvice.content.evidenceExamples.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                    <p className="preline">{response.confirmedAdvice.content.notes}</p>
+                    <p className="subtle">
+                      確定版 {response.confirmedAdvice.version} · {response.confirmedAdvice.at}
+                    </p>
                   </>
                 ) : (
                   <p className="subtle">確定済みの助言はありません。</p>
@@ -156,6 +167,13 @@ export function CriterionPage() {
                     </ol>
                   </details>
                 )}
+                <AdvicePanel
+                  record={record}
+                  criterionId={criterion.id}
+                  readOnly={readOnly}
+                  onSaved={assessment.replace}
+                  onRefresh={refresh}
+                />
               </section>
             </div>
           </>

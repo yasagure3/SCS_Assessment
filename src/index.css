@@ -124,6 +124,10 @@
 .evidence-editor {
   margin: 1.25rem 0;
 }
+.file-attachment {
+  margin: 1.25rem 0;
+  overflow-wrap: anywhere;
+}
 .evidence-editor fieldset {
   min-width: 0;
   border: 0;
@@ -1023,6 +1027,29 @@ button,
   .task-fields-grid {
     grid-template-columns: 1fr;
   }
+}
+.advice-editor {
+  margin-top: 24px;
+  border-top: 1px solid #dce3ef;
+  padding-top: 20px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.advice-template {
+  background: #f6f8fb;
+  padding: 16px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+}
+.advice-review {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 10px;
+}
+.advice-review input {
+  width: auto;
+  flex-shrink: 0;
+  margin-top: 3px;
 }
 @media (max-width: 1100px) {
   .assessment-overview {

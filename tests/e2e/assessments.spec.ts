@@ -89,12 +89,14 @@ test("filters insufficiencies, edits against immutable original answers, resolve
   expect(concurrent.status()).toBe(200);
   await page.getByLabel("判定理由・確認メモ").fill("自分の未保存文");
   await page.getByRole("button", { name: "判定を保存", exact: true }).click();
-  await expect(page.getByRole("button", { name: "入力を保って再編集する" })).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: "入力を保って再編集する", exact: true }),
+  ).toBeEnabled();
   await expect(page.getByLabel("判定理由・確認メモ")).toHaveValue("自分の未保存文");
   await expect(page.getByRole("cell", { name: "別担当者の保存文", exact: true })).toBeVisible();
   await page.evaluate("window.scrollTo(0, 0)");
   await page.screenshot({ path: ".local/e2e-assessments-conflict.png", fullPage: true });
-  await page.getByRole("button", { name: "入力を保って再編集する" }).click();
+  await page.getByRole("button", { name: "入力を保って再編集する", exact: true }).click();
   await page.getByRole("button", { name: "判定を保存", exact: true }).click();
   await expect(page.getByRole("status")).toHaveText("保存しました。");
   await page.getByRole("link", { name: "現状ダッシュボード", exact: true }).click();

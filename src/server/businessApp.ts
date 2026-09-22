@@ -11,6 +11,11 @@ import { cognitoAdmin } from "./modules/auth/adapter/cognitoAdmin";
 import { assessmentRoutes } from "./modules/assessment/adapter/routes";
 import { D1StandardRepository } from "./modules/assessment/adapter/d1StandardRepository";
 import { evidenceRoutes } from "./modules/evidence/adapter/routes";
+import { fileRoutes } from "./modules/evidence/adapter/fileRoutes";
+import { D1FileRepository } from "./modules/evidence/adapter/d1FileRepository";
+import { R2EvidenceStore } from "./modules/evidence/adapter/r2EvidenceStore";
+import { adviceRoutes } from "./modules/advice/adapter/routes";
+import { D1AdviceRepository } from "./modules/advice/adapter/d1AdviceRepository";
 
 // The composition root selects persistent adapters. Tests replace only external identity services.
 export function createBusinessApp(
@@ -20,6 +25,14 @@ export function createBusinessApp(
   },
 ) {
   const app = createApp(dependencies);
+  // The file route counts/cancels its binary stream before the JSON body limiter.
+  app.route(
+    "/api/v1",
+    fileRoutes(
+      (b) => new D1FileRepository(b.DB),
+      (b) => new R2EvidenceStore(b.EVIDENCE_BUCKET),
+    ),
+  );
   app.use(
     "/api/v1/*",
     bodyLimit({
@@ -33,6 +46,15 @@ export function createBusinessApp(
           413,
         ),
     }),
+  );
+  app.route(
+    "/api/v1",
+    adviceRoutes(
+      (bindings) => new D1AssessmentRepository(bindings.DB),
+      (bindings) => new D1StandardRepository(bindings.DB),
+      (bindings) => new D1AdviceRepository(bindings.DB),
+      dependencies.now ?? Date.now,
+    ),
   );
   app.route(
     "/api/v1",

@@ -35,3 +35,9 @@
 親タスクによる追加修正後の全体検証も完了した。Front197件、Workers145件、bootstrap3件、Edge21件、check/build、製品へのfixture混入防止、ローカルmigration、使用中ポート拒否がすべて成功。追加・編集の通常幅/640px、確認・完了の6枚を親と独立レビュワーが画像として確認した。
 
 新サイクルの独立レビューr1は指摘0件。Front146件（正式101件、旧再現9件、新しい応答対照36件）とWorkers30件を独立実行し、API形式が不完全な422、構造化500、不正JSONの200、確定した422拒否との違いを全9操作で確認した。ログは親workspaceの `.local/review-20-resume-r1-*.log`、構造化結果は `.local/review-20-resume-r1.json`。最新版mainとの統合検証は次段階として別に記録する。実顧客データ・外部 AI・本番リソースは使用していない。
+
+## main 統合後の最終検証
+
+main `b189a7c4ec7b19128fa6e8423014408d0a6e750d` の定型助言と非公開ファイル添付を統合した。CSS末尾の追加競合は両機能の定義を保持して解消し、APIのfile routeはJSON body制限より前に残した。
+
+`scripts/verify-local.ps1 -Port 5234 -Channel msedge` はexit0。Front208件、Workers172件、bootstrap3件、Edge23件、check/build、fixture混入防止、local migration、portguardがすべて成功。新しく生成した課題追加640px・課題編集通常幅・確定助言の画像も親が確認した。生ログは親workspaceの `.local/issue-20-integrated-all.log`。本番接続は行っていない。
