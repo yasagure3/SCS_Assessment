@@ -16,6 +16,8 @@ import { D1FileRepository } from "./modules/evidence/adapter/d1FileRepository";
 import { R2EvidenceStore } from "./modules/evidence/adapter/r2EvidenceStore";
 import { adviceRoutes } from "./modules/advice/adapter/routes";
 import { D1AdviceRepository } from "./modules/advice/adapter/d1AdviceRepository";
+import { reportRoutes } from "./modules/reports/adapter/routes";
+import { D1ReportRepository } from "./modules/reports/adapter/d1ReportRepository";
 
 // The composition root selects persistent adapters. Tests replace only external identity services.
 export function createBusinessApp(
@@ -54,6 +56,14 @@ export function createBusinessApp(
       (bindings) => new D1StandardRepository(bindings.DB),
       (bindings) => new D1AdviceRepository(bindings.DB),
       dependencies.now ?? Date.now,
+    ),
+  );
+  app.route(
+    "/api/v1",
+    reportRoutes(
+      (bindings) => new D1ReportRepository(bindings.DB),
+      () => new Date((dependencies.now ?? Date.now)()).toISOString(),
+      () => crypto.randomUUID(),
     ),
   );
   app.route(

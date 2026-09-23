@@ -35,6 +35,10 @@ Excel: `サマリー`（版・範囲・集計・留意事項）、`評価基準`
 
 previewHashは診断revision、顧客/案件revisionと表示名、制度hash、選択主要課題、limitations、rendererVersionのcanonical hash。生成時刻/新reportIdはhashから除く。acknowledgedLimitationHashはそのlimitationsのcanonical hash、空の場合も必須。確定時に全条件を再計算し、不一致は409で再previewを促す。DBへの固定は診断・顧客・案件revisionを同時条件にしたINSERT SELECT＋receipt/監査batch。成功直後の読出しだけで旧previewを承認した扱いにしない。
 
+R01の実装詳細: `content` はsnapshotから `reportId/createdAt/createdBy` を除いた内容。previewHashにはこのcontent全体と顧客/案件revisionを用い、上記の条件に加えてファイル表示名・確認者メールの変更も次の確定要求で検出する。留意事項確認hashはクライアントでキー順を正規化したSHA-256を計算し、サーバーで再計算する。初期rendererVersionは `scs-report-1`。responsesの `adviceState` は `current/none/unconfirmed/stale`、有効なconfirmedAdviceの `reviewer` とtasksの `reviewer` に `{id,email}` を固定する。無効な確定助言と下書きの本文は含めない。
+
+主要課題の初期提案は未完了課題を優先度（high/normal/low）→期日→基準順に並べ、同じ基準の重複を除いて最大5件を選ぶ。利用者が空配列を選んだ場合は主要課題なしとして扱う。履歴はcreatedAt/id降順、cursorは同一診断かつ現在の顧客権限で再検証する。確定結果が通信断などで不明な間は確認済みの入力を固定して同じ操作キーで再試行し、明示的な409後は主要課題の選択を保って再previewする。
+
 PDF/ExcelのbytesはブラウザWorkerでsnapshotから作りローカル保存。サーバーで毎回最新版を引いて出力しない。snapshotは更新/削除APIなし、DB triggerでも禁止。古いreportも同じ内容で再生成できるが、renderer改訂による版面差が出る場合は元rendererVersionと現版を明示。バイト単位で同一という保証はしない。
 
 ## 実装の配置
@@ -54,3 +58,5 @@ PDF/ExcelのbytesはブラウザWorkerでsnapshotから作りローカル保存�
 ## テスト方針
 
 単体: 81/分類一致、範囲必須、未回答出力可、助言の未確定/stale除外。Workers結合: CAS、名前変更競合、snapshot UPDATE/DELETE拒否、後の編集が旧reportに不反映、権限。出力: PoCの長文/全81本文/文字列セル/同snapshot集計を移植し全文抽出と画像確認。E2E golden path: 留意事項付き確定→PDFとExcelを取得→同reportId/件数を照合、旧版再出力。
+
+R01単独のE2Eは `tests/e2e/report-snapshot.spec.ts`。匿名fixtureで留意事項付きの版確定→回答/顧客名の編集→同じreportIdの旧内容再取得を検証し、1440px/640pxの画面画像を保存する。PDF/Excel取得の検証はR02/R03で同じsnapshotを利用して追加する。
