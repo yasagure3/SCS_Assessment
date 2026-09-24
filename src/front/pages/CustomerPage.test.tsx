@@ -4,6 +4,7 @@ import { SWRConfig } from "swr";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { CustomerPage } from "./CustomerPage";
 vi.mock("../lib/cognitoClient", () => ({
+  getSessionGeneration: () => 1,
   getCurrentSession: async () => ({ accessToken: "test", email: "test@example.invalid" }),
 }));
 describe("customer editing", () => {

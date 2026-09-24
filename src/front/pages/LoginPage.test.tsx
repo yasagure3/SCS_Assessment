@@ -6,6 +6,7 @@ import { SWRConfig } from "swr";
 import { LoginPage } from "./LoginPage";
 import { signIn, completeNewPassword, completeTotp, signOut } from "../lib/cognitoClient";
 vi.mock("../lib/cognitoClient", () => ({
+  getSessionGeneration: () => 1,
   signIn: vi.fn(),
   completeNewPassword: vi.fn(),
   completeTotp: vi.fn(),

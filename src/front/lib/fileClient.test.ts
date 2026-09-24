@@ -12,6 +12,7 @@ describe("authenticated file transfer", () => {
       saved: { blob: Blob; name: string }[] = [];
     const bytes = new TextEncoder().encode("anonymous").buffer;
     const client = createFileClient({
+      generation: () => 1,
       fetch: async (input, init) => {
         const path =
           typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
@@ -87,6 +88,7 @@ describe("authenticated file transfer", () => {
   it("reports a denied download and never saves a blob", async () => {
     const saved: string[] = [];
     const client = createFileClient({
+      generation: () => 1,
       fetch: async () =>
         Response.json(
           {

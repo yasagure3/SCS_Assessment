@@ -1,10 +1,11 @@
-import { useState } from "react";
+// oxlint-disable-next-line no-restricted-imports -- Cancel the external download on page unmount.
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { AssessmentLayout } from "../components/assessments/AssessmentLayout";
 import { EvidenceForm, reviewLabels, type EvidenceSelection } from "../components/EvidenceForm";
 import { useWrite } from "../lib/api";
 import useSWR from "swr";
-import { getCurrentSession } from "../lib/cognitoClient";
+import { getCurrentSession, getSessionGeneration } from "../lib/cognitoClient";
 import { browserFileClient } from "../lib/fileClient";
 
 export function EvidencePage() {
@@ -12,16 +13,40 @@ export function EvidencePage() {
   const { data: session } = useSWR("cognito-session", getCurrentSession);
   const [downloadError, setDownloadError] = useState(""),
     [downloading, setDownloading] = useState<string | null>(null);
+  const downloadController = useRef<AbortController | null>(null);
+  useEffect(
+    () => () => {
+      downloadController.current?.abort();
+      downloadController.current = null;
+    },
+    [],
+  );
   async function download(id: string) {
     if (!session || downloading) return;
+    const abort = new AbortController(),
+      generation = getSessionGeneration();
+    downloadController.current = abort;
+    function current() {
+      if (downloadController.current !== abort) return false;
+      if (generation !== getSessionGeneration()) {
+        abort.abort();
+        downloadController.current = null;
+        return false;
+      }
+      return true;
+    }
     setDownloading(id);
     setDownloadError("");
     try {
-      await browserFileClient.download(session.accessToken, id);
+      await browserFileClient.download(session.accessToken, id, abort.signal);
     } catch (reason) {
+      if (!current()) return;
       setDownloadError(reason instanceof Error ? reason.message : "取得できませんでした。");
     } finally {
-      setDownloading(null);
+      if (current()) {
+        setDownloading(null);
+        downloadController.current = null;
+      }
     }
   }
   const [selection, setSelection] = useState<EvidenceSelection | null>(null),

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { SWRConfig } from "swr";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { EvidencePage } from "./EvidencePage";
@@ -77,6 +77,39 @@ function network(options: { failure?: string; existing?: boolean; loading?: Prom
   return { record, writes };
 }
 describe("evidence page", () => {
+  it("cancels an attachment download when leaving the page before metadata finishes", async () => {
+    const f = network({ existing: true });
+    f.record.document.evidence[0].fileId = "file-id";
+    const otherRequests = globalThis.fetch;
+    const files: string[] = [];
+    let signal!: AbortSignal;
+    let reached!: () => void, release!: () => void;
+    const started = new Promise<void>((resolve) => {
+      reached = resolve;
+    });
+    const waiting = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    vi.stubGlobal("fetch", async (url: string, init?: RequestInit) => {
+      if (!url.startsWith("/api/v1/files/")) return otherRequests(url, init);
+      files.push(url);
+      signal = init!.signal!;
+      reached();
+      await waiting;
+      return Response.json({ data: { name: "anonymous.txt" } });
+    });
+    const view = mount();
+    fireEvent.click(await screen.findByRole("button", { name: "匿名文書の添付をダウンロード" }));
+    await started;
+    view.unmount();
+    await act(async () => {
+      release();
+    });
+    expect({ files, aborted: signal.aborted }).toEqual({
+      files: ["/api/v1/files/file-id"],
+      aborted: true,
+    });
+  });
   it("retries a failed initial load and renders the document after recovery", async () => {
     const { record, standard } = assessmentFixture();
     let failed = true;

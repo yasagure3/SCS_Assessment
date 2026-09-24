@@ -25,6 +25,13 @@ export async function hashReportLimitations(value: ReportLimitations): Promise<s
   return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 type Props = { hashLimitations?: (value: ReportLimitations) => Promise<string> };
+const blockingLabels: Record<string, string> = {
+  "scope.companies": "対象会社",
+  "scope.sites": "対象拠点",
+  "scope.departments": "対象部署",
+  "scope.systems": "対象システム",
+  diagnosisDate: "診断日",
+};
 export function ReportsPage({ hashLimitations = hashReportLimitations }: Props) {
   return (
     <AssessmentLayout title="レポート">
@@ -156,7 +163,7 @@ function ReportWorkspace({
           <section className="panel report-compose" aria-label="レポートの事前確認">
             <h2>1. 報告内容を確認</h2>
             <p>
-              <Link to={`/cases/${record.caseId}`}>対象範囲・診断日を編集</Link>
+              <Link to={`/assessments/${record.id}#assessment-scope`}>対象範囲・診断日を編集</Link>
             </p>
             <details className="report-major-selection">
               <summary>主要課題を選ぶ（最大5件 / 現在 {majorIds?.length ?? 0}件）</summary>
@@ -215,26 +222,22 @@ function ReportWorkspace({
           {visiblePreview && (
             <section className="panel report-preview" aria-label="出力内容のプレビュー">
               <h2>2. 留意事項を確認して確定</h2>
-              {visiblePreview.blockingErrors.length > 0 && (
-                <div className="notice">
-                  {visiblePreview.blockingErrors.map((error) => (
-                    <p key={error.path}>
-                      {(
-                        {
-                          "scope.companies": "対象会社",
-                          "scope.sites": "対象拠点",
-                          "scope.departments": "対象部署",
-                          "scope.systems": "対象システム",
-                          diagnosisDate: "診断日",
-                        } as Record<string, string>
-                      )[error.path] ?? error.path}
-                      : {error.reason}
-                    </p>
-                  ))}
-                </div>
-              )}
               <ReportContentView content={visiblePreview.content} />
-              <div className="report-confirm">
+              <div className="report-confirm" role="group" aria-label="レポート版の確定">
+                {visiblePreview.blockingErrors.length > 0 && (
+                  <div className="notice" id="report-blocking-errors">
+                    <strong>必須項目を入力すると版を確定できます。</strong>
+                    {visiblePreview.blockingErrors.map((error) => (
+                      <p key={error.path}>
+                        {blockingLabels[error.path] ?? error.path}: {error.reason}
+                      </p>
+                    ))}
+                    <Link to={`/assessments/${record.id}#assessment-scope`}>
+                      不足項目を入力する
+                    </Link>
+                    <p>保存後、レポートに戻って事前確認してください。</p>
+                  </div>
+                )}
                 <label>
                   <input
                     type="checkbox"
@@ -246,6 +249,9 @@ function ReportWorkspace({
                 </label>
                 <button
                   className="button primary"
+                  aria-describedby={
+                    visiblePreview.blockingErrors.length ? "report-blocking-errors" : undefined
+                  }
                   disabled={
                     pending || readOnly || !acknowledged || visiblePreview.blockingErrors.length > 0
                   }
@@ -309,6 +315,13 @@ function ReportWorkspace({
               />
               {selected.data && !selected.error && (
                 <>
+                  <div className="notice">
+                    <h3>3. PDF・Excelを生成して保存</h3>
+                    <p>
+                      下の「PDFを生成」「Excelを生成」を選び、生成完了後にそれぞれの保存ボタンを押してください。版の確定だけではファイルは保存されません。
+                    </p>
+                    <a href="#report-downloads">生成・保存ボタンへ移動</a>
+                  </div>
                   <p className="report-id">
                     報告版 ID: <strong>{selected.data.reportId}</strong>
                   </p>
@@ -317,11 +330,16 @@ function ReportWorkspace({
                     {selected.data.snapshot.createdBy}
                   </p>
                   <ReportContentView content={selected.data.snapshot} />
-                  <ReportPdfExport key={selected.data.reportId} snapshot={selected.data.snapshot} />
-                  <ReportExcelExport
-                    key={`excel-${selected.data.reportId}`}
-                    snapshot={selected.data.snapshot}
-                  />
+                  <div id="report-downloads" tabIndex={-1}>
+                    <ReportPdfExport
+                      key={selected.data.reportId}
+                      snapshot={selected.data.snapshot}
+                    />
+                    <ReportExcelExport
+                      key={`excel-${selected.data.reportId}`}
+                      snapshot={selected.data.snapshot}
+                    />
+                  </div>
                 </>
               )}
             </section>

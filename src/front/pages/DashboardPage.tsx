@@ -1,9 +1,20 @@
-import { Link } from "react-router";
+import { useCallback } from "react";
+import { Link, useLocation } from "react-router";
 import { ScopeForm } from "../components/cases/ScopeForm";
 import { AssessmentLayout } from "../components/assessments/AssessmentLayout";
 import { statusLabels, evidenceLabels } from "../components/assessments/labels";
 import type { Status, EvidenceState } from "../../shared/contracts/assessments";
 export function DashboardPage() {
+  const { hash } = useLocation();
+  const scopeTarget = useCallback(
+    (node: HTMLElement | null) => {
+      if (node && hash === "#assessment-scope") {
+        node.focus();
+        node.scrollIntoView({ block: "start" });
+      }
+    },
+    [hash],
+  );
   return (
     <AssessmentLayout title="診断の現状">
       {({ record, standard, readOnly, assessment, refresh }) => (
@@ -101,7 +112,7 @@ export function DashboardPage() {
               </section>
             </aside>
           </div>
-          <section className="panel">
+          <section className="panel" id="assessment-scope" tabIndex={-1} ref={scopeTarget}>
             <h2>対象範囲と診断日</h2>
             <ScopeForm
               key={record.id}

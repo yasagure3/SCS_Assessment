@@ -1,12 +1,27 @@
 import { FILE_TYPES, type FileMetadata, type FileUploaded } from "../../shared/contracts/files";
 import type { ApiFailure, ApiSuccess } from "../../shared/contracts/api";
 import { ApiError } from "./fetcher";
+import { sessionFetch } from "./sessionFetch";
+import { getSessionGeneration } from "./cognitoClient";
 export function createFileClient(io: {
   fetch: typeof fetch;
+  generation: () => number;
   digest: (bytes: ArrayBuffer) => Promise<ArrayBuffer>;
   save: (blob: Blob, name: string) => void;
 }) {
-  async function request(token: string, path: string, init?: RequestInit) {
+  function operation(signal?: AbortSignal) {
+    const generation = io.generation();
+    return () => {
+      signal?.throwIfAborted();
+      if (generation !== io.generation())
+        throw new DOMException(
+          "ログイン状態が変わったため、ファイル操作を中止しました。",
+          "AbortError",
+        );
+    };
+  }
+  async function request(active: () => void, token: string, path: string, init?: RequestInit) {
+    active();
     const headers = new Headers(init?.headers);
     headers.set("Authorization", `Bearer ${token}`);
     const response = await io.fetch(path, {
@@ -14,11 +29,12 @@ export function createFileClient(io: {
       cache: "no-store",
       headers,
     });
-    if (!response.ok)
-      throw new ApiError(
-        response.status,
-        (await response.json().catch(() => undefined)) as ApiFailure | undefined,
-      );
+    active();
+    if (!response.ok) {
+      const failure = (await response.json().catch(() => undefined)) as ApiFailure | undefined;
+      active();
+      throw new ApiError(response.status, failure);
+    }
     return response;
   }
   return {
@@ -29,12 +45,16 @@ export function createFileClient(io: {
       key: string,
       signal: AbortSignal,
     ): Promise<FileUploaded> {
-      const bytes = await file.arrayBuffer(),
-        sha256 = Array.from(new Uint8Array(await io.digest(bytes)), (b) =>
-          b.toString(16).padStart(2, "0"),
-        ).join("");
-      signal.throwIfAborted();
-      const response = await request(token, `/api/v1/cases/${caseId}/files`, {
+      const active = operation(signal);
+      active();
+      const bytes = await file.arrayBuffer();
+      active();
+      const digest = await io.digest(bytes);
+      active();
+      const sha256 = Array.from(new Uint8Array(digest), (b) =>
+        b.toString(16).padStart(2, "0"),
+      ).join("");
+      const response = await request(active, token, `/api/v1/cases/${caseId}/files`, {
         method: "POST",
         signal,
         body: bytes,
@@ -45,19 +65,28 @@ export function createFileClient(io: {
           "Content-Type": FILE_TYPES[file.name.split(".").at(-1)!.toLowerCase()],
         },
       });
-      return ((await response.json()) as ApiSuccess<FileUploaded>).data;
+      active();
+      const result = (await response.json()) as ApiSuccess<FileUploaded>;
+      active();
+      return result.data;
     },
-    async download(token: string, id: string) {
-      const metadata = (
-        (await (await request(token, `/api/v1/files/${id}`)).json()) as ApiSuccess<FileMetadata>
-      ).data;
-      const response = await request(token, `/api/v1/files/${id}/content`);
-      io.save(await response.blob(), metadata.name);
+    async download(token: string, id: string, signal?: AbortSignal) {
+      const active = operation(signal);
+      const metadataResponse = await request(active, token, `/api/v1/files/${id}`, { signal });
+      active();
+      const metadata = (await metadataResponse.json()) as ApiSuccess<FileMetadata>;
+      active();
+      const response = await request(active, token, `/api/v1/files/${id}/content`, { signal });
+      active();
+      const blob = await response.blob();
+      active();
+      io.save(blob, metadata.data.name);
     },
   };
 }
 export const browserFileClient = createFileClient({
-  fetch: (...args) => fetch(...args),
+  fetch: sessionFetch,
+  generation: getSessionGeneration,
   digest: (bytes) => crypto.subtle.digest("SHA-256", bytes),
   save: (blob, name) => {
     const url = URL.createObjectURL(blob),

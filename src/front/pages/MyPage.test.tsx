@@ -7,6 +7,7 @@ import { MyPage } from "./MyPage";
 import { getCurrentSession, signOut } from "../lib/cognitoClient";
 
 vi.mock("../lib/cognitoClient", () => ({
+  getSessionGeneration: () => 1,
   getCurrentSession: vi.fn(),
   signOut: vi.fn(),
 }));

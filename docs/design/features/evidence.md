@@ -30,6 +30,10 @@ filesはuploading予約→実形式/byte検査→非公開R2へstream→server S
 
 fileとassessmentのcaseId/customerId一致、file.status=ready、レビュー対象がcriterionIds内であることをサーバー検査。ファイルIDだけでR2キーを推測させない。downloadは毎回認可、Content-Disposition:attachment、nosniff、no-store。URLはhttp/httpsのみで自動fetchしない。
 
+ブラウザのファイル操作は、開始時のログイン世代と取消signalを完了まで保持する。uploadのファイル読込み・SHA計算・送信応答とJSON本文、downloadのメタデータ応答とJSON本文・内容応答とBlob本文、それぞれの待機後に検査する。後続HTTPの開始とブラウザ保存、ready結果を呼出元へ返す直前にも検査し、ログアウトまたは同一／別利用者への再ログイン後は旧操作を中断する。後続HTTP直前の検査から共通HTTP処理の世代捕捉までは同じ同期呼出しで行い、非同期待機を挟まない。通常のtoken更新は世代を変えず、同じ本文・操作キーの再送とサーバー認可を維持する。
+
+添付コンポーネントと証跡画面は、自分が開始した処理の世代とAbortControllerを完了反映時にも検査する。画面離脱時はそのcontrollerをabortし、遅れて届いた成功・失敗を次の画面へ反映しない。手動取消の再選択案内は維持する。送信済みの要求をサーバー側で取り消したとは扱わず、旧操作の後続送信・端末保存・完了反映を止める。
+
 ## 実装の配置
 
 | 処理 | 層 | 実装先ファイル |
@@ -48,3 +52,5 @@ Office形式はZIP制限・macro/暗号化/外部参照拒否、TXTはUTF8でNUL
 ## テスト方針
 
 Workers結合: 別顧客/別案件/未ready拒否、偽装・超過・中断、再送、SHA検証、URL自動fetchなし、レビュー/関連解除/CAS。単体: 証跡変更のレビューと助言無効化。E2E golden path: 文書登録＋匿名PDF添付→認可download→基準の確認→自己評価は変わらない。
+
+`fileClientGeneration.test.ts`は実fileClientと共通sessionFetchを接続し、upload/downloadの各待機境界・SDK更新とsession公開待ちで、通常更新／ログアウト／同一利用者再ログイン／別利用者再ログイン／取消を比較する。送信本文・操作キー・tokenの全要求列、ready結果と実際の保存内容を照合する。認可エラー本文が遅れた場合の破棄、添付の遅延完了と画面離脱時の取消もFront試験で固定する。

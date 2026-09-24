@@ -1,4 +1,5 @@
 import type { ApiFailure } from "../../shared/contracts/api";
+import { sessionFetch } from "./sessionFetch";
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
@@ -33,7 +34,7 @@ export function isUnknownWriteOutcome(error: Error | null): boolean {
   return error.status >= 500 || !error.hasApiFailureResponse;
 }
 export async function fetcher<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, { ...init, cache: "no-store" });
+  const response = await sessionFetch(url, { ...init, cache: "no-store" });
   if (!response.ok) {
     const body = (await response.json().catch(() => undefined)) as ApiFailure | undefined;
     throw new ApiError(response.status, body);

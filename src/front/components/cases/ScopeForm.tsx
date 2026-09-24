@@ -56,6 +56,8 @@ export function ScopeForm({
           <label key={key}>
             {labels[key]}
             <textarea
+              aria-label={labels[key]}
+              aria-describedby={`scope-${key}-help`}
               rows={3}
               maxLength={4000}
               value={scope[key]}
@@ -65,7 +67,9 @@ export function ScopeForm({
                 setSaved(false);
               }}
             />
-            <span className="field-help">{Array.from(scope[key]).length} / 2000文字</span>
+            <span className="field-help" id={`scope-${key}-help`}>
+              {Array.from(scope[key]).length} / 2000文字
+            </span>
           </label>
         ))}
       </div>

@@ -52,12 +52,12 @@ export function MyPage() {
         </p>
         {me.data && (
           <>
-            <p data-testid="my-email">{me.data.data.email}</p>
-            <p data-testid="my-role">{me.data.data.role === "admin" ? "管理者" : "担当者"}</p>
+            <p data-testid="my-email">{me.data.email}</p>
+            <p data-testid="my-role">{me.data.role === "admin" ? "管理者" : "担当者"}</p>
             <p className="subtle">
-              {me.data.data.role === "admin"
+              {me.data.role === "admin"
                 ? "すべての顧客を管理できます。"
-                : `担当顧客：${me.data.data.customerIds.length}社`}
+                : `担当顧客：${me.data.customerIds.length}社`}
             </p>
           </>
         )}

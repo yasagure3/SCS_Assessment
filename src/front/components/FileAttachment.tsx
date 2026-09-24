@@ -1,6 +1,8 @@
-import { useRef, useState } from "react";
+// oxlint-disable-next-line no-restricted-imports -- Cancel the external transfer on component unmount.
+import { useEffect, useRef, useState } from "react";
 import { FILE_TYPES, MAX_FILE_BYTES, type FileUploaded } from "../../shared/contracts/files";
 import { ApiError } from "../lib/fetcher";
+import { getSessionGeneration } from "../lib/cognitoClient";
 export type AttachmentState = { fileId: string | null; pending: boolean; incomplete: boolean };
 export type UploadFile = (file: File, key: string, signal: AbortSignal) => Promise<FileUploaded>;
 export function FileAttachment({
@@ -21,6 +23,13 @@ export function FileAttachment({
     [reselect, setReselect] = useState(false);
   const attempt = useRef(""),
     controller = useRef<AbortController | null>(null);
+  useEffect(
+    () => () => {
+      controller.current?.abort();
+      controller.current = null;
+    },
+    [],
+  );
   function select(next: File | null) {
     setFile(next);
     setReady(false);
@@ -45,12 +54,23 @@ export function FileAttachment({
   async function send() {
     if (!file || pending || ready || reselect || disabled) return;
     const abort = new AbortController();
+    const generation = getSessionGeneration();
     controller.current = abort;
+    function current() {
+      if (controller.current !== abort) return false;
+      if (generation !== getSessionGeneration()) {
+        abort.abort();
+        controller.current = null;
+        return false;
+      }
+      return true;
+    }
     setPending(true);
     setError("");
     onChange({ fileId: null, pending: true, incomplete: true });
     try {
       const result = await upload(file, attempt.current, abort.signal);
+      if (!current()) return;
       if (abort.signal.aborted) throw new Error();
       if (result.status !== "ready") {
         setReselect(true);
@@ -61,6 +81,7 @@ export function FileAttachment({
         onChange({ fileId: result.fileId, pending: false, incomplete: false });
       }
     } catch (reason) {
+      if (!current()) return;
       if (abort.signal.aborted) {
         setReselect(true);
         setError("送信を中止しました。ファイルを選び直してください。");
@@ -70,8 +91,10 @@ export function FileAttachment({
       }
       onChange({ fileId: null, pending: false, incomplete: true });
     } finally {
-      setPending(false);
-      controller.current = null;
+      if (current()) {
+        setPending(false);
+        controller.current = null;
+      }
     }
   }
   return (

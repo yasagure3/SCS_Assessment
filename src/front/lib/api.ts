@@ -10,6 +10,7 @@ export function useApi<T>(
   path: string | null,
   options: {
     dedupingInterval?: number;
+    refreshInterval?: number;
     revalidateOnMount?: boolean;
     revalidateOnFocus?: boolean;
     revalidateOnReconnect?: boolean;
@@ -17,17 +18,30 @@ export function useApi<T>(
   } = {},
 ) {
   const { data: session } = useSWR("cognito-session", getCurrentSession);
-  const result = useSWR<ApiSuccess<T>>(
+  const { onSuccess, ...swrOptions } = options;
+  // Keep same-resource forms mounted while a refreshed token is checked. The path tag
+  // prevents showing the previous customer's data when the resource itself changes.
+  const result = useSWR<{ path: string; response: ApiSuccess<T> }>(
     session && path ? [path, session.accessToken] : null,
-    ([url, token]: [string, string]) =>
-      fetcher<ApiSuccess<T>>(url, { headers: { Authorization: `Bearer ${token}` } }),
-    { shouldRetryOnError: false, ...options },
+    async ([url, token]: [string, string]) => ({
+      path: url,
+      response: await fetcher<ApiSuccess<T>>(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    }),
+    {
+      shouldRetryOnError: false,
+      keepPreviousData: true,
+      ...swrOptions,
+      onSuccess: (value) => onSuccess?.(value.response),
+    },
   );
   return {
     ...result,
-    data: result.data?.data,
-    mutate: () => result.mutate().catch(() => undefined),
-    replace: (response: ApiSuccess<T>) => result.mutate(response, { revalidate: false }),
+    data: result.data?.path === path ? result.data.response.data : undefined,
+    mutate: async () => (await result.mutate().catch(() => undefined))?.response,
+    replace: async (response: ApiSuccess<T>) =>
+      (await result.mutate(path ? { path, response } : undefined, { revalidate: false }))?.response,
   };
 }
 export function useWrite() {
