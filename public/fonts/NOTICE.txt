@@ -1,0 +1,14 @@
+Japanese PDF font
+
+Noto Sans CJK JP Regular, release Sans2.004 (font version 2.004)
+Copyright 2014-2021 Adobe (http://www.adobe.com/).
+Licensed under the SIL Open Font License, Version 1.1. See OFL.txt in this directory.
+Unmodified source: https://github.com/notofonts/noto-cjk/tree/Sans2.004/Sans/OTF/Japanese
+NotoSansCJKjp-Regular.otf SHA-256:
+68a3fc98800b2a27b371f2fb79991daf3633bd89309d4ffaa6946fd587f375b5
+
+PDF generation uses pdf-lib 1.17.1 (MIT) and @pdf-lib/fontkit 1.1.1 (MIT).
+The pdf-lib license is distributed as pdf-lib-LICENSE.txt. The fontkit package's
+original MIT license declaration is included in fontkit-README.md (License section).
+The font is served from the application origin and embedded in full in generated PDFs.
+This application does not claim PDF/A or PDF/UA conformance.

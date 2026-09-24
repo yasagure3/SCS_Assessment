@@ -10,6 +10,7 @@ import type {
 } from "../../shared/contracts/reports";
 import { AssessmentLayout } from "../components/assessments/AssessmentLayout";
 import { ReportContentView } from "../components/reports/ReportContentView";
+import { ReportPdfExport } from "../components/reports/ReportPdfExport";
 import { LoadState } from "../components/WorkspaceShell";
 import { isAccessError, useApi, useWrite } from "../lib/api";
 import { ApiError, isUnknownWriteOutcome } from "../lib/fetcher";
@@ -315,6 +316,7 @@ function ReportWorkspace({
                     {selected.data.snapshot.createdBy}
                   </p>
                   <ReportContentView content={selected.data.snapshot} />
+                  <ReportPdfExport key={selected.data.reportId} snapshot={selected.data.snapshot} />
                 </>
               )}
             </section>

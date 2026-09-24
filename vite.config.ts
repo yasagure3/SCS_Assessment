@@ -2,8 +2,24 @@ import { defineConfig } from "vite-plus";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
+import { resolve } from "node:path";
+
+const localArtifactDirectories = [".local", "test-results"].map((directory) =>
+  resolve(directory).replaceAll("\\", "/"),
+);
 
 export default defineConfig({
+  // Local QA downloads can be locked while being saved on Windows. They are
+  // never application source and must not be watched or trigger HMR.
+  server: {
+    watch: {
+      ignored: (path) =>
+        localArtifactDirectories.some((directory) => {
+          const normalized = path.replaceAll("\\", "/");
+          return normalized === directory || normalized.startsWith(`${directory}/`);
+        }),
+    },
+  },
   // vitest (jsdom) と @cloudflare/vite-plugin の Worker environment は競合するため、
   // テスト実行時 (process.env.VITEST) は cloudflare() を無効化する。
   // バックエンド (Workers) のテストは vitest.workers.config.ts を別途使う。
@@ -14,7 +30,7 @@ export default defineConfig({
   },
   // Worker-only lazy dependencies must be optimized before the first file selection.
   // Discovering them during import otherwise reloads the page and discards its session/draft.
-  optimizeDeps: { include: ["exceljs", "fflate"] },
+  optimizeDeps: { include: ["exceljs", "fflate", "pdf-lib", "@pdf-lib/fontkit"] },
   fmt: {
     ignorePatterns: [
       ".reference/**",
