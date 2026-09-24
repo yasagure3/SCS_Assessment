@@ -218,5 +218,28 @@ test("reviews anonymous input, recovers lost generation and adoption responses, 
     "失敗中も保持する新しい手入力",
   );
   expect(await read()).toEqual(confirmed);
+  expect((await request.post("/__fixture/ai-budget-limit")).ok()).toBe(true);
+  await page.getByRole("button", { name: "AI 下書きを作成", exact: true }).click();
+  await answer.fill("匿名状況");
+  await gap.fill("匿名不足点");
+  await inputReview.check();
+  await dialog.getByRole("button", { name: "確認した内容で生成", exact: true }).click();
+  const budgetMessage =
+    "AI生成の利用予算または試験回数の上限に達しました。管理者へ確認し、定型助言・手入力を続けてください。";
+  await expect(dialog.getByRole("alert")).toHaveText(budgetMessage);
+  await dialog.getByRole("button", { name: "生成状態を再確認", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toHaveText(budgetMessage);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await dialog.getByRole("alert").scrollIntoViewIfNeeded();
+  await dialog.screenshot({ path: ".local/e2e-ai-budget.png" });
+  await page.setViewportSize({ width: 640, height: 900 });
+  await dialog.getByRole("alert").scrollIntoViewIfNeeded();
+  await dialog.screenshot({ path: ".local/e2e-ai-budget-narrow.png" });
+  expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await dialog.getByRole("button", { name: "閉じて手入力を続ける", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "不足点", exact: true })).toHaveValue(
+    "失敗中も保持する新しい手入力",
+  );
+  expect(await read()).toEqual(confirmed);
   expect(errors).toEqual([]);
 });

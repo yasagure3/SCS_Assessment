@@ -43,6 +43,7 @@ jobs:
       - name: Production separation and administrator bootstrap
         run: |
           vp exec node scripts/check-production-build.mjs
+          vp exec node --test tests/scripts/production-build.check.mjs
           vp exec node --test tests/scripts/bootstrap-admin.check.mjs
           vp exec node --test scripts/preview-config.check.mjs
 

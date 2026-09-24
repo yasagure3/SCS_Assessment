@@ -47,8 +47,26 @@ provider送信DTOはサーバーが `{standardId,criterionId,officialRequirement
 
 ## エッジケースの決定
 
-自己評価が○でも任意の助言編集は可能。下書き変更だけでは既存の確定版を無効にしない。範囲・回答・関連証跡/確認が変わった場合はbasisHashが不一致となり、新規レポートから古い確定助言を除外。再確認した上で確定し直す。過去レポートは不変。AI事業者を未選定の段階でPC内のキーを使わない。
+自己評価が○でも任意の助言編集は可能。下書き変更だけでは既存の確定版を無効にしない。範囲・回答・関連証跡/確認が変わった場合はbasisHashが不一致となり、新規レポートから古い確定助言を除外。再確認した上で確定し直す。過去レポートは不変。OpenAI接続は既定無効とし、PC内の実キーを使わない。実接続の条件確認は#27に残す。
+
+## OpenAI adapter と永続予算（#47）
+
+`aiProvider.ts` は注入fetchを使い固定Responses URLへ送信する。5キーは境界で再構築し、固定指示とStructured Outputsの厳密JSON schemaを加える。`gpt-6-sol`だけ、標準処理・推論low・出力2000トークン・store:false。HTTP JSON全体20000bytes、応答全体131072bytesを上限にする。completedなassistantメッセージ1件だけを取り出し、reasoning項目は構造を確認して破棄する。拒否/ツール/未完了/過大/不正な応答は502、abortは504へ変換し、既存aiDraftSchemaも通す。上流の非200・429は既存502とし、応答本文を返さない。
+
+Bindingsは`OPENAI_API_KEY`、`OPENAI_MODEL`、`OPENAI_MODE`。有効モードはtrial/monthlyのみ、未設定・不正値は503で無送信。通常ビルドにテストproviderを選択する設定は作らない。`d1AiBudget.ts`と追加migration `0009_ai_budget.sql`は外部HTTPの直前にrunごと10セントを原子的予約し、UTC月2000セント、trial累計500セントかつ30回を全利用者で共有する。試験枠は月替わり・再起動・再デプロイでリセットせず、monthlyは運用者が明示的に選ぶまで無効。台帳は追記だけとし失敗・送信結果不明も返還しない。予約額は実課金と区別する。既存run/receiptの再送や期限切れrunには新規予約を作らない。
+
+予算拒否はrunをfailed/AI_BUDGET_LIMITとして保持し、POSTは429と日本語の手入力継続案内を返す。GETで生成状態を再確認しても同じ案内を表示する。キーや入力/HTTP応答本文は台帳・ログに残さず、runには既存仕様の検証済み下書きだけを残す。単価根拠、キー非表示登録、データ保存条件、hard limit遅延、匿名試験・手動継続・予算照会は [OPENAI_SETUP.md](../../operations/OPENAI_SETUP.md)。実モデル利用可否・実接続は未検証。
 
 ## テスト方針
 
 単体: 81template対応、公式要求と実施例の区別、必須4要素、確定版併存、hashによる再確認。Workers結合: 余分な送信キー/証跡/原値混入拒否、run競合/期限/同key再送/別顧客run拒否、未設定・失敗時に手動継続。fake providerに渡ったオブジェクトを完全一致でassert。E2E golden path: 定型編集→確定、およびfake AIへ送信内容確認→下書き採用→人による確定。
+
+OpenAIはHTTP境界のfakeを使い、実D1で同時要求・試験累計・新月・運用切替・非返還・古いrunを検証する。テスト外向き通信を遮断し、余分な入力キー、固定URL/処理条件、拒否・不完全・過大応答、abortを検査する。Frontは予算状態再確認、既存`tests/e2e/advice-ai.spec.ts`は採用/結果再確認に加えて予算上限→手入力継続を確認する。
+
+| シナリオ | 優先度 | 検証 |
+|---|---|---|
+| 秘密/余分な入力を送らない・未設定/不正設定で閉鎖 | Critical | OpenAI Workers HTTP境界、既存allowlist/認可試験、公開build検査 |
+| 全利用者の同時予算・累計非リセット・UTC月・同キー | Critical | 実D1の8利用者同時要求、run/receipt再送、旧run拒否 |
+| 拒否/不完全/過大/不正出力・timeout/結果不明でも予約保持 | Critical | Workers fake HTTPと実D1台帳 |
+| 予算案内・未設定時に手入力保持、採用/確定の分離 | Major | Frontと既存AI golden path E2E、640/1280px画像 |
+| 実モデル利用可否・課金/出力品質・データ設定 | Critical・#27残 | 未実施。ローカルfakeを実接続成功と扱わない |

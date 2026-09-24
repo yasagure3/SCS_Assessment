@@ -38,7 +38,7 @@ flowchart LR
 | 認証候補 | テンプレートのCognitoを招待限定・必須TOTPに修正。社内権限はD1で毎回確認 |
 | Excel | ExcelJS 4.4.0を遅延読込。専用Web Workerで解析/書出し。ブラウザ試験199 assertions成功。サーバーでも正規化結果を再検証 |
 | PDF | pdf-lib 1.17.1 / fontkit 1.1.1 / Noto Sans CJK JP 2.004。検証済み全量フォント埋込みをWorkerで実行。日本語の全文・ページ画像の両方を検証 |
-| AI | 事業者未選定。任意の生成Portを設け、未設定時は503と手動編集を表示。テストはfakeのみ |
+| AI | OpenAI Responses / 候補 `gpt-6-sol`、標準処理。固定adapterと永続予算を実装し、既定は無効。月$20、初回匿名試験は累計$5/30回。実モデル利用可否・接続は#27で検証。ローカルはfake HTTPのみ |
 
 `src/front` と `src/server` の直接importは禁止。Zodの入出力契約・純粋な列挙型は `src/shared/contracts/`。UIからdomainを直接importせず、公式マスター/集計結果はAPI経由とする。Excel/PDFの純粋な変換は `src/front/workers/`、API側の判定は `src/server/modules/assessment/domain/` に置く。
 
@@ -105,6 +105,7 @@ F02検証（2026-09-18）: 固定81基準/26要求事項とcontent hash、seed�
 | reports | id PK, assessment_id/customer_id FK, assessment_revision, snapshot_json TEXT, snapshot_sha256, schema_version, renderer_version, created_by, created_at | assessment_id/created_at/id。UTF8<=1.5MiB、UPDATE/DELETE禁止 |
 | invitations | id PK, user_id FK, status pending/processing/sent/failed/expired, expires_at, provider_request_id nullable, last_error_code nullable, attempt_id nullable, processing_started_at nullable, created_by, created_at | user_id/status。仮パスワードやメール本文は保管しない。attemptは同時retryと古い完了結果を排除 |
 | ai_runs | id PK, assessment_id, criterion_id, input_hash, basis_hash, status pending/running/succeeded/failed/stale, provider_model nullable, draft_json nullable, requested_by, created_at | assessment_id/created_at。生の入力/プロンプトをログへ残さない |
+| ai_budget_reservations | run_id PK/FK ai_runs, utc_month, mode trial/monthly, reserved_cents=10, model=gpt-6-sol, created_at | 月次$20と試験累計$5/30回を外部HTTP前に原子的予約。追記のみ、成功/失敗/不明でも返還しない。入力・キー・HTTP応答本文は保存しない |
 | operation_receipts | actor_id, operation_key, request_hash, resource_id, reservation_id UNIQUE, response_json, created_at, PK(actor_id,operation_key) | 全更新の共通冪等キー台帳。通常更新と成功no-opを同じUNIQUEで排他する。reservation_idはサーバーが各試行で新規採番 |
 | audit_events | id PK, actor_id, customer_id nullable, action, resource_type/id, from_revision nullable, to_revision nullable, request_id, created_at | resource_type/id/created_at。本文・token・証跡URLは含めない |
 
@@ -154,6 +155,7 @@ Reviewのby/at/hash、basisHash、確認版はサーバー計算。basisHashは�
 | レポート確定 | expectedRevisionとscopeを条件にINSERT SELECTし、その時点のdocumentを含むsnapshotを固定。監査/receiptと一括。診断が変わっていれば409 |
 | 管理者/割当変更 | ユーザー又は顧客revisionのCAS＋割当差分＋監査。最後のactive管理者を失わせる変更は同一batch内条件で拒否 |
 | 外部R2/Cognito/AI | DBと分散transactionは組まない。状態を先に予約→外部処理→結果確定。中断状態を可視化し同じ操作IDで回復。失敗を成功扱いしない |
+| OpenAI費用予約 | 新規running runだけに、月次/試験上限とrun重複を条件に1回10セントを単一INSERT SELECT。DB成功後だけHTTPを開始。中断・送信結果不明でも予約は不変。古いrun/receiptは再予約しない |
 
 D1 batchの原子性は公式資料とローカルWorkers試験で確認済みだがremote実測は接続検証に残す。全更新・成功no-opでoperation_receiptsを共通のキー台帳にする。最初にreceiptを検索してhash一致なら保存結果を返し、不一致は409。書込batchでは、expectedRevisionと全業務条件を満たす場合だけreceiptをINSERT SELECTし、今回の試行に固有なreservation_idと前提revisionを条件に本体/監査を書き換える。既存の同key/hashのreceiptが並行処理で作成されても、今回の予約が0行なら後続書込は全て0行となる。0行又は同keyの一意制約競合時は台帳を再読込し、同hashの確定結果があればそれを返し、なければ409。途中のエラーは本体/履歴/receipt/監査を全rollbackする。historyのmutation_idは追跡/整合検査にも残すが排他の正本は共通台帳。異なるkeyによる旧版更新はCASで拒否する。
 
@@ -255,6 +257,8 @@ Access/refresh tokenはブラウザメモリにだけ保持し、SDKのStorage�
 
 ローカル→匿名データの検証環境→本番の3段階。Cloudflare候補はWorker、D1 binding `DB`、R2 binding `EVIDENCE_BUCKET`。AIキー/Cognito管理操作資格はWorker secrets又は管理環境に保管し、`VITE_*`へ入れない。フロントに必要なpool/client IDは公開設定。既存のPC内キー類を無断で使用しない。
 
+OpenAIはサーバーBindings `OPENAI_API_KEY` / `OPENAI_MODEL` / `OPENAI_MODE`を使用し、未設定・不正値は通信しない。`trial`から`monthly`は運用者の明示切替だけで、月替わりや再デプロイでは試験枠を初期化しない。単価・データ保存条件・hard limit反映遅延と有効化手順は [OPENAI_SETUP.md](../operations/OPENAI_SETUP.md)。#47のローカル検証は#27の実環境検証・本番公開を完了しない。
+
 GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・秘密・生成PDF・証跡をrepoやCI artifactへ入れない。デプロイworkflowは本番条件確定まで無効。`assets.directory`は必ず `./dist/client`。Terraform stateも非公開とし、本番リソース作成をセットアップの必須動作にしない。
 
 <!-- POC_NEEDED: id=cloud-integration, scope=Cognito必須MFAと失効・remoteD1原子性と復元・非公開R2・選定AI・上限時性能, risk=high, blocker=false -->
@@ -274,6 +278,8 @@ GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・
 - ExcelJSのZIP宣言サイズ検査だけでは実展開量を制限できない。実装では独立した展開監視とWorker停止を加え、悪意あるfixtureで試験する。
 - ExcelJS 4.4.0は書出し時にliteral `_xHHHH_` を保護せず、XML読込でCRを正規化する。Excel出力は全文字列セルの共通経路でliteral先頭underscoreとCR/不正XML制御文字を可逆符号化し、独立QAではST_Xstringを1回だけ復号する。[ST_XstringのOffice規約](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/d34ae755-c53f-4a44-a363-c6dd3ee018a4)
 - Front/Workersのテストランナーは分離。`src/shared`を介した型共有とテンプレートのlayer lintを維持する。
+- Workers pool 0.19のテスト間DB状態は新規予算試験では`cloudflare:test`の`reset()`と全migration再適用で分離する。試験内では同じ実D1を使い、並行予約・再起動・新月でも台帳を保持する。外向きfetchはテスト専用拒否サービスで遮断する。
+- OpenAI ResponsesのHTTP 200でも拒否・未完了・不正出力があり得る。全応答を128KiBに制限して検査し、30秒中断と予算予約の非返還を維持する。`store:false`は全データ保存ゼロの保証ではない。
 - WindowsではQAのPDF保存中にViteのfs.watchがEBUSYとなることがある。生成物専用の`.local/`と`test-results/`をdev/fixtureの監視対象から外し、製品ソースの監視は維持する。
 
 ## 未解決の論点
@@ -283,7 +289,7 @@ GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・
 | Q11権限範囲 | 管理者全件・担当者は割当顧客を設計前提。運用開始前に最終確認 |
 | 保存国・契約クラウド | Q14により案提示後に判断。実データ保管/本番構築の前に確定 |
 | 保持/削除・バックアップ期間 | 初回はarchiveのみ。削除・掃除jobを無断で動かさない。運用開始前に確定 |
-| AI事業者/モデル/利用上限/契約 | Portは実装、未設定は無効。本番の生成前に選定・送信条件を確定 |
+| AI実環境/契約 | OpenAI・候補gpt-6-sol・標準処理・月$20/試験$5かつ30回は確定。実プロジェクト/キー/モデル利用可否/データ設定/費用設定と匿名実接続は#27に残る。既定無効 |
 | 人数・顧客数・時期・復旧目標 | 小規模1診断81件が検証の範囲。負荷/復元の合格基準を本番接続タスク前に決定 |
 | 証跡のスキャン/配布フォントNOTICE | 本番保管・配布の準備タスクで確定。PDF/Officeをブラウザ内プレビューしない |
 

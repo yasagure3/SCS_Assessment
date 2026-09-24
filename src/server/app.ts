@@ -13,6 +13,9 @@ export type Bindings = {
   COGNITO_ISSUER: string;
   COGNITO_CLIENT_ID: string;
   COGNITO_JWKS_URL?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_MODEL?: string;
+  OPENAI_MODE?: string;
 };
 export type AppEnv = { Bindings: Bindings; Variables: { principal: Principal; requestId: string } };
 export type AppDependencies = {

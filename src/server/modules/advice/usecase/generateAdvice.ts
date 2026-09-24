@@ -71,7 +71,7 @@ export async function generateAdvice(
     errorCode: string | null = null;
   try {
     const output = await Promise.race([
-      provider.generate(payload, controller.signal),
+      provider.generate(payload, controller.signal, reservation.run.runId),
       new Promise<never>((_, reject) => {
         timer = setTimeout(
           () => {
@@ -90,7 +90,13 @@ export async function generateAdvice(
   } catch (error) {
     errorCode =
       error instanceof DomainError &&
-      ["AI_NOT_CONFIGURED", "AI_TIMEOUT", "AI_INVALID_OUTPUT"].includes(error.code)
+      [
+        "AI_NOT_CONFIGURED",
+        "AI_TIMEOUT",
+        "AI_INVALID_OUTPUT",
+        "AI_BUDGET_LIMIT",
+        "PAYLOAD_TOO_LARGE",
+      ].includes(error.code)
         ? error.code
         : "AI_PROVIDER_FAILED";
   } finally {

@@ -1,7 +1,7 @@
 import type { AiInput, AiRunDto } from "../../../../shared/contracts/aiAdvice";
 import type { AssessmentRecord, Advice } from "../../../../shared/contracts/assessment";
 export interface AiPort {
-  generate(input: AiInput, signal: AbortSignal): Promise<unknown>;
+  generate(input: AiInput, signal: AbortSignal, runId: string): Promise<unknown>;
 }
 export type AiContext = { actorId: string; key: string; requestHash: string; requestId: string };
 export interface AiRunRepository {
