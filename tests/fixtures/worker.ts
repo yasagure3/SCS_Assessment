@@ -51,6 +51,21 @@ app.post("/__fixture/access-reset", async (c) => {
   invitationDeliveries.length = 0;
   const id = crypto.randomUUID(),
     stamp = new Date().toISOString();
+  if (c.req.query("paginateUsers") === "true") {
+    // Keep a repeatable full first page without deleting identities or immutable receipts.
+    await c.env.DB.batch(
+      Array.from({ length: 50 }, (_, index) =>
+        c.env.DB.prepare(
+          "INSERT OR IGNORE INTO app_users(id,email_normalized,role,status,created_at,updated_at) VALUES(?,?,'staff','suspended',?,?)",
+        ).bind(
+          `00000000-0000-4000-8000-${(index + 1).toString(16).padStart(12, "0")}`,
+          `access-pagination-${index + 1}@example.invalid`,
+          stamp,
+          stamp,
+        ),
+      ),
+    );
+  }
   await c.env.DB.prepare(
     "UPDATE app_users SET email_normalized=id||'@example.invalid',cognito_sub=NULL WHERE email_normalized='access-admin@example.invalid'",
   ).run();
