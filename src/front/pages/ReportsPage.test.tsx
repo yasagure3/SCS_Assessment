@@ -225,6 +225,8 @@ describe("report confirmation page", () => {
       },
     ]);
     expect(await screen.findByText("report", { exact: true })).toBeInTheDocument();
+    expect(await screen.findByRole("region", { name: "作業用Excelの保存" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Excelを生成" })).toBeEnabled();
   });
   it("clears acknowledgement and preview when the selected major issues change", async () => {
     network();

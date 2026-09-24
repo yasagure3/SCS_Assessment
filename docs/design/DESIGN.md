@@ -269,7 +269,9 @@ GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・
 - テンプレートのCognitoは自己登録可・TOTP無効、motoはパスワード検証の根拠にならない。招待/TOTPの設定変更と実機検証を必須とする。[Cognito TOTP](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa-totp.html)
 - JWTの署名検証だけでは失効tokenを拒否できない。アプリ側のactive/membership/revoked_beforeを毎回検査する。[Cognito失効](https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html)
 - 日本語PDFはPoCでCFF subset表示不良を検出した。現採用版はsubset:false、features locl/ liga:false、OFL付き同一originフォント配信とする。約14MBのPDFになる。文字抽出だけで表示合格にしない。
+- 全量CJKフォントを持つPDFをpypdfで全ページ文字抽出するとQAの120秒上限を超えた。本文照合は既存PDF QAと同じpdfplumberを使い、pypdfは埋込み構造の検査に限定する。
 - ExcelJSのZIP宣言サイズ検査だけでは実展開量を制限できない。実装では独立した展開監視とWorker停止を加え、悪意あるfixtureで試験する。
+- ExcelJS 4.4.0は書出し時にliteral `_xHHHH_` を保護せず、XML読込でCRを正規化する。Excel出力は全文字列セルの共通経路でliteral先頭underscoreとCR/不正XML制御文字を可逆符号化し、独立QAではST_Xstringを1回だけ復号する。[ST_XstringのOffice規約](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/d34ae755-c53f-4a44-a363-c6dd3ee018a4)
 - Front/Workersのテストランナーは分離。`src/shared`を介した型共有とテンプレートのlayer lintを維持する。
 - WindowsではQAのPDF保存中にViteのfs.watchがEBUSYとなることがある。生成物専用の`.local/`と`test-results/`をdev/fixtureの監視対象から外し、製品ソースの監視は維持する。
 

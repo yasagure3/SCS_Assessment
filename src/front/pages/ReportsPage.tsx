@@ -11,6 +11,7 @@ import type {
 import { AssessmentLayout } from "../components/assessments/AssessmentLayout";
 import { ReportContentView } from "../components/reports/ReportContentView";
 import { ReportPdfExport } from "../components/reports/ReportPdfExport";
+import { ReportExcelExport } from "../components/reports/ReportExcelExport";
 import { LoadState } from "../components/WorkspaceShell";
 import { isAccessError, useApi, useWrite } from "../lib/api";
 import { ApiError, isUnknownWriteOutcome } from "../lib/fetcher";
@@ -317,6 +318,10 @@ function ReportWorkspace({
                   </p>
                   <ReportContentView content={selected.data.snapshot} />
                   <ReportPdfExport key={selected.data.reportId} snapshot={selected.data.snapshot} />
+                  <ReportExcelExport
+                    key={`excel-${selected.data.reportId}`}
+                    snapshot={selected.data.snapshot}
+                  />
                 </>
               )}
             </section>
