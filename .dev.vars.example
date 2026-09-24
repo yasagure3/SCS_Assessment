@@ -2,3 +2,9 @@
 COGNITO_ISSUER=
 COGNITO_CLIENT_ID=
 COGNITO_JWKS_URL=
+
+# Worker bindings only. Never put the API key in VITE_* or commit a real .dev.vars.
+# #27 must verify the project, model access, data controls and spend settings first.
+OPENAI_MODE=disabled
+OPENAI_MODEL=gpt-6-sol
+OPENAI_API_KEY=

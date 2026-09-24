@@ -9,6 +9,7 @@ import type { AdviceTemplateRepository } from "../domain/templates";
 import { updateAdvice } from "../usecase/manualAdvice";
 import {
   generateAiSchema,
+  AI_BUDGET_LIMIT_MESSAGE,
   adoptAiSchema,
   type AiRunDto,
 } from "../../../../shared/contracts/aiAdvice";
@@ -121,6 +122,8 @@ export function adviceRoutes(
 
 function runFailure(run: AiRunDto) {
   const failures = {
+    AI_BUDGET_LIMIT: { status: 429, message: AI_BUDGET_LIMIT_MESSAGE },
+    PAYLOAD_TOO_LARGE: { status: 413, message: "送信内容が大きすぎます。" },
     AI_NOT_CONFIGURED: { status: 503, message: "AIは未設定です。定型助言と手入力を利用できます。" },
     AI_TIMEOUT: {
       status: 504,

@@ -110,6 +110,7 @@ app.post("/__fixture/reset", async (c) => {
   refreshedTokens.clear();
   fakeAi.received = [];
   fakeAi.configured = true;
+  fakeAi.budgetLimited = false;
   const stamp = new Date().toISOString();
   // A new identity per run avoids reusing immutable activation receipts.
   await c.env.DB.prepare(
@@ -126,6 +127,11 @@ app.post("/__fixture/reset", async (c) => {
 app.get("/__fixture/ai-inputs", (c) => c.json(fakeAi.received));
 app.post("/__fixture/ai-unconfigured", (c) => {
   fakeAi.configured = false;
+  return c.json({ ok: true });
+});
+app.post("/__fixture/ai-budget-limit", (c) => {
+  fakeAi.configured = true;
+  fakeAi.budgetLimited = true;
   return c.json({ ok: true });
 });
 app.post("/__fixture/suspend", async (c) => {

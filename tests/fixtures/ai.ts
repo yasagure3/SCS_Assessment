@@ -6,8 +6,10 @@ import { DomainError } from "../../src/shared/errors";
 export class FakeAiProvider implements AiPort {
   received: AiInput[] = [];
   configured = true;
+  budgetLimited = false;
   async generate(input: AiInput) {
     if (!this.configured) throw new DomainError("AI_NOT_CONFIGURED");
+    if (this.budgetLimited) throw new DomainError("AI_BUDGET_LIMIT");
     this.received.push(structuredClone(input));
     return {
       origin: "ai",

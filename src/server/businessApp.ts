@@ -17,7 +17,8 @@ import { R2EvidenceStore } from "./modules/evidence/adapter/r2EvidenceStore";
 import { adviceRoutes } from "./modules/advice/adapter/routes";
 import { D1AdviceRepository } from "./modules/advice/adapter/d1AdviceRepository";
 import { D1AiRunRepository } from "./modules/advice/adapter/d1AiRunRepository";
-import { unconfiguredAiProvider } from "./modules/advice/adapter/aiProvider";
+import { openAiProvider } from "./modules/advice/adapter/aiProvider";
+import { D1AiBudget } from "./modules/advice/adapter/d1AiBudget";
 import type { AiPort } from "./modules/advice/domain/aiPort";
 import { reportRoutes } from "./modules/reports/adapter/routes";
 import { D1ReportRepository } from "./modules/reports/adapter/d1ReportRepository";
@@ -29,6 +30,7 @@ export function createBusinessApp(
     now?: () => number;
     ai?: (bindings: Bindings) => AiPort;
     aiTimeoutMs?: number;
+    aiFetch?: typeof fetch;
   },
 ) {
   const app = createApp(dependencies);
@@ -62,7 +64,13 @@ export function createBusinessApp(
       (bindings) => new D1AdviceRepository(bindings.DB),
       dependencies.now ?? Date.now,
       (bindings) => new D1AiRunRepository(bindings.DB, dependencies.now ?? Date.now),
-      dependencies.ai ?? unconfiguredAiProvider,
+      dependencies.ai ??
+        ((bindings) =>
+          openAiProvider(
+            bindings,
+            new D1AiBudget(bindings.DB, dependencies.now ?? Date.now),
+            dependencies.aiFetch ?? fetch,
+          )),
       dependencies.aiTimeoutMs,
     ),
   );

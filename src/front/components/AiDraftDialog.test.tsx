@@ -25,6 +25,41 @@ function props() {
   };
 }
 describe("AI full-input review", () => {
+  it("keeps the budget explanation after rechecking a failed run and allows manual continuation", async () => {
+    const p = props();
+    p.read.mockResolvedValue({
+      data: {
+        runId: "run",
+        criterionId: "C-1",
+        status: "failed",
+        draft: null,
+        errorCode: "AI_BUDGET_LIMIT",
+        inputHash: "a".repeat(64),
+        basisHash: p.record.document.responses["C-1"].basisHash,
+      },
+    });
+    render(
+      <AiDraftForm
+        {...p}
+        write={{
+          ...p.write,
+          error: new ApiError(429, {
+            error: { code: "AI_BUDGET_LIMIT", message: "予算上限", runId: "run" },
+            requestId: "request",
+          }),
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "生成状態を再確認" }));
+    await waitFor(() =>
+      expect(screen.getAllByRole("alert").map((node) => node.textContent)).toEqual([
+        "予算上限",
+        "AI生成の利用予算または試験回数の上限に達しました。管理者へ確認し、定型助言・手入力を続けてください。",
+      ]),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "閉じて手入力を続ける" }));
+    expect(p.onClose).toHaveBeenCalledTimes(1);
+  });
   it("starts empty, shows exactly the outgoing public fields and invalidates review on text or basis changes", async () => {
     const p = props(),
       view = render(<AiDraftForm {...p} />);

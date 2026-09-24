@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { adviceSchema, mutationSchema } from "./assessment";
 
+export const AI_BUDGET_LIMIT_MESSAGE =
+  "AI生成の利用予算または試験回数の上限に達しました。管理者へ確認し、定型助言・手入力を続けてください。";
+
 const anonymousText = z
   .string()
   .trim()

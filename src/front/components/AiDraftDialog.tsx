@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import {
   generateAiSchema,
+  AI_BUDGET_LIMIT_MESSAGE,
   hashAiInput,
   canonicalAiInput,
   type AiRunDto,
@@ -282,7 +283,9 @@ export function AiDraftForm({
       )}
       {run?.status === "failed" && (
         <p role="alert" className="form-error">
-          生成に失敗しました（{run.errorCode}）。新しい試行を準備するか、手入力を続けてください。
+          {run.errorCode === "AI_BUDGET_LIMIT"
+            ? AI_BUDGET_LIMIT_MESSAGE
+            : `生成に失敗しました（${run.errorCode}）。新しい試行を準備するか、手入力を続けてください。`}
         </p>
       )}
       {stale && (
