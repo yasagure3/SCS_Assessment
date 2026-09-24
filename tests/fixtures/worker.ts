@@ -2,9 +2,12 @@ import { createBusinessApp } from "../../src/server/businessApp";
 import { DomainError } from "../../src/shared/errors";
 import { D1AccessRepository } from "../../src/server/modules/auth/adapter/d1AccessRepository";
 import { seedAssessment } from "./assessment";
+import { FakeAiProvider } from "./ai";
 // Only loaded by the local test configuration. Real production routes have no fixture endpoints.
 const invitationDeliveries: { email: string; sub: string }[] = [];
+const fakeAi = new FakeAiProvider();
 const app = createBusinessApp({
+  ai: () => fakeAi,
   verify: async (token, bindings) => {
     const access = /^E2E_ACCESS_TOKEN_(.+)_(\d+)$/.exec(token);
     if (access) {
@@ -48,6 +51,21 @@ app.post("/__fixture/access-reset", async (c) => {
   invitationDeliveries.length = 0;
   const id = crypto.randomUUID(),
     stamp = new Date().toISOString();
+  if (c.req.query("paginateUsers") === "true") {
+    // Keep a repeatable full first page without deleting identities or immutable receipts.
+    await c.env.DB.batch(
+      Array.from({ length: 50 }, (_, index) =>
+        c.env.DB.prepare(
+          "INSERT OR IGNORE INTO app_users(id,email_normalized,role,status,created_at,updated_at) VALUES(?,?,'staff','suspended',?,?)",
+        ).bind(
+          `00000000-0000-4000-8000-${(index + 1).toString(16).padStart(12, "0")}`,
+          `access-pagination-${index + 1}@example.invalid`,
+          stamp,
+          stamp,
+        ),
+      ),
+    );
+  }
   await c.env.DB.prepare(
     "UPDATE app_users SET email_normalized=id||'@example.invalid',cognito_sub=NULL WHERE email_normalized='access-admin@example.invalid'",
   ).run();
@@ -69,6 +87,8 @@ app.post("/__fixture/access-reset", async (c) => {
 });
 app.get("/__fixture/invitation-deliveries", (c) => c.json(invitationDeliveries));
 app.post("/__fixture/reset", async (c) => {
+  fakeAi.received = [];
+  fakeAi.configured = true;
   const stamp = new Date().toISOString();
   // A new identity per run avoids reusing immutable activation receipts.
   await c.env.DB.prepare(
@@ -80,6 +100,11 @@ app.post("/__fixture/reset", async (c) => {
   )
     .bind(id, `${id}@example.invalid`, stamp, stamp)
     .run();
+  return c.json({ ok: true });
+});
+app.get("/__fixture/ai-inputs", (c) => c.json(fakeAi.received));
+app.post("/__fixture/ai-unconfigured", (c) => {
+  fakeAi.configured = false;
   return c.json({ ok: true });
 });
 app.post("/__fixture/suspend", async (c) => {

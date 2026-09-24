@@ -15,13 +15,17 @@ test("administrator invitation, MFA, assigned customer access and suspension app
   request,
   browser,
   baseURL,
-}) => {
-  const reset = await request.post("/__fixture/access-reset");
+}, testInfo) => {
+  const reset = await request.post("/__fixture/access-reset?paginateUsers=true");
   expect(reset.status()).toBe(200);
   const { assigned, unassigned } = await reset.json();
   const email = `access-invite-${crypto.randomUUID()}@example.invalid`;
   const errors: string[] = [];
+  let adminToken = "";
   page.on("pageerror", (error) => errors.push(error.message));
+  page.on("request", (req) => {
+    if (req.url().endsWith("/api/v1/me")) adminToken = req.headers().authorization ?? "";
+  });
   await login(page, "access-admin@example.invalid");
   await page.getByRole("link", { name: "顧客・案件を開く" }).click();
   await page.getByRole("link", { name: "管理・利用設定" }).click();
@@ -59,7 +63,56 @@ test("administrator invitation, MFA, assigned customer access and suspension app
   ).toBe(404);
   await page.getByRole("button", { name: "招待状態を再読み込み" }).click();
   await page.getByRole("button", { name: "利用者一覧を再読み込み" }).click();
-  const user = page.locator("details").filter({ has: page.locator("summary", { hasText: email }) });
+  const firstPageResponse = await page.request.get("/api/v1/users", {
+    headers: { Authorization: adminToken },
+  });
+  expect(firstPageResponse.status()).toBe(200);
+  const firstPage = (await firstPageResponse.json()).data;
+  // This boundary is required even on a clean database and on repeated runs.
+  expect(firstPage.items.map((row: { id: string }) => row.id)).toEqual(
+    Array.from(
+      { length: 50 },
+      (_, index) => `00000000-0000-4000-8000-${(index + 1).toString(16).padStart(12, "0")}`,
+    ),
+  );
+  expect(firstPage.items.some((row: { email: string }) => row.email === email)).toBe(false);
+  expect(firstPage.nextCursor).toBe(btoa("00000000-0000-4000-8000-000000000032"));
+  const usersSection = page.locator("section").filter({
+    has: page.getByRole("heading", { name: "利用者とアクセス範囲", exact: true }),
+  });
+  const user = usersSection.locator("details").filter({
+    has: page.getByText(email, { exact: true }),
+  });
+  let currentPage: { items: { email: string }[]; nextCursor: string | null } = firstPage;
+  const visitedCursors = new Set<string>();
+  while (!(await user.isVisible())) {
+    const cursor = currentPage.nextCursor;
+    expect(
+      cursor,
+      "The user must be reachable through the visible pagination controls",
+    ).not.toBeNull();
+    expect(visitedCursors.has(cursor!)).toBe(false);
+    visitedCursors.add(cursor!);
+    const nextResponse = page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return (
+        response.request().method() === "GET" &&
+        url.pathname === "/api/v1/users" &&
+        url.searchParams.get("cursor") === cursor
+      );
+    });
+    await usersSection.getByRole("button", { name: "次のページ", exact: true }).click();
+    const response = await nextResponse;
+    expect(response.status()).toBe(200);
+    currentPage = (await response.json()).data;
+    expect(currentPage.items.length).toBeGreaterThan(0);
+    await expect(usersSection.getByText(currentPage.items[0].email, { exact: true })).toBeVisible();
+  }
+  expect(visitedCursors.size).toBeGreaterThan(0);
+  await testInfo.attach("user-pagination", {
+    body: JSON.stringify({ visitedCursors: [...visitedCursors], targetEmail: email }),
+    contentType: "application/json",
+  });
   await expect(user.locator("summary span")).toHaveText("担当者 / 有効");
   await user.locator("summary").click();
   await user.getByLabel("利用状態").selectOption("suspended");

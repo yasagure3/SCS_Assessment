@@ -6,6 +6,7 @@ export type ApiFailure = {
     message: string;
     fields?: { path: string; reason: string }[];
     currentRevision?: number;
+    runId?: string;
   };
   requestId: string;
 };

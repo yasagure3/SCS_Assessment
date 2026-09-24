@@ -22,6 +22,9 @@ function writer(overrides: Partial<ReturnType<typeof useWrite>> = {}): ReturnTyp
     pending: false,
     error: null,
     send: vi.fn(async () => null),
+    read: vi.fn(async () => {
+      throw new Error("Reassessment writes must not perform reads");
+    }),
     clearError: vi.fn(),
     ...overrides,
   };

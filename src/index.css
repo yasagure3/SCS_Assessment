@@ -1081,6 +1081,44 @@ button,
     flex-wrap: wrap;
   }
 }
+/* Native modal keeps keyboard focus within the review while the manual draft stays mounted. */
+.ai-dialog {
+  margin: auto;
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: 24px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  color: #17243b;
+  background: #fff;
+}
+.ai-dialog::backdrop {
+  background: rgb(15 23 42 / 55%);
+}
+.ai-payload {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 16px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+.ai-result {
+  border-top: 1px solid #cbd5e1;
+  padding-top: 16px;
+  overflow-wrap: anywhere;
+}
+.ai-result ul {
+  list-style: disc;
+  padding-left: 24px;
+}
+@media (max-width: 640px) {
+  .ai-dialog {
+    padding: 16px;
+  }
+}
 .comparison-picker select {
   width: 100%;
   min-width: 0;

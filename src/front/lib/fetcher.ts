@@ -3,12 +3,14 @@ export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
   readonly requestId: string;
+  readonly runId?: string;
   readonly hasApiFailureResponse: boolean;
   constructor(status: number, body?: ApiFailure) {
     super(body?.error?.message ?? "通信を完了できませんでした。もう一度お試しください。");
     this.status = status;
     this.code = body?.error?.code ?? "REQUEST_FAILED";
     this.requestId = body?.requestId ?? "";
+    this.runId = body?.error?.runId;
     this.hasApiFailureResponse =
       typeof body?.error?.code === "string" &&
       body.error.code.trim().length > 0 &&

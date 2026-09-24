@@ -4,6 +4,7 @@ import { completeAdviceSchema, type AdviceTemplate } from "../../shared/contract
 import type { AssessmentDto } from "../../shared/contracts/assessments";
 import type { ApiSuccess } from "../../shared/contracts/api";
 import { ApiError } from "../lib/fetcher";
+import { AiDraftDialog } from "./AiDraftDialog";
 
 export type AdviceWriter = {
   pending: boolean;
@@ -70,6 +71,7 @@ export function AdviceEditor({
     [revision, setRevision] = useState(record.revision),
     [reviewed, setReviewed] = useState(""),
     [saved, setSaved] = useState("");
+  const [aiOpen, setAiOpen] = useState(false);
   const content: Advice = {
     ...provenance,
     ...fields,
@@ -165,6 +167,36 @@ export function AdviceEditor({
           </button>
           <p className="field-help">コピー後に保存してください。保存済みの確定版は保持されます。</p>
         </div>
+      )}
+      {template && (
+        <button
+          type="button"
+          className="button secondary"
+          disabled={readOnly || write.pending || conflict}
+          onClick={() => setAiOpen(true)}
+        >
+          AI 下書きを作成
+        </button>
+      )}
+      {aiOpen && template && (
+        <AiDraftDialog
+          record={record}
+          criterionId={criterionId}
+          officialRequirement={template.officialRequirement}
+          readOnly={readOnly}
+          onClose={() => setAiOpen(false)}
+          onRefresh={onRefresh}
+          onAdopted={(result) => {
+            // A successful receipt can predate the latest GET; never roll the visible diagnosis back.
+            const current =
+              record.revision > result.data.revision ? { ...result, data: record } : result;
+            const adopted = current.data.document.responses[criterionId].adviceDraft;
+            if (adopted) copy(adopted);
+            setRevision(current.data.revision);
+            setSaved("AI案を下書きへ採用しました。内容を確認して確定してください。");
+            void onSaved(current);
+          }}
+        />
       )}
       <form
         className="data-form"

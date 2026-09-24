@@ -21,6 +21,10 @@ export type AppDependencies = {
   sessions: (bindings: Bindings) => SessionProvider;
 };
 const errors: Record<string, [ContentfulStatusCode, string]> = {
+  AI_STALE: [409, "回答・範囲・証跡が変わりました。送信内容を確認し直してください。"],
+  AI_INPUT_CHANGED: [422, "送信内容が確認時と異なります。全文を確認し直してください。"],
+  AI_NOT_READY: [409, "AI下書きを採用できる状態ではありません。生成状態を確認してください。"],
+  AI_RATE_LIMIT: [429, "AI生成は同時に1件、1分に5回までです。少し待ってから試してください。"],
   FILE_INVALID: [
     422,
     "ファイルの形式を確認してください。暗号化・マクロ・外部参照を含む文書は登録できません。",
@@ -80,6 +84,7 @@ export function createApp(dependencies: AppDependencies) {
       "処理を完了できませんでした。問い合わせ番号を管理者へお伝えください。",
     ];
     // Request bodies, tokens and evidence URLs must never appear in error responses/logs.
+    if (code === "AI_RATE_LIMIT") c.header("Retry-After", "60");
     return c.json(
       {
         error: { code: errors[code] ? code : "INTERNAL_ERROR", message },

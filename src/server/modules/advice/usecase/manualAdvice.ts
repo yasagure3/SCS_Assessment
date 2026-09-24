@@ -23,8 +23,26 @@ export async function updateAdvice(
 ) {
   const record = await assessments.get(id, actorId);
   if (!Object.hasOwn(record.document.responses, criterionId)) throw new DomainError("NOT_FOUND");
+  const requestHash = await operationHash(
+    action === "draft" ? "PUT" : "POST",
+    `/api/v1/assessments/${id}/advice/${criterionId}/${action}`,
+    id,
+    input,
+  );
+  const replay = await assessments.replay(id, actorId, input.mutationId, requestHash);
+  if (replay)
+    return {
+      ...replay,
+      ...summarize(replay.document, (await standards.get(replay.standardId)).criteria),
+    };
   const { content } = input;
-  if (content.origin === "ai" || (content.origin === "manual" && content.templateId !== null))
+  const previous = record.document.responses[criterionId];
+  if (
+    (content.origin !== "template" && content.templateId !== null) ||
+    (content.origin === "ai" &&
+      previous.adviceDraft?.origin !== "ai" &&
+      previous.confirmedAdvice?.content.origin !== "ai")
+  )
     throw new DomainError("VALIDATION_ERROR");
   if (content.origin === "template") {
     const published = await templates.list(record.standardId);
@@ -46,12 +64,7 @@ export async function updateAdvice(
     actorId,
     expectedRevision: input.expectedRevision,
     mutationId: input.mutationId,
-    requestHash: await operationHash(
-      action === "draft" ? "PUT" : "POST",
-      `/api/v1/assessments/${id}/advice/${criterionId}/${action}`,
-      id,
-      input,
-    ),
+    requestHash,
     action: `advice.${action}`,
     requestId,
   });

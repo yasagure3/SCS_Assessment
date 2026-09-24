@@ -261,6 +261,9 @@ describe("independent copy-source conflict field coverage", () => {
       error: null as Error | null,
       clearError: vi.fn(),
       send: vi.fn(async () => null),
+      read: vi.fn(async () => {
+        throw new Error("Reassessment writes must not perform reads");
+      }),
     };
     const props = { readOnly: false, write: writer, onRefresh: vi.fn(), onCreated: vi.fn() };
     const rendered = render(<ReassessmentForm record={record} {...props} />);
@@ -289,6 +292,9 @@ function conflictCells(record: AssessmentDto, latest: AssessmentDto) {
     error: null as Error | null,
     clearError: vi.fn(),
     send: vi.fn(async () => null),
+    read: vi.fn(async () => {
+      throw new Error("Reassessment writes must not perform reads");
+    }),
   };
   const props = { readOnly: false, write: writer, onRefresh: vi.fn(), onCreated: vi.fn() };
   const rendered = render(<ReassessmentForm record={record} {...props} />);
