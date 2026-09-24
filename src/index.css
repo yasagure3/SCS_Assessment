@@ -1309,3 +1309,14 @@ button,
     grid-template-columns: 1fr;
   }
 }
+.button:disabled {
+  background: #e5e9ef;
+  color: #566170;
+  border-color: #c6ced8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.report-confirm .notice {
+  flex-basis: 100%;
+}

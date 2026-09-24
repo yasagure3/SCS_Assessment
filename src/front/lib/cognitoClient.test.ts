@@ -54,6 +54,30 @@ beforeEach(() => {
   sdk.users = [];
 });
 describe("in-memory Cognito MFA flow", () => {
+  it("changes the HTTP retry generation for logout and every new login, including the same email", async () => {
+    const auth = await import("./cognitoClient");
+    const initial = auth.getSessionGeneration();
+    const login = auth.signIn("test@example.invalid", "password");
+    const duringLogin = auth.getSessionGeneration();
+    sdk.callbacks!.totpRequired!("SOFTWARE_TOKEN_MFA", {});
+    await login;
+    const challenge = auth.completeTotp("123456");
+    sdk.callbacks!.onSuccess(session);
+    await challenge;
+    const authenticated = auth.getSessionGeneration();
+    auth.signOut();
+    const loggedOut = auth.getSessionGeneration();
+    const nextLogin = auth.signIn("test@example.invalid", "password");
+    const sameUserLogin = auth.getSessionGeneration();
+    sdk.callbacks!.totpRequired!("SOFTWARE_TOKEN_MFA", {});
+    await nextLogin;
+    expect({ duringLogin, authenticated, loggedOut, sameUserLogin }).toEqual({
+      duringLogin: initial + 1,
+      authenticated: initial + 1,
+      loggedOut: initial + 2,
+      sameUserLogin: initial + 3,
+    });
+  });
   it("keeps the app logged out when the provider is not configured", async () => {
     vi.stubEnv("VITE_COGNITO_USER_POOL_ID", "");
     vi.stubEnv("VITE_COGNITO_CLIENT_ID", "");

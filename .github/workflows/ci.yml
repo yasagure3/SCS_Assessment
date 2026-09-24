@@ -14,7 +14,7 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:
@@ -49,10 +49,19 @@ jobs:
       - name: Install browser
         run: vp exec playwright install --with-deps chromium
 
-      - name: Browser smoke and feature flows
+      - name: Install independent report verification tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils python3-venv
+          python3 -m venv .local/report-qa-venv
+          .local/report-qa-venv/bin/python -m pip install -r tests/pdf/requirements.txt
+
+      - name: Browser smoke, feature flows and complete business journey
         run: vp exec playwright test
         env:
           E2E_PORT: "5180"
+          PDF_QA_PYTHON: .local/report-qa-venv/bin/python
+          EXCEL_QA_PYTHON: .local/report-qa-venv/bin/python
 
       - name: Reject occupied test port
         run: vp exec node scripts/check-port-conflict.mjs

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { SWRConfig } from "swr";
 import { ReportsPage } from "./ReportsPage";
@@ -274,7 +274,15 @@ describe("report confirmation page", () => {
     expect(screen.getByRole("button", { name: "この内容で版を確定" })).toBeDisabled();
     expect(screen.getByRole("link", { name: "対象範囲・診断日を編集" })).toHaveAttribute(
       "href",
-      "/cases/case",
+      "/assessments/assessment#assessment-scope",
+    );
+    const confirmation = screen.getByRole("group", { name: "レポート版の確定" });
+    expect(
+      within(confirmation).getByText("対象拠点: 対象範囲を入力してください。"),
+    ).toBeInTheDocument();
+    expect(within(confirmation).getByRole("link", { name: "不足項目を入力する" })).toHaveAttribute(
+      "href",
+      "/assessments/assessment#assessment-scope",
     );
   });
   it("recovers an initial load failure with the retry button", async () => {

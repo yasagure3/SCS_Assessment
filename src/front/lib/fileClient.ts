@@ -1,6 +1,7 @@
 import { FILE_TYPES, type FileMetadata, type FileUploaded } from "../../shared/contracts/files";
 import type { ApiFailure, ApiSuccess } from "../../shared/contracts/api";
 import { ApiError } from "./fetcher";
+import { sessionFetch } from "./sessionFetch";
 export function createFileClient(io: {
   fetch: typeof fetch;
   digest: (bytes: ArrayBuffer) => Promise<ArrayBuffer>;
@@ -57,7 +58,7 @@ export function createFileClient(io: {
   };
 }
 export const browserFileClient = createFileClient({
-  fetch: (...args) => fetch(...args),
+  fetch: sessionFetch,
   digest: (bytes) => crypto.subtle.digest("SHA-256", bytes),
   save: (blob, name) => {
     const url = URL.createObjectURL(blob),

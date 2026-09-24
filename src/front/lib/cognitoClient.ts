@@ -15,6 +15,7 @@ export type AuthResult =
 const memory = new Map<string, string>();
 let generation = 0;
 let authenticated = false;
+let sessionRequest: Promise<Session | null> | null = null;
 function memoryStorage(epoch: number) {
   return {
     setItem: (key: string, value: string) => {
@@ -185,7 +186,13 @@ export function completeTotp(code: string): Promise<AuthResult> {
       : value.user.sendMFACode(code, callbacks, "SOFTWARE_TOKEN_MFA"),
   );
 }
+// A new login (even for the same email) starts a new generation via signOut.
+// Token renewal stays within this generation; HTTP retries must stay there too.
+export function getSessionGeneration(): number {
+  return generation;
+}
 export function getCurrentSession(): Promise<Session | null> {
+  if (sessionRequest) return sessionRequest;
   const epoch = generation;
   const currentUser = authenticated ? userPool?.getCurrentUser() : null;
   if (!currentUser || !userPool) return Promise.resolve(null);
@@ -194,7 +201,7 @@ export function getCurrentSession(): Promise<Session | null> {
     Pool: userPool,
     Storage: memoryStorage(epoch),
   });
-  return new Promise((resolve) =>
+  const pending = new Promise<Session | null>((resolve) =>
     user.getSession((error: Error | null, session: CognitoUserSession | null) => {
       if (epoch !== generation || !authenticated || error || !session?.isValid()) {
         resolve(null);
@@ -203,10 +210,16 @@ export function getCurrentSession(): Promise<Session | null> {
       resolve(toSession(session));
     }),
   );
+  sessionRequest = pending;
+  void pending.finally(() => {
+    if (sessionRequest === pending) sessionRequest = null;
+  });
+  return pending;
 }
 export function signOut(): void {
   generation++;
   authenticated = false;
+  sessionRequest = null;
   flow = null;
   memory.clear();
 }

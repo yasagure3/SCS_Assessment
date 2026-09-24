@@ -7,7 +7,6 @@
 ```powershell
 git clone https://github.com/yasagure3/SCS_Assessment.git
 Set-Location SCS_Assessment
-git switch feat/staff-auth
 .\scripts\setup-vp.ps1
 .\scripts\vp.ps1 install --frozen-lockfile
 .\scripts\vp.ps1 exec wrangler d1 migrations apply scs-assessment-db --local
@@ -31,6 +30,8 @@ $env:E2E_PORT = '5181'
 ```
 
 既存のMicrosoft Edgeで実行する場合のみ `$env:E2E_CHANNEL = 'msedge'` を指定できる。通常とCIはPlaywrightに対応するChromiumを使用する。E2Eは指定ポートに新しいサーバーを起動するため、ポートが使用中の場合は失敗する。起動済みサーバーへの相乗りはしない。
+
+PDF/Excelの独立照合にはPython 3.11以降、`tests/pdf/requirements.txt`の依存、Popplerの`pdftoppm`を用意する。PythonとPopplerがPATH上にない場合、`PDF_QA_PYTHON`、`EXCEL_QA_PYTHON`、`PDF_QA_POPPLER`に実行ファイルを指定する。`tests/e2e/journey.spec.ts`の200%確認はテスト専用profileと拡張を使い、同梱Chromiumの実際のブラウザ倍率を設定・取得する。`E2E_CHANNEL=msedge`でもこの試験だけは同梱Chromiumが必要。CSS zoomやdeviceScaleFactorを200%の代用にはしない。詳細は[全機能結合検証](INTEGRATION_VERIFICATION.md)。
 
 Frontはjsdom、APIはCloudflare Workers poolで実行する。認証署名検証のテストは鍵を注入し、外部JWKSへ接続しない。Cognitoの実サービスによる招待・MFAの確認はF04の別工程。
 

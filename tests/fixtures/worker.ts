@@ -6,9 +6,13 @@ import { FakeAiProvider } from "./ai";
 // Only loaded by the local test configuration. Real production routes have no fixture endpoints.
 const invitationDeliveries: { email: string; sub: string }[] = [];
 const fakeAi = new FakeAiProvider();
+const expiredTokens = new Set<string>();
+const refreshedTokens = new Map<string, string>();
 const app = createBusinessApp({
   ai: () => fakeAi,
   verify: async (token, bindings) => {
+    if (expiredTokens.has(token)) throw new DomainError("UNAUTHORIZED");
+    token = token.replace(/_REFRESH_\d+$/, "");
     const access = /^E2E_ACCESS_TOKEN_(.+)_(\d+)$/.exec(token);
     if (access) {
       const user = await bindings.DB.prepare(
@@ -86,7 +90,24 @@ app.post("/__fixture/access-reset", async (c) => {
   return c.json({ assigned, unassigned });
 });
 app.get("/__fixture/invitation-deliveries", (c) => c.json(invitationDeliveries));
+app.post("/__fixture/expire-session", async (c) => {
+  const { token } = await c.req.json<{ token: string }>();
+  expiredTokens.add(token);
+  return c.json({ expired: true });
+});
+app.post("/__fixture/refresh-session", async (c) => {
+  const { token } = await c.req.json<{ token: string }>();
+  if (!expiredTokens.has(token)) return c.json({ token });
+  if (!refreshedTokens.has(token))
+    refreshedTokens.set(
+      token,
+      `${token.replace(/_REFRESH_\d+$/, "")}_REFRESH_${refreshedTokens.size + 1}`,
+    );
+  return c.json({ token: refreshedTokens.get(token) });
+});
 app.post("/__fixture/reset", async (c) => {
+  expiredTokens.clear();
+  refreshedTokens.clear();
   fakeAi.received = [];
   fakeAi.configured = true;
   const stamp = new Date().toISOString();

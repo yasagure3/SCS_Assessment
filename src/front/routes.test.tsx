@@ -9,6 +9,7 @@ import { RequireAuth } from "./components/RequireAuth";
 import { signIn, getCurrentSession } from "./lib/cognitoClient";
 
 vi.mock("./lib/cognitoClient", () => ({
+  getSessionGeneration: () => 1,
   signIn: vi.fn(),
   getCurrentSession: vi.fn(),
 }));

@@ -63,8 +63,23 @@ export class CognitoUser {
   sendMFACode(code, callbacks) {
     this.finish(code, callbacks);
   }
-  getSession(callback) {
+  async getSession(callback) {
     const token = this.storage.getItem("fixture-token");
-    callback(null, token ? new Session(token) : null);
+    if (!token) {
+      callback(null, null);
+      return;
+    }
+    try {
+      const response = await fetch("/__fixture/refresh-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const result = await response.json();
+      this.storage.setItem("fixture-token", result.token);
+      callback(null, new Session(result.token));
+    } catch (error) {
+      callback(error, null);
+    }
   }
 }
