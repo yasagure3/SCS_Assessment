@@ -16,7 +16,7 @@ async function inspect(directory) {
   }
 }
 await inspect("dist/client");
-await inspect("dist/scs_assessment");
+await inspect(process.argv[2] ?? "dist/scs_assessment");
 console.log(
   "PASS: production client and Worker contain no test authentication or fixture endpoints",
 );

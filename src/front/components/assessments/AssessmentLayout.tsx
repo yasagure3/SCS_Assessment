@@ -65,6 +65,9 @@ export function AssessmentLayout({
             <NavLink to={`/assessments/${assessment.data.id}/criteria`}>評価基準一覧</NavLink>
             <NavLink to={`/assessments/${assessment.data.id}/import`}>Excel取込</NavLink>
             <NavLink to={`/assessments/${assessment.data.id}/evidence`}>証跡</NavLink>
+            <NavLink to={`/assessments/${assessment.data.id}/tasks`}>改善課題</NavLink>
+            <NavLink to={`/assessments/${assessment.data.id}/comparison`}>再診断比較</NavLink>
+            <NavLink to={`/assessments/${assessment.data.id}/reports`}>レポート</NavLink>
           </nav>
           {readOnly && (
             <div className="notice">

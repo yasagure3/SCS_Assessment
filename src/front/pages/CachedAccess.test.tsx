@@ -10,6 +10,7 @@ import { assessmentFixture } from "../components/assessments/assessmentFixtures"
 import { CriteriaPage } from "./CriteriaPage";
 import { CriterionPage } from "./CriterionPage";
 import { EvidencePage } from "./EvidencePage";
+import { TasksPage } from "./TasksPage";
 const state = vi.hoisted(() => ({ error: undefined as unknown, failedPath: "all" }));
 vi.mock("../lib/api", async (original) => {
   const real = await original<typeof import("../lib/api")>();
@@ -58,6 +59,17 @@ describe("cached labels after access failure", () => {
   it.each([401, 403, 404])("hides cached labels on all four C01 pages after %s", (status) => {
     const results: { page: string; path: string; before: boolean; after: boolean }[] = [];
     const pages = [
+      [
+        "TasksPage",
+        TasksPage,
+        [
+          "all",
+          "/api/v1/assessments/undefined",
+          "/api/v1/cases/k",
+          "/api/v1/customers/c",
+          "/api/v1/standards/standard",
+        ],
+      ],
       [
         "EvidencePage",
         EvidencePage,

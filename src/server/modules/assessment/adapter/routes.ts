@@ -3,17 +3,94 @@ import { z } from "zod";
 import type { AppEnv, Bindings } from "../../../app";
 import { readJson } from "../../../http";
 import { editResponseSchema } from "../../../../shared/contracts/assessments";
-import type { AssessmentRepository } from "../domain/assessment";
+import type { ReassessmentRepository } from "../domain/reassessment";
 import type { StandardRepository } from "../domain/standard";
 import { reviewAssessment, updateResponse } from "../usecase/reviewAssessment";
 import type { ImportMasterRepository } from "../domain/importAssessment";
 import { previewImport, commitImport } from "../usecase/commitImport";
 import { previewImportSchema, commitImportSchema } from "../../../../shared/contracts/imports";
+import {
+  addTaskSchema,
+  editTaskSchema,
+  reviewTaskSchema,
+  reassessmentSchema,
+  comparisonQuerySchema,
+  type TaskCommand,
+} from "../../../../shared/contracts/improvement";
+import { manageTasks } from "../usecase/manageTasks";
+import { reassess, comparison } from "../usecase/reassess";
 export function assessmentRoutes(
-  assessments: (bindings: Bindings) => AssessmentRepository,
+  assessments: (bindings: Bindings) => ReassessmentRepository,
   standards: (bindings: Bindings) => StandardRepository & ImportMasterRepository,
+  runtime = { now: () => new Date().toISOString(), newId: () => crypto.randomUUID() },
 ) {
   const app = new Hono<AppEnv>();
+  app.post("/cases/:caseId/reassessments", async (c) =>
+    c.json(
+      {
+        data: await reassess(
+          assessments(c.env),
+          standards(c.env),
+          z.uuid().parse(c.req.param("caseId")),
+          reassessmentSchema.parse(await readJson(c)),
+          {
+            actorId: c.get("principal").id,
+            requestId: c.get("requestId"),
+            key: z.uuid().parse(c.req.header("Idempotency-Key")),
+            ...runtime,
+          },
+        ),
+        requestId: c.get("requestId"),
+      },
+      201,
+    ),
+  );
+  app.get("/assessments/:assessmentId/comparison", async (c) => {
+    const query = comparisonQuerySchema.parse(c.req.query());
+    return c.json({
+      data: await comparison(
+        assessments(c.env),
+        z.uuid().parse(c.req.param("assessmentId")),
+        query.previous,
+        query.previousRevision,
+        c.get("principal").id,
+      ),
+      requestId: c.get("requestId"),
+    });
+  });
+  for (const kind of ["add", "edit", "review"] as const) {
+    app.on(
+      kind === "edit" ? "PATCH" : "POST",
+      `/assessments/:assessmentId/tasks${kind === "add" ? "" : "/:taskId"}${kind === "review" ? "/review" : ""}`,
+      async (c) => {
+        const body = await readJson(c);
+        const command: TaskCommand =
+          kind === "add"
+            ? { kind, input: addTaskSchema.parse(body) }
+            : kind === "edit"
+              ? {
+                  kind,
+                  taskId: z.uuid().parse(c.req.param("taskId")),
+                  input: editTaskSchema.parse(body),
+                }
+              : {
+                  kind,
+                  taskId: z.uuid().parse(c.req.param("taskId")),
+                  input: reviewTaskSchema.parse(body),
+                };
+        return c.json({
+          data: await manageTasks(
+            assessments(c.env),
+            standards(c.env),
+            z.uuid().parse(c.req.param("assessmentId")),
+            command,
+            { actorId: c.get("principal").id, requestId: c.get("requestId"), ...runtime },
+          ),
+          requestId: c.get("requestId"),
+        });
+      },
+    );
+  }
   app.get("/standards/:id/import-master", async (c) =>
     c.json({
       data: await standards(c.env).getImportMaster(c.req.param("id")),

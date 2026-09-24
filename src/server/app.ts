@@ -9,6 +9,7 @@ import { revokeSession } from "./modules/auth/usecase/revokeSession";
 
 export type Bindings = {
   DB: D1Database;
+  EVIDENCE_BUCKET: R2Bucket;
   COGNITO_ISSUER: string;
   COGNITO_CLIENT_ID: string;
   COGNITO_JWKS_URL?: string;
@@ -24,6 +25,17 @@ const errors: Record<string, [ContentfulStatusCode, string]> = {
   AI_INPUT_CHANGED: [422, "送信内容が確認時と異なります。全文を確認し直してください。"],
   AI_NOT_READY: [409, "AI下書きを採用できる状態ではありません。生成状態を確認してください。"],
   AI_RATE_LIMIT: [429, "AI生成は同時に1件、1分に5回までです。少し待ってから試してください。"],
+  FILE_INVALID: [
+    422,
+    "ファイルの形式を確認してください。暗号化・マクロ・外部参照を含む文書は登録できません。",
+  ],
+  FILE_HASH_MISMATCH: [422, "ファイルの照合に失敗しました。選び直して送信してください。"],
+  FILE_NOT_READY: [409, "このファイルは取得できません。登録状態を確認してください。"],
+  FILE_UPLOAD_FAILED: [422, "送信が完了しませんでした。ファイルを選び直してください。"],
+  FILE_STORAGE_FAILED: [
+    502,
+    "ファイルの保存・取得を完了できませんでした。時間を置いてやり直してください。",
+  ],
   PROVIDER_TIMEOUT: [
     504,
     "招待処理が時間内に完了しませんでした。招待一覧で状態を確認してください。",

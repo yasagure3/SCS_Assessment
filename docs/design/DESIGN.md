@@ -46,7 +46,7 @@ flowchart LR
 
 第一案はテンプレートに沿ったWorkers/D1/R2＋Cognito。構成を小さく保て、当初の実装を進めやすい。D1/R2のlocation hintは国内限定保存の保証ではないため、国内限定が必要ならこの案を確定しない。代替は国内リージョンのDB/オブジェクト保管＋認証で、Portを維持してadapterと運用設計を見直す。代替の実機検証・見積は本設計の完了範囲外。
 
-ユーザーは保存先をまだ承認していない。製造はローカル/匿名fixtureで進められる。本番のリソース作成、実顧客データ保存、AI実送信は「未解決の論点」の確定後。
+2026-09-24、ユーザーはCloudflareの匿名データ用検証環境への初回公開を承認した。Issue #43の手順は [PREVIEW_OPERATIONS.md](../PREVIEW_OPERATIONS.md)。本番のリソース作成、実顧客データ保存、AI実送信は「未解決の論点」の確定後。
 
 ## 開発・検証コマンド
 
@@ -263,14 +263,18 @@ GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・
 
 ## 既知の制約
 
+- Cloudflare Viteは設定をビルド時に確定する。検証公開は専用configPathをビルド前に選び、生成されたWorker設定とSPAのCognito IDを照合する。deploy時だけの環境指定では切替できない。[公式環境設定](https://developers.cloudflare.com/workers/vite-plugin/reference/cloudflare-environments/)
 - D1は1行2,000,000 bytes、1クエリ100 bind parameters。集約JSONを1MiB、snapshotを1.5MiBに制限し、seed/複数行INSERTはbind上限内に分割する。[公式上限](https://developers.cloudflare.com/d1/platform/limits/)
 - D1 batchは全statementの成功又はrollback。ただしCASの0行はSQLエラーではないため「トランザクション境界」の条件付き後続書込を必須とする。[D1 batch](https://developers.cloudflare.com/d1/worker-api/d1-database/)
 - D1/R2のlocation hintは国内保存保証ではない。[D1配置](https://developers.cloudflare.com/d1/configuration/data-location/)、[R2配置](https://developers.cloudflare.com/r2/reference/data-location/)
 - テンプレートのCognitoは自己登録可・TOTP無効、motoはパスワード検証の根拠にならない。招待/TOTPの設定変更と実機検証を必須とする。[Cognito TOTP](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-mfa-totp.html)
 - JWTの署名検証だけでは失効tokenを拒否できない。アプリ側のactive/membership/revoked_beforeを毎回検査する。[Cognito失効](https://docs.aws.amazon.com/cognito/latest/developerguide/token-revocation.html)
 - 日本語PDFはPoCでCFF subset表示不良を検出した。現採用版はsubset:false、features locl/ liga:false、OFL付き同一originフォント配信とする。約14MBのPDFになる。文字抽出だけで表示合格にしない。
+- 全量CJKフォントを持つPDFをpypdfで全ページ文字抽出するとQAの120秒上限を超えた。本文照合は既存PDF QAと同じpdfplumberを使い、pypdfは埋込み構造の検査に限定する。
 - ExcelJSのZIP宣言サイズ検査だけでは実展開量を制限できない。実装では独立した展開監視とWorker停止を加え、悪意あるfixtureで試験する。
+- ExcelJS 4.4.0は書出し時にliteral `_xHHHH_` を保護せず、XML読込でCRを正規化する。Excel出力は全文字列セルの共通経路でliteral先頭underscoreとCR/不正XML制御文字を可逆符号化し、独立QAではST_Xstringを1回だけ復号する。[ST_XstringのOffice規約](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/d34ae755-c53f-4a44-a363-c6dd3ee018a4)
 - Front/Workersのテストランナーは分離。`src/shared`を介した型共有とテンプレートのlayer lintを維持する。
+- WindowsではQAのPDF保存中にViteのfs.watchがEBUSYとなることがある。生成物専用の`.local/`と`test-results/`をdev/fixtureの監視対象から外し、製品ソースの監視は維持する。
 
 ## 未解決の論点
 

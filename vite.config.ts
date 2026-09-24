@@ -2,19 +2,47 @@ import { defineConfig } from "vite-plus";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
+import { resolve } from "node:path";
+import { previewBuildSettings } from "./scripts/preview-config.mjs";
+
+// Preview selection happens at build time, before Cloudflare flattens its config.
+const preview = process.env.SCS_PREVIEW_INPUT
+  ? previewBuildSettings(process.env.SCS_PREVIEW_INPUT, process.cwd())
+  : undefined;
+
+const localArtifactDirectories = [".local", "test-results"].map((directory) =>
+  resolve(directory).replaceAll("\\", "/"),
+);
 
 export default defineConfig({
+  envDir: preview?.envDir,
+  // Local QA downloads can be locked while being saved on Windows. They are
+  // never application source and must not be watched or trigger HMR.
+  server: {
+    watch: {
+      ignored: (path) =>
+        localArtifactDirectories.some((directory) => {
+          const normalized = path.replaceAll("\\", "/");
+          return normalized === directory || normalized.startsWith(`${directory}/`);
+        }),
+    },
+  },
   // vitest (jsdom) と @cloudflare/vite-plugin の Worker environment は競合するため、
   // テスト実行時 (process.env.VITEST) は cloudflare() を無効化する。
   // バックエンド (Workers) のテストは vitest.workers.config.ts を別途使う。
-  plugins: [react(), tailwindcss(), !process.env.VITEST && cloudflare()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    !process.env.VITEST && cloudflare(preview ? { configPath: preview.configPath } : {}),
+  ],
   // amazon-cognito-identity-js は Node の `global` を参照するが、ブラウザには存在しないためエイリアスする。
   define: {
     global: "globalThis",
+    ...preview?.define,
   },
   // Worker-only lazy dependencies must be optimized before the first file selection.
   // Discovering them during import otherwise reloads the page and discards its session/draft.
-  optimizeDeps: { include: ["exceljs", "fflate"] },
+  optimizeDeps: { include: ["exceljs", "fflate", "pdf-lib", "@pdf-lib/fontkit"] },
   fmt: {
     ignorePatterns: [
       ".reference/**",

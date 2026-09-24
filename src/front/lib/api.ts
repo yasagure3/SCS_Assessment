@@ -6,13 +6,22 @@ import { ApiError, fetcher } from "./fetcher";
 export function isAccessError(error: unknown) {
   return error instanceof ApiError && [401, 403, 404].includes(error.status);
 }
-export function useApi<T>(path: string | null) {
+export function useApi<T>(
+  path: string | null,
+  options: {
+    dedupingInterval?: number;
+    revalidateOnMount?: boolean;
+    revalidateOnFocus?: boolean;
+    revalidateOnReconnect?: boolean;
+    onSuccess?: (response: ApiSuccess<T>) => void;
+  } = {},
+) {
   const { data: session } = useSWR("cognito-session", getCurrentSession);
   const result = useSWR<ApiSuccess<T>>(
     session && path ? [path, session.accessToken] : null,
     ([url, token]: [string, string]) =>
       fetcher<ApiSuccess<T>>(url, { headers: { Authorization: `Bearer ${token}` } }),
-    { shouldRetryOnError: false },
+    { shouldRetryOnError: false, ...options },
   );
   return {
     ...result,
