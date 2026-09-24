@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("reviews anonymous input, recovers a lost response without regeneration, adopts and confirms, and keeps manual work when AI is unavailable", async ({
+test("reviews anonymous input, recovers lost generation and adoption responses, confirms, and keeps manual work when AI is unavailable", async ({
   page,
   request,
 }) => {
@@ -126,8 +126,60 @@ test("reviews anonymous input, recovers a lost response without regeneration, ad
   await dialog.screenshot({ path: ".local/e2e-ai-zoom200.png" });
   expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   await page.evaluate("document.documentElement.style.zoom='1'");
+  const adoptionRequests: { key: string; body: unknown }[] = [];
+  await page.route("**/api/v1/assessments/*/advice/*/adopt-ai", async (route) => {
+    adoptionRequests.push({
+      key: route.request().headers()["idempotency-key"],
+      body: route.request().postDataJSON(),
+    });
+    if (adoptionRequests.length === 1) {
+      const response = await route.fetch();
+      expect(response.status()).toBe(200);
+      await route.abort("failed");
+    } else await route.continue();
+  });
+  const adoptionRefresh = page.waitForResponse(
+    (response) =>
+      response.request().method() === "GET" && response.url().endsWith(`/api/v1/assessments/${id}`),
+  );
   await dialog.getByRole("button", { name: "AI案を下書きへ採用", exact: true }).click();
+  expect((await (await adoptionRefresh).json()).data.revision).toBe(before.revision + 1);
+  const recoverAdoption = dialog.getByRole("button", { name: "同じ採用の結果を確認", exact: true });
+  await expect(recoverAdoption).toBeEnabled();
+  await expect(
+    dialog.getByRole("button", { name: "AI案を下書きへ採用", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    dialog.getByRole("button", { name: "新しい試行を準備", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    dialog.getByRole("button", { name: "閉じて手入力を続ける", exact: true }),
+  ).toBeDisabled();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeVisible();
+  await recoverAdoption.scrollIntoViewIfNeeded();
+  await dialog.screenshot({ path: ".local/e2e-ai-adoption-recovery.png" });
+  await page.setViewportSize({ width: 640, height: 900 });
+  await recoverAdoption.scrollIntoViewIfNeeded();
+  await dialog.screenshot({ path: ".local/e2e-ai-adoption-recovery-narrow.png" });
+  expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.evaluate("document.documentElement.style.zoom='2'");
+  await recoverAdoption.scrollIntoViewIfNeeded();
+  await dialog.screenshot({ path: ".local/e2e-ai-adoption-recovery-zoom200.png" });
+  expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.evaluate("document.documentElement.style.zoom='1'");
+  await recoverAdoption.click();
   await expect(dialog).not.toBeVisible();
+  expect(adoptionRequests).toEqual([adoptionRequests[0], adoptionRequests[0]]);
+  expect(adoptionRequests[0]).toEqual({
+    key: expect.any(String),
+    body: {
+      expectedRevision: before.revision,
+      runId: expect.any(String),
+      mutationId: adoptionRequests[0].key,
+    },
+  });
   const adopted = await read(),
     draft = adopted.document.responses[criterionId].adviceDraft;
   expect(adopted.document.responses[criterionId].confirmedAdvice).toBeNull();

@@ -187,11 +187,14 @@ export function AdviceEditor({
           onClose={() => setAiOpen(false)}
           onRefresh={onRefresh}
           onAdopted={(result) => {
-            const adopted = result.data.document.responses[criterionId].adviceDraft;
+            // A successful receipt can predate the latest GET; never roll the visible diagnosis back.
+            const current =
+              record.revision > result.data.revision ? { ...result, data: record } : result;
+            const adopted = current.data.document.responses[criterionId].adviceDraft;
             if (adopted) copy(adopted);
-            setRevision(result.data.revision);
+            setRevision(current.data.revision);
             setSaved("AI案を下書きへ採用しました。内容を確認して確定してください。");
-            void onSaved(result);
+            void onSaved(current);
           }}
         />
       )}

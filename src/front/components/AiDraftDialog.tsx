@@ -8,8 +8,8 @@ import {
 } from "../../shared/contracts/aiAdvice";
 import type { AssessmentDto } from "../../shared/contracts/assessments";
 import type { ApiSuccess } from "../../shared/contracts/api";
-import { useWrite } from "../lib/api";
-import { ApiError } from "../lib/fetcher";
+import { isAccessError, useWrite } from "../lib/api";
+import { ApiError, isUnknownWriteOutcome } from "../lib/fetcher";
 
 export type AiWriter = {
   pending: boolean;
@@ -33,21 +33,7 @@ type Props = {
 };
 export function AiDraftDialog(props: Props) {
   const write = useWrite();
-  return (
-    <dialog
-      className="ai-dialog"
-      aria-labelledby="ai-dialog-title"
-      ref={(node) => {
-        if (node && !node.open) node.showModal();
-      }}
-      onCancel={(event) => {
-        event.preventDefault();
-        if (!write.pending) props.onClose();
-      }}
-    >
-      <AiDraftForm {...props} write={write} read={write.read} />
-    </dialog>
-  );
+  return <AiDraftForm {...props} write={write} read={write.read} modal />;
 }
 
 export function AiDraftForm({
@@ -60,11 +46,20 @@ export function AiDraftForm({
   onAdopted,
   onRefresh,
   onClose,
-}: Props & { write: AiWriter; read: (path: string) => Promise<ApiSuccess<AiRunDto> | null> }) {
+  modal = false,
+}: Props & {
+  write: AiWriter;
+  read: (path: string) => Promise<ApiSuccess<AiRunDto> | null>;
+  modal?: boolean;
+}) {
   const [answer, setAnswer] = useState(""),
     [gap, setGap] = useState(""),
     [reviewed, setReviewed] = useState("");
   const [attempt, setAttempt] = useState<{ body: GenerateAiInput; key: string } | null>(null);
+  const [adoption, setAdoption] = useState<{
+    path: string;
+    body: { expectedRevision: number; runId: string; mutationId: string };
+  } | null>(null);
   const [run, setRun] = useState<AiRunDto | null>(null),
     [loading, setLoading] = useState(false),
     [readError, setReadError] = useState<Error | null>(null);
@@ -88,7 +83,9 @@ export function AiDraftForm({
       anonymizationReviewed: true,
     }).success && new TextEncoder().encode(canonicalAiInput(payload)).byteLength <= 8000;
   const pending = write.pending || loading,
-    disabled = pending || readOnly;
+    disabled = pending || readOnly || isAccessError(write.error) || isAccessError(readError);
+  const unknownAdoption = Boolean(adoption && isUnknownWriteOutcome(write.error));
+  const closeDisabled = pending || unknownAdoption;
   const error = readError ?? write.error;
   const runId = run?.runId ?? (error instanceof ApiError ? error.runId : undefined);
   const stale =
@@ -99,7 +96,13 @@ export function AiDraftForm({
   const resetAllowed =
     run?.status === "succeeded" || run?.status === "failed" || stale || knownFailure;
   async function generate(retry = false) {
-    if (busy.current || disabled || (!retry && (reviewed !== token || !valid || attempt))) return;
+    if (
+      busy.current ||
+      disabled ||
+      unknownAdoption ||
+      (!retry && (reviewed !== token || !valid || attempt))
+    )
+      return;
     busy.current = true;
     setLoading(true);
     setReadError(null);
@@ -136,7 +139,7 @@ export function AiDraftForm({
     }
   }
   async function refreshRun() {
-    if (!runId || disabled || busy.current) return;
+    if (!runId || disabled || busy.current || unknownAdoption) return;
     busy.current = true;
     setLoading(true);
     setReadError(null);
@@ -155,17 +158,35 @@ export function AiDraftForm({
       setLoading(false);
     }
   }
-  async function adopt() {
-    if (disabled || busy.current || stale || run?.status !== "succeeded") return;
+  async function adopt(retry = false) {
+    if (disabled || busy.current) return;
+    if (
+      retry
+        ? !unknownAdoption || !adoption
+        : unknownAdoption || stale || run?.status !== "succeeded"
+    )
+      return;
+    // A receipt replay must keep the first request even after a GET advances revision/basis.
+    const current = retry
+      ? adoption!
+      : {
+          path: `/api/v1/assessments/${record.id}/advice/${criterionId}/adopt-ai`,
+          body: {
+            expectedRevision: record.revision,
+            runId: run!.runId,
+            mutationId: crypto.randomUUID(),
+          },
+        };
+    setAdoption(current);
     busy.current = true;
     setLoading(true);
+    setReadError(null);
     try {
-      const result = await write.send<AssessmentDto>(
-        `/api/v1/assessments/${record.id}/advice/${criterionId}/adopt-ai`,
-        "POST",
-        { expectedRevision: record.revision, runId: run.runId },
-      );
+      const result = await write.send<AssessmentDto>(current.path, "POST", current.body, {
+        operationKey: current.body.mutationId,
+      });
       if (result) {
+        setAdoption(null);
         void onAdopted(result);
         onClose();
       } else void onRefresh();
@@ -174,7 +195,7 @@ export function AiDraftForm({
       setLoading(false);
     }
   }
-  return (
+  const form = (
     <div className="data-form">
       <h2 id="ai-dialog-title">匿名化した内容から AI 下書き</h2>
       <p className="notice">
@@ -244,6 +265,21 @@ export function AiDraftForm({
           {error.message}
         </p>
       )}
+      {unknownAdoption && (
+        <div className="notice">
+          <p>
+            採用の結果を確認できませんでした。新しい採用を始めず、同じ採用の結果を確認してください。診断が更新されていても確認できます。
+          </p>
+          <button
+            type="button"
+            className="button secondary"
+            disabled={disabled}
+            onClick={() => void adopt(true)}
+          >
+            同じ採用の結果を確認
+          </button>
+        </div>
+      )}
       {run?.status === "failed" && (
         <p role="alert" className="form-error">
           生成に失敗しました（{run.errorCode}）。新しい試行を準備するか、手入力を続けてください。
@@ -258,7 +294,7 @@ export function AiDraftForm({
         <button
           type="button"
           className="button secondary"
-          disabled={disabled}
+          disabled={disabled || unknownAdoption}
           onClick={() => void generate(true)}
         >
           同じ送信の状態を確認
@@ -268,7 +304,7 @@ export function AiDraftForm({
         <button
           type="button"
           className="button secondary"
-          disabled={disabled}
+          disabled={disabled || unknownAdoption}
           onClick={() => void refreshRun()}
         >
           生成状態を再確認
@@ -300,7 +336,7 @@ export function AiDraftForm({
           <button
             type="button"
             className="button primary"
-            disabled={disabled || Boolean(stale) || run.status !== "succeeded"}
+            disabled={disabled || unknownAdoption || Boolean(stale) || run.status !== "succeeded"}
             onClick={() => void adopt()}
           >
             AI案を下書きへ採用
@@ -311,9 +347,10 @@ export function AiDraftForm({
         <button
           type="button"
           className="button secondary"
-          disabled={disabled}
+          disabled={disabled || unknownAdoption}
           onClick={() => {
             setAttempt(null);
+            setAdoption(null);
             setRun(null);
             setReviewed("");
             setReadError(null);
@@ -324,9 +361,26 @@ export function AiDraftForm({
           新しい試行を準備
         </button>
       )}
-      <button type="button" className="button secondary" disabled={pending} onClick={onClose}>
+      <button type="button" className="button secondary" disabled={closeDisabled} onClick={onClose}>
         閉じて手入力を続ける
       </button>
     </div>
+  );
+  return modal ? (
+    <dialog
+      className="ai-dialog"
+      aria-labelledby="ai-dialog-title"
+      ref={(node) => {
+        if (node && !node.open) node.showModal();
+      }}
+      onCancel={(event) => {
+        event.preventDefault();
+        if (!closeDisabled) onClose();
+      }}
+    >
+      {form}
+    </dialog>
+  ) : (
+    form
   );
 }

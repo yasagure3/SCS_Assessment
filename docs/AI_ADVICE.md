@@ -14,4 +14,6 @@ run予約と監査、共通operation_receiptsは同じD1 batchで保存する。
 
 新しい試行は画面上の明示操作で新キーと再確認を要求する。生成だけでは診断revisionを変更しない。採用は下書きだけをCAS保存し、既存確定版を保持する。採用の通常成功・成功no-opは診断更新と共通のreceiptを保存する。再送時は現在の認可を確認してから正規化したrequestHashを照合し、同一body・mutationIdなら保存済み診断DTOを返す。後からbasisが変わっても現在の診断は書き換えず、異なるbodyで同じmutationIdを使えば409となる。未記録の採用には現在のrun・basis・revisionの検査を適用する。AI由来の助言は採用済み下書きまたは確定版がある場合に編集・確定できる。人の内容確認と確定が別途必要で、生成/採用だけでは顧客出力対象にならない。
 
-検証は`test/worker/ai-advice.test.ts`、`src/front/components/AiDraftDialog.test.tsx`、`tests/e2e/advice-ai.spec.ts`。Workers試験は中断時の3動作と遅延成功、通常採用/no-opの再送、異body・新key・停止/割当解除/失効後の拒否を確認する。E2Eは匿名fixtureとfake providerで送信全文、通信断復旧、下書き採用、人の確定、未設定中の手入力保持を確認する。画面画像は`.local/e2e-ai-*.png`へ出力する。実事業者の品質・通信・契約は本番接続検証まで未検証。
+採用の結果不明時も、開始時の本文・expectedRevision・mutationId/Idempotency-Keyをモーダルのメモリで保持する。診断の再読込で版やbasisが変わっても「同じ採用の結果を確認」で同じ要求を再送できる。結果不明の間は生成状態照会・新規生成・新規採用・モーダルを閉じる操作を抑止し、確認中の要求を失わない。通信断、成功応答のJSON解析失敗、サーバー/中継エラー、不完全なエラー応答を結果不明とし、明確な拒否・認可エラー・競合を区別する。採用receiptが再取得済み診断より古い場合は、最新の診断表示を維持して人の再確認へ戻す。状態はメモリ内だけで、ブラウザ再読み込みやログアウトをまたいだ保持はしない。
+
+検証は`test/worker/ai-advice.test.ts`、`src/front/components/AiDraftDialog.test.tsx`、`src/front/components/AiDraftAdoption.test.tsx`、`tests/e2e/advice-ai.spec.ts`。Workers試験は中断時の3動作と遅延成功、通常採用/no-opの再送、異body・新key・停止/割当解除/失効後の拒否を確認する。Front試験は版不変・採用による版更新・採用後basis更新と通信障害の組み合わせ、明確な拒否、閲覧専用化、保存済み成功で最新表示を巻き戻さないことを確認する。E2Eは匿名fixtureとfake providerで送信全文、生成/採用の通信断復旧、下書き採用、人の確定、未設定中の手入力保持を確認する。画面画像は`.local/e2e-ai-*.png`へ出力する。実事業者の品質・通信・契約は本番接続検証まで未検証。
