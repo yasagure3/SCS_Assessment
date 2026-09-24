@@ -1145,3 +1145,129 @@ button,
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.report-workspace {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.report-workspace .panel {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.report-workspace h3 {
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+.report-workspace summary {
+  cursor: pointer;
+  padding: 12px 0;
+  font-weight: 600;
+}
+.report-cover {
+  margin-top: 20px;
+  padding: 24px;
+  border-left: 4px solid #285cc4;
+  background: #f6f8fb;
+}
+.report-cover h3 {
+  margin: 8px 0 12px;
+}
+.report-scope {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.report-content dt {
+  color: #64748b;
+  font-size: 12px;
+}
+.report-content dd {
+  margin: 6px 0 12px;
+}
+.report-counts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.report-counts > div {
+  border: 1px solid #dce3ef;
+  border-radius: 6px;
+  padding: 16px;
+}
+.report-counts span {
+  display: block;
+  font-size: 12px;
+  color: #475569;
+}
+.report-counts strong {
+  display: block;
+  font-size: 28px;
+  margin-top: 8px;
+}
+.report-counts small {
+  font-size: 13px;
+  font-weight: 400;
+  color: #64748b;
+}
+.report-limitations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+}
+.report-limitations details,
+.report-all-criteria > details {
+  border-bottom: 1px solid #e2e8f0;
+}
+.report-confirm,
+.report-history li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 0;
+  border-top: 1px solid #dce3ef;
+}
+.report-confirm label,
+.report-criterion-choices label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.report-workspace input[type="checkbox"] {
+  width: 18px;
+  min-height: 18px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.report-criterion-choices {
+  max-height: 320px;
+  overflow-y: auto;
+  display: grid;
+  gap: 14px;
+  margin: 16px 0;
+  padding: 6px;
+  font-size: 13px;
+}
+.report-history {
+  list-style: none;
+  padding: 0;
+}
+.report-id,
+.report-ids {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.8;
+}
+@media (max-width: 800px) {
+  .report-counts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .report-scope,
+  .report-limitations {
+    grid-template-columns: 1fr;
+  }
+}

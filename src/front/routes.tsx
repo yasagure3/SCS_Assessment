@@ -15,6 +15,7 @@ import { ImportPage } from "./pages/ImportPage";
 import { EvidencePage } from "./pages/EvidencePage";
 import { TasksPage } from "./pages/TasksPage";
 import { ComparisonPage } from "./pages/ComparisonPage";
+import { ReportsPage } from "./pages/ReportsPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/home" replace /> },
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
     { path: "/assessments/:assessmentId/evidence", element: <EvidencePage /> },
     { path: "/assessments/:assessmentId/tasks", element: <TasksPage /> },
     { path: "/assessments/:assessmentId/comparison", element: <ComparisonPage /> },
+    { path: "/assessments/:assessmentId/reports", element: <ReportsPage /> },
   ].map((route) => ({
     ...route,
     element: <RequireAuth>{route.element}</RequireAuth>,
