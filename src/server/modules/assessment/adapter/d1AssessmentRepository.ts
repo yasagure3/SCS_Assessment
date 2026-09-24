@@ -7,11 +7,12 @@ import {
   type AssessmentRepository,
 } from "../domain/assessment";
 import { D1OperationLedger } from "./d1OperationLedger";
+import type { ReassessmentRepository } from "../domain/reassessment";
 
 type StoredRecord = Omit<AssessmentRecord, "document"> & { documentJson: string };
 const authorized =
   "EXISTS(SELECT 1 FROM app_users u WHERE u.id=? AND u.status='active' AND (u.role='admin' OR EXISTS(SELECT 1 FROM customer_memberships m WHERE m.user_id=u.id AND m.customer_id=a.customer_id)))";
-export class D1AssessmentRepository implements AssessmentRepository {
+export class D1AssessmentRepository implements ReassessmentRepository {
   private readonly db: D1Database;
   private readonly ledger: D1OperationLedger;
   constructor(db: D1Database) {
@@ -131,5 +132,94 @@ export class D1AssessmentRepository implements AssessmentRepository {
   ): Promise<AssessmentRecord | null> {
     await this.get(id, actorId);
     return this.ledger.replay<AssessmentRecord>(actorId, mutationId, requestHash);
+  }
+  async revision(id: string, revision: number, actorId: string): Promise<AssessmentRecord> {
+    const record = await this.get(id, actorId);
+    const history = await this.db
+      .prepare(
+        "SELECT document_json AS documentJson,created_at AS updatedAt FROM assessment_revisions WHERE assessment_id=? AND revision=?",
+      )
+      .bind(id, revision)
+      .first<{ documentJson: string; updatedAt: string }>();
+    if (!history) throw new DomainError("NOT_FOUND");
+    return {
+      ...record,
+      revision,
+      updatedAt: history.updatedAt,
+      document: validateDocument(
+        JSON.parse(history.documentJson),
+        await this.ids(record.standardId),
+      ),
+    };
+  }
+  async createReassessment(
+    input: Parameters<ReassessmentRepository["createReassessment"]>[0],
+  ): Promise<AssessmentRecord> {
+    const { record, actorId, key, requestHash, requestId, expectedPreviousRevision } = input;
+    const previous = await this.get(record.previousAssessmentId!, actorId);
+    if (previous.caseId !== record.caseId || previous.customerId !== record.customerId)
+      throw new DomainError("NOT_FOUND");
+    const replay = await this.ledger.replay<AssessmentRecord>(actorId, key, requestHash);
+    if (replay) return replay;
+    const archived = await this.db
+      .prepare(
+        "SELECT 1 FROM cases k JOIN customers c ON c.id=k.customer_id WHERE k.id=? AND (k.archived_at IS NOT NULL OR c.archived_at IS NOT NULL)",
+      )
+      .bind(record.caseId)
+      .first();
+    if (archived) throw new DomainError("ARCHIVED");
+    const document = validateDocument(record.document, await this.ids(record.standardId));
+    const json = JSON.stringify(document);
+    return this.ledger.execute({
+      actorId,
+      key,
+      requestHash,
+      resourceId: record.id,
+      response: { ...record, document },
+      conditionSql: `EXISTS(SELECT 1 FROM assessments a JOIN cases k ON k.id=a.case_id JOIN customers c ON c.id=a.customer_id WHERE a.id=? AND a.revision=? AND a.case_id=? AND a.customer_id=? AND k.archived_at IS NULL AND c.archived_at IS NULL AND ${authorized}) AND NOT EXISTS(SELECT 1 FROM json_each(?,'$.evidence') e WHERE json_extract(e.value,'$.fileId') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM files f WHERE f.id=json_extract(e.value,'$.fileId') AND f.case_id=? AND f.customer_id=? AND f.status='ready'))`,
+      conditionParams: [
+        previous.id,
+        expectedPreviousRevision,
+        record.caseId,
+        record.customerId,
+        actorId,
+        json,
+        record.caseId,
+        record.customerId,
+      ],
+      writes: (reservationId) => [
+        this.db
+          .prepare(
+            "INSERT INTO assessments(id,case_id,customer_id,standard_id,previous_assessment_id,revision,document_json,mutation_id,request_hash,actor_id,created_at,updated_at) SELECT ?,?,?,?,?,1,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM operation_receipts WHERE reservation_id=?)",
+          )
+          .bind(
+            record.id,
+            record.caseId,
+            record.customerId,
+            record.standardId,
+            previous.id,
+            json,
+            key,
+            requestHash,
+            actorId,
+            record.createdAt,
+            record.updatedAt,
+            reservationId,
+          ),
+        this.db
+          .prepare(
+            "INSERT INTO audit_events(id,actor_id,customer_id,action,resource_type,resource_id,from_revision,to_revision,request_id,created_at) SELECT ?,?,?,'assessment.reassess','assessment',?,NULL,1,?,? WHERE EXISTS(SELECT 1 FROM operation_receipts WHERE reservation_id=?)",
+          )
+          .bind(
+            crypto.randomUUID(),
+            actorId,
+            record.customerId,
+            record.id,
+            requestId,
+            record.createdAt,
+            reservationId,
+          ),
+      ],
+    });
   }
 }
