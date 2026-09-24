@@ -60,3 +60,9 @@ PDF/ExcelのbytesはブラウザWorkerでsnapshotから作りローカル保存�
 単体: 81/分類一致、範囲必須、未回答出力可、助言の未確定/stale除外。Workers結合: CAS、名前変更競合、snapshot UPDATE/DELETE拒否、後の編集が旧reportに不反映、権限。出力: PoCの長文/全81本文/文字列セル/同snapshot集計を移植し全文抽出と画像確認。E2E golden path: 留意事項付き確定→PDFとExcelを取得→同reportId/件数を照合、旧版再出力。
 
 R01単独のE2Eは `tests/e2e/report-snapshot.spec.ts`。匿名fixtureで留意事項付きの版確定→回答/顧客名の編集→同じreportIdの旧内容再取得を検証し、1440px/640pxの画面画像を保存する。PDF/Excel取得の検証はR02/R03で同じsnapshotを利用して追加する。
+
+R02の実装詳細: PDF本文の構成と折返しを `reportPdfContent.ts`、描画を `reportPdf.ts`、Workerの起動・120秒停止・取消を `reportClient.ts`、保存操作を `ReportPdfExport.tsx` に分離する。各基準は新しいページで開始し、長文が続くページには項目ID付きの継続見出しを置く。自由記述の改行は維持し、タブは版面上4空白で表示する。評価状態の不足記号は日本語フォントに収録された「×」で表示する。未収録の自由記述文字はコードポイントを添えて失敗表示し、文字を黙って置換しない。
+
+フォントは `public/fonts/` の同一origin配信、起動時に固定SHA-256を検証し、外部originへのredirectは拒否する。Noto Sans CJK JP 2.004のOFL・NOTICEとPDF依存ライセンスを同梱する。PDF生成中に別の報告版を開いたり画面を離れた場合もWorkerを終了し、不完全なbytesを保存操作へ渡さない。
+
+R02のE2Eは `tests/e2e/report-pdf.spec.ts`。生成PDFを `tests/pdf/verify_report.py` で独立に抽出・フォント全量hash検査・改ページ画像化する。実行環境にはPythonのpdfplumber/pypdfとPopplerが必要。必要なら `PDF_QA_PYTHON` と `PDF_QA_POPPLER` に実行ファイルのパスを指定する。匿名成果物は `.local/pdf-qa/` のみへ保存。生成時間/ファイルサイズはブラウザで取得し、`reportHeap.ts` で実際のPDF Worker targetのCDP `Runtime.getHeapUsage` を100ms間隔で要求してusedSize/totalSize/embedderHeapUsedSize/backingStorageSizeと採取時刻を記録する。繁忙時の応答遅延・終了時の取りこぼしを含むサンプルのピークであり、プロセス全体のRSSやメモリ上限ではない。Python QAのtracemalloc最大値も別の測定として記録する。

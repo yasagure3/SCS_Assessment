@@ -271,6 +271,7 @@ GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・
 - 日本語PDFはPoCでCFF subset表示不良を検出した。現採用版はsubset:false、features locl/ liga:false、OFL付き同一originフォント配信とする。約14MBのPDFになる。文字抽出だけで表示合格にしない。
 - ExcelJSのZIP宣言サイズ検査だけでは実展開量を制限できない。実装では独立した展開監視とWorker停止を加え、悪意あるfixtureで試験する。
 - Front/Workersのテストランナーは分離。`src/shared`を介した型共有とテンプレートのlayer lintを維持する。
+- WindowsではQAのPDF保存中にViteのfs.watchがEBUSYとなることがある。生成物専用の`.local/`と`test-results/`をdev/fixtureの監視対象から外し、製品ソースの監視は維持する。
 
 ## 未解決の論点
 

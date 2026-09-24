@@ -6,9 +6,21 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 // A separate local-only test entry. The production configuration never imports this file.
 export default defineConfig(({ command }) => {
   if (command !== "serve") throw new Error("The test fixture cannot be built or deployed.");
+  const localArtifactDirectories = [".local", "test-results"].map((directory) =>
+    resolve(directory).replaceAll("\\", "/"),
+  );
   return {
+    server: {
+      watch: {
+        ignored: (path) =>
+          localArtifactDirectories.some((directory) => {
+            const normalized = path.replaceAll("\\", "/");
+            return normalized === directory || normalized.startsWith(`${directory}/`);
+          }),
+      },
+    },
     cacheDir: resolve(".local/e2e-vite-cache"),
-    optimizeDeps: { include: ["exceljs", "fflate"] },
+    optimizeDeps: { include: ["exceljs", "fflate", "pdf-lib", "@pdf-lib/fontkit"] },
     plugins: [
       react(),
       tailwindcss(),
