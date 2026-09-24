@@ -1,9 +1,44 @@
 import { describe, expect, it } from "vite-plus/test";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { FileAttachment } from "./FileAttachment";
 import type { FileUploaded } from "../../shared/contracts/files";
 import { ApiError } from "../lib/fetcher";
+import { signOut } from "../lib/cognitoClient";
 describe("file attachment", () => {
+  it.each(["unmount", "logout"])("discards late successful completion after %s", async (end) => {
+    const states: unknown[] = [];
+    let finish!: (result: FileUploaded) => void;
+    let signal!: AbortSignal;
+    const view = render(
+      <FileAttachment
+        disabled={false}
+        newId={() => "key"}
+        onChange={(value) => states.push(value)}
+        upload={async (_file, _key, requestedSignal) => {
+          signal = requestedSignal;
+          return new Promise<FileUploaded>((resolve) => {
+            finish = resolve;
+          });
+        }}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText("添付ファイル（任意）"), {
+      target: { files: [new File(["anonymous"], "anonymous.txt")] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "添付ファイルを登録" }));
+    if (end === "unmount") view.unmount();
+    else signOut();
+    await act(async () => {
+      finish({ fileId: "late-id", status: "ready", sizeBytes: 9, sha256: "ab".repeat(32) });
+    });
+    expect({ states, aborted: signal.aborted }).toEqual({
+      states: [
+        { fileId: null, pending: false, incomplete: true },
+        { fileId: null, pending: true, incomplete: true },
+      ],
+      aborted: true,
+    });
+  });
   it("requires a new selection after a confirmed rejection", async () => {
     render(
       <FileAttachment

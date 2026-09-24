@@ -11,9 +11,11 @@ export function createSessionFetch(io: {
 }): typeof fetch {
   let refreshing: { generation: number; promise: Promise<Session | null> } | null = null;
   return async (input, init) => {
+    init?.signal?.throwIfAborted();
     const generation = io.generation();
     const current = () => generation === io.generation();
     const response = await io.fetch(input, init);
+    init?.signal?.throwIfAborted();
     const headers = new Headers(init?.headers);
     const authorization = headers.get("Authorization");
     if (response.status !== 401 || !authorization?.startsWith("Bearer ")) return response;
@@ -34,6 +36,7 @@ export function createSessionFetch(io: {
       });
     }
     const session = await refreshing.promise;
+    init?.signal?.throwIfAborted();
     if (!current() || !session || authorization === `Bearer ${session.accessToken}`)
       return response;
     headers.set("Authorization", `Bearer ${session.accessToken}`);
