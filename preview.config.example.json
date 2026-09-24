@@ -1,0 +1,10 @@
+{
+  "purpose": "anonymous-preview",
+  "offlineOnly": false,
+  "cloudflareAccountId": "",
+  "workerName": "scs-assessment-preview",
+  "databaseId": "",
+  "cognitoRegion": "ap-northeast-1",
+  "cognitoUserPoolId": "",
+  "cognitoClientId": ""
+}

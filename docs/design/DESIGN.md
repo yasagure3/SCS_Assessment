@@ -46,7 +46,7 @@ flowchart LR
 
 第一案はテンプレートに沿ったWorkers/D1/R2＋Cognito。構成を小さく保て、当初の実装を進めやすい。D1/R2のlocation hintは国内限定保存の保証ではないため、国内限定が必要ならこの案を確定しない。代替は国内リージョンのDB/オブジェクト保管＋認証で、Portを維持してadapterと運用設計を見直す。代替の実機検証・見積は本設計の完了範囲外。
 
-ユーザーは保存先をまだ承認していない。製造はローカル/匿名fixtureで進められる。本番のリソース作成、実顧客データ保存、AI実送信は「未解決の論点」の確定後。
+2026-09-24、ユーザーはCloudflareの匿名データ用検証環境への初回公開を承認した。Issue #43の手順は [PREVIEW_OPERATIONS.md](../PREVIEW_OPERATIONS.md)。本番のリソース作成、実顧客データ保存、AI実送信は「未解決の論点」の確定後。
 
 ## 開発・検証コマンド
 
@@ -263,6 +263,7 @@ GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・
 
 ## 既知の制約
 
+- Cloudflare Viteは設定をビルド時に確定する。検証公開は専用configPathをビルド前に選び、生成されたWorker設定とSPAのCognito IDを照合する。deploy時だけの環境指定では切替できない。[公式環境設定](https://developers.cloudflare.com/workers/vite-plugin/reference/cloudflare-environments/)
 - D1は1行2,000,000 bytes、1クエリ100 bind parameters。集約JSONを1MiB、snapshotを1.5MiBに制限し、seed/複数行INSERTはbind上限内に分割する。[公式上限](https://developers.cloudflare.com/d1/platform/limits/)
 - D1 batchは全statementの成功又はrollback。ただしCASの0行はSQLエラーではないため「トランザクション境界」の条件付き後続書込を必須とする。[D1 batch](https://developers.cloudflare.com/d1/worker-api/d1-database/)
 - D1/R2のlocation hintは国内保存保証ではない。[D1配置](https://developers.cloudflare.com/d1/configuration/data-location/)、[R2配置](https://developers.cloudflare.com/r2/reference/data-location/)
