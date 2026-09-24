@@ -35,14 +35,16 @@ Cloudflare Viteはビルド時に設定を確定するため、通常ビルド�
 
 新しいPoolが必要な場合は `terraform/envs/preview` を利用できる。共通の招待専用・必須TOTPモジュールを利用し、ユーザーや恒久パスワードはTerraformで作成しない。`aws_account_id` は必須で、AWS providerの `allowed_account_ids` により別アカウントへの適用を拒否する。AWSログイン・対象アカウントはオペレーターが確定する。
 
+PowerShellでは `-var-file=...` などの引数全体を引用符で囲む。引用符なしの相対パスは引数が分割され、Terraformが `Too many command line arguments` で停止する場合がある。
+
 ```powershell
-# .local/preview.tfvars に承認済み aws_account_id / aws_region / preview_name を記載。
-terraform -chdir=terraform/envs/preview init
-terraform -chdir=terraform/envs/preview validate
-terraform -chdir=terraform/envs/preview plan -var-file=../../../.local/preview.tfvars -out=../../../.local/preview/cognito.plan
+# .local/preview/terraform.tfvars.json に承認済み aws_account_id / aws_region / preview_name をJSONで記載。
+terraform '-chdir=terraform/envs/preview' init
+terraform '-chdir=terraform/envs/preview' validate
+terraform '-chdir=terraform/envs/preview' plan '-var-file=../../../.local/preview/terraform.tfvars.json' '-out=../../../.local/preview/cognito.plan'
 # plan の追加対象とアカウントを確認してから実行する。
-terraform -chdir=terraform/envs/preview apply ../../../.local/preview/cognito.plan
-terraform -chdir=terraform/envs/preview output -json > .local/preview/cognito-outputs.json
+terraform '-chdir=terraform/envs/preview' apply '../../../.local/preview/cognito.plan'
+terraform '-chdir=terraform/envs/preview' output -json > '.local/preview/cognito-outputs.json'
 ```
 
 stateは `.local/preview/terraform.tfstate` に限定し、非公開バックアップを保管する。prodディレクトリのinit/applyやstate移行は行わない。Pool/Client出力を入力JSONへ転記し、Prepareを再実行する。
