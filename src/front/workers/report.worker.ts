@@ -3,10 +3,28 @@ import { createReportPdf } from "./reportPdf";
 
 const fontPath = "/fonts/NotoSansCJKjp-Regular.otf";
 const fontSha256 = "68a3fc98800b2a27b371f2fb79991daf3633bd89309d4ffaa6946fd587f375b5";
-self.onmessage = async (event: MessageEvent<{ snapshot: ReportSnapshot }>) => {
+self.onmessage = async (event: MessageEvent<{ snapshot: ReportSnapshot; format?: "excel" }>) => {
   const started = performance.now();
   try {
     self.postMessage({ progress: 1 });
+    if (event.data.format === "excel") {
+      const { createReportExcel } = await import("./reportExcel");
+      const output = await createReportExcel(event.data.snapshot, (progress) =>
+        self.postMessage({ progress }),
+      );
+      const bytes = new Uint8Array(output).buffer;
+      self.postMessage(
+        {
+          result: {
+            bytes,
+            elapsedMs: performance.now() - started,
+            reportId: event.data.snapshot.reportId,
+          },
+        },
+        { transfer: [bytes] },
+      );
+      return;
+    }
     let fontBytes: Uint8Array;
     try {
       const response = await fetch(new URL(fontPath, self.location.origin), {
@@ -47,7 +65,9 @@ self.onmessage = async (event: MessageEvent<{ snapshot: ReportSnapshot }>) => {
         message,
       )
         ? message
-        : "PDF_FAILED",
+        : event.data.format === "excel"
+          ? "EXCEL_FAILED"
+          : "PDF_FAILED",
     });
   }
 };
