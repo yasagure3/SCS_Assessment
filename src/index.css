@@ -1081,3 +1081,67 @@ button,
     flex-wrap: wrap;
   }
 }
+.comparison-picker select {
+  width: 100%;
+  min-width: 0;
+}
+.reassessment-editor fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.reassessment-editor .copy-tasks {
+  margin-top: 1rem;
+}
+.comparison-row {
+  border-top: 1px solid #dbe3ec;
+  padding: 1.25rem 0;
+  overflow-wrap: anywhere;
+}
+.comparison-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.comparison-task {
+  background: #f5f7fa;
+  padding: 1rem;
+  margin: 0.5rem 0;
+}
+.comparison-revisions,
+.status-transition {
+  font-weight: 700;
+}
+.comparison-results {
+  overflow-wrap: anywhere;
+}
+.reassessment-source-diff {
+  overflow-wrap: anywhere;
+}
+.reassessment-source-diff dl,
+.reassessment-source-diff dd {
+  margin: 0;
+}
+.reassessment-source-diff dl > div + div {
+  margin-top: 0.65rem;
+}
+.reassessment-source-diff dt {
+  font-weight: 600;
+}
+.reassessment-source-diff ol,
+.reassessment-source-diff ul {
+  padding-left: 1.5rem;
+}
+.reassessment-source-diff ol {
+  list-style: decimal;
+}
+.reassessment-source-diff ul {
+  list-style: disc;
+}
+@media (max-width: 700px) {
+  .comparison-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

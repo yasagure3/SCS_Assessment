@@ -63,3 +63,17 @@ rowsはcriterionId対応でbeforeStatus/afterStatus/changed、回答文・課題
 重点検証は状態と根拠の独立性、確認解除、認可、競合・再送、境界に置く。`test/worker/tasks.test.ts` と既存 `evidence.test.ts` でAPI・証跡変更の連動、`TaskForm.test.tsx` / `TasksPage.test.tsx` で入力・pending・読込/保存失敗・409、`src/test/taskBoundary.test.tsx` で1MiBちょうどと1byte超過を確認する。`tests/e2e/tasks.spec.ts` は匿名fixtureで課題作成→証跡登録→完了報告→確認と原文・自己評価の維持を通し、通常/640px幅の画像を `.local/e2e-tasks-*.png` に保存する。実顧客・実AI・本番クラウドは使用しない。
 
 `src/test/taskResponseRecovery.test.tsx` は製品の送信hookを通し、保存成功→応答喪失→GETで最新値取得→同一body/操作IDの再送を検証する。追加・100件目・1MiBちょうど・完了報告・doneの結果変更・confirmed/rejectedに加え、編集後の新要求、編集取消後の再送、閲覧専用と権限拒否を含む。
+
+## 再診断と比較の実装（T02）
+
+診断メニューの「再診断比較」から `/assessments/:assessmentId/comparison` を開く。同一案件の候補一覧はcursorでページ移動できる。前回がない場合は選択案内と、この診断をコピー元にする作成フォームを表示する。作成時は診断日・範囲・回答コピーの有無・引き継ぐ課題を入力し、新診断の比較画面へ移動する。診断日は空欄（null）も許可し、初期値は未入力、範囲はコピー元、回答コピーはON、課題選択は空から開始する。異版からの自動移行は行わず、作成元と作成先はいずれも既知の `scs-20260327-star3` に限定する。
+
+コピー計画の純粋関数は `src/shared/reassessmentCopy.ts` に置き、domainがbasisHashを計算する。画面も同じ計画からUTF-8 byte数を算出し、1MiB超過を作成前に表示する。新規の診断・Evidence・Task IDはサーバーが生成する。D1の条件付きreceipt予約にコピー元revision・同一案件・最新権限・親の非保管状態・readyファイル参照を含め、本体・履歴trigger・監査と一括保存する。コピー元が途中で変わった場合も予約は0行となり409で終了する。
+
+比較DTOの `current` / `previous` は比較に使った診断record（revisionとdocumentを含む）、`scopeChanges` は `{field,before,after}[]`、`unmatchedIds` は `{previous:string[],current:string[]}` とする。各rowに基準ID・前後の状態・changed・回答文の差分と課題比較を含む。課題の `mode:matched` は `matched`（before/after/changed）、`notCarried`、`added` へ分け、`mode:unmatched` は `previous` / `current` の両一覧を保持する。課題・証跡のID再採番だけでは進捗の変更と数えず、対応する内容で比較する。コピー元でない診断の課題には対応付けを推測しない。
+
+画面は取得した2つのrevisionを表示し、明示的な比較操作までその組を保持する。比較画面を開き直した際は取得を行い、直前の編集後に古いキャッシュを固定しない。再マウント直後はキャッシュの `isValidating:false` が返る場合があるため、その値を取得完了の根拠にせず、その画面での通信成功コールバックだけで最初の比較結果を確定する。確定前は読込表示とし、以降の背景再取得は表示中の組を変更しない。コピー元409では入力を保持し、選択時と最新の回答・範囲・課題・証跡・参考助言の差分を示して、利用者が最新のコピー元を選び直す。通信不明時は同一bodyと同一Idempotency-Keyで再試行する。
+
+`test/worker/reassessment.test.ts` が旧診断不変、コピーの初期化と助言優先順、ID再採番、保存revision比較、直接/非直接の課題対応、異版注記の比較データ、認可、競合、同時再送、一括rollbackを検証する。フォーム/比較コンポーネント/ページのFront試験で入力保持・409・読込失敗/再試行・1MiB境界を確認する。`tests/e2e/reassessment.spec.ts` は既存の匿名ローカルfixtureだけを使い、課題作成→完了報告→確認→再診断→状態変更比較を通す。通常幅と640pxの画像を `.local/e2e-reassessment-*.png` に保存する。実顧客・実AI・本番クラウドは使用しない。
+
+コピー元409の差分表示は `ReassessmentSourceDiff.tsx` で構造比較と表示を分離する。助言はコピーに使う下書き/確定助言の区別・出所・テンプレート参照・各フィールド・配列要素境界を保持する。証跡と課題はIDごとに対応し、添付ファイルID、関連証跡の名称とID、コピー元参照、確認者/日時/対象識別子まで前後値を表示する。改行を含む入力の結合で差分を消さず、手順と証跡例には項目名と番号付きリストを付ける。`ReassessmentConflict.test.tsx` はレビューで使用した29ケースのfixture・陽性/陰性対照を維持し、配列内改行、参照の変更、追加/削除、確認情報、キー順のみの変更も検証する。
