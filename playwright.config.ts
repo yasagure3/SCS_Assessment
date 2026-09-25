@@ -8,6 +8,11 @@ if (!Number.isInteger(port) || port < 1024 || port > 65535) {
 const baseURL = `http://127.0.0.1:${port}`;
 const fixturePort = port === 65535 ? port - 1 : port + 1;
 const liveAuth = process.argv.some((arg) => arg.includes("live-auth.spec.ts"));
+if (liveAuth) {
+  process.env.PLAYWRIGHT_NO_COPY_PROMPT = "1";
+  for (const name of Object.keys(process.env))
+    if (/^(DEBUG.*|PWDEBUG|NODE_DEBUG.*|SSLKEYLOGFILE)$/.test(name)) delete process.env[name];
+}
 const liveURL = liveAuth
   ? liveOrigin(
       readCloudInput(process.env.SCS_CLOUD_INPUT ?? "", process.cwd()),

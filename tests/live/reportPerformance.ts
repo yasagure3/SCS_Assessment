@@ -13,6 +13,7 @@ import { confirmAdviceSchema } from "../../src/shared/contracts/advice";
 import { membersSchema } from "../../src/shared/contracts/access";
 import { measurePdfWorkerMemory } from "../e2e/reportHeap";
 import type { AssessmentDto } from "../../src/shared/contracts/assessments";
+import { requireSensitiveProcess } from "./sensitiveProcess.mjs";
 
 // Anonymous input generators are data only. Every request and exported report
 // below uses the deployed product, real auth and remote database (no fixture API).
@@ -25,6 +26,7 @@ export async function reportPerformance(
   origin: string,
   preflight: () => Promise<unknown>,
 ) {
+  requireSensitiveProcess();
   await preflight();
   const { identifiers, scale } = JSON.parse(readFileSync(".local/live/cloud-results.json", "utf8"));
   expect(scale.assessments).toBe(500);

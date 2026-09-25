@@ -70,6 +70,10 @@ Worker秘密は `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY`、必要時 `AWS_S
 
 Playwrightのtrace/video/認証画面スクリーンショットは無効。ブラウザにpassword/token/TOTPを永続化しない。本人が手動登録を済ませたユーザーを「初回招待状態」と偽って試験しない。親のUI handoffと自動suiteは同じ状態遷移を二重実行しないよう日程を合わせる。
 
+実認証suiteはNode 24の独立プロセスでPlaywright libraryと既存assertionを実行する。APIのcall logやassertionには秘密が含まれ得るため、ランナー内のAPIを単にcatchする方式は使わない（catchより先にstep通知が発生する）。`liveAuthFlow` と委譲先 `reportPerformance` はこのプロセス内だけで実行し、元の例外をメモリ内で破棄して固定の合否のみIPCで返す。子の標準出力/標準エラーは継承・保存せず、debug環境変数とNODE_OPTIONSを継承しない。ランナーは失敗・異常終了・30分の時間切れを固定エラーとして必ず失敗にする。retryは0。ランナーには認証用page/request fixtureが無く、自動ARIA snapshotを生成する対象がない。`PLAYWRIGHT_NO_COPY_PROMPT=1` も設定し、子のbrowser contextにtrace/videoの記録を開始しない。手動スクリーンショットは認証完了後の匿名報告画面だけ。
+
+ローカル回帰は `./scripts/vp.ps1 exec node scripts/verify-live-auth-output.mjs`（Windowsの既存Chrome使用時は `E2E_CHANNEL=chrome`）。実値やcloud inputを読まず、ダミーtoken/password/TOTPと127.0.0.1だけを使う。実APIRequestの接続拒否・不正HTTP・timeout・HTTP500、assertion、認証画面DOM、委譲性能試験、全体deadline、未捕捉例外/Promise拒否が失敗し、陽性対照だけが成功することを確認する。stdout/stderrと全成果物（error-contextを含む）にダミー秘密が無いことを検査し、検査後のログを `.local/auth-output-regression/<run-id>/` へ残す。これは実認証や性能受入の成功を意味しない。実試験で固定エラーになった場合は不合格のまま記録し、秘密を出すdebugへの切替や自動再試験を行わない。
+
 ## 実測の順序
 
 1. 実inventory検査（account、専用ID、MFA、private、S3 version、GuardDuty ACTIVE、Worker全公開binding）は全live入口の必須preflight。VitestはbeforeAll、live-authは最初のnavigation前、性能試験は最初のAPI前、隔離復旧はrestore WorkerのAPI前に成功を要求する。照合失敗時は `/me` を含む製品要求・データ作成・生成を行わない。テストを個別選択してもこの前提は外れない。500診断/5並行CAS/remote rollback/clean＋EICARの初回準備は `vp exec vitest run -c vitest.live.config.ts -t 'creates at most|rolls back|holds actual'`。必要入力が欠けたら失敗する。履歴を削除したりskipして合格にしない。
