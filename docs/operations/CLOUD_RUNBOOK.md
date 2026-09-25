@@ -65,6 +65,7 @@ Worker秘密は `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY`、必要時 `AWS_S
 | SCS_OPENAI_API_KEY / SCS_OPENAI_DATA_CONFIRMED=true | SCS専用projectとモデル利用/データ設定を照合した生成用キー |
 | SCS_COST_ESTIMATE_CONFIRMED | 初回非AI$10内の見積を確認した専用Worker名 |
 | SCS_BACKUP_MANIFEST / SCS_RESTORE_MEASUREMENT | 完了したbackupとprepare-restoreのローカルmanifest/measurementの絶対パス |
+| SCS_RECOVERY_EVIDENCE | backup前のclean/EICAR準備試験が保存した `.local/live/recovery-evidence/<cleanFileId>.json` の絶対パス。実fileId/SHA-256/sizeとsource Worker/DBを復旧対象の照合に使用 |
 | SCS_LIVE_RESTORE_BASE_URL / SCS_LIVE_RESTORED_TOKEN | 隔離復元WorkerのURLと復元失効境界より後に新ログインしたadmin token |
 
 Playwrightのtrace/video/認証画面スクリーンショットは無効。ブラウザにpassword/token/TOTPを永続化しない。本人が手動登録を済ませたユーザーを「初回招待状態」と偽って試験しない。親のUI handoffと自動suiteは同じ状態遷移を二重実行しないよう日程を合わせる。
@@ -73,7 +74,7 @@ Playwrightのtrace/video/認証画面スクリーンショットは無効。ブ�
 
 1. 実inventory検査（account、専用ID、MFA、private、S3 version、GuardDuty ACTIVE、Worker全公開binding）は全live入口の必須preflight。VitestはbeforeAll、live-authは最初のnavigation前、性能試験は最初のAPI前、隔離復旧はrestore WorkerのAPI前に成功を要求する。照合失敗時は `/me` を含む製品要求・データ作成・生成を行わない。テストを個別選択してもこの前提は外れない。500診断/5並行CAS/remote rollback/clean＋EICARの初回準備は `vp exec vitest run -c vitest.live.config.ts -t 'creates at most|rolls back|holds actual'`。必要入力が欠けたら失敗する。履歴を削除したりskipして合格にしない。
 2. `vp exec playwright test tests/e2e/live-auth.spec.ts`。実招待→TOTP必須→誤コード拒否→全端末失効→停止→operatorによるTOTP削除→新secret再登録→旧token拒否。続けて500診断環境で約10 MiB Excelを実ブラウザ解析し、100証跡/100課題/81回答で診断文書1 MiBの90%以上をPDFとExcelへ出力する。両生成は120秒以内、パーサは10秒の製品上限、ブラウザ選択＋remote previewの観測は15秒以内。Pythonの独立内容照合/画像化は別時間を記録し、UIの120秒を延長しない。PC型/CPU/メモリ/実Worker heapを測り、対象端末の記録として残す。低性能端末一般の保証に置き換えない。
-3. 完成した報告版を含めてbackup→隔離restore→新規ログインを実施し、最後に `vp exec vitest run -c vitest.live.config.ts` を全件実行する。AI受入の前に公開inputを `openAiMode:trial` にし、専用Workerへ承認キーと同じ設定をdeployする。5キーpayloadの送信境界確認（`openaiTransport`）に加え、Workerの製品APIから生成→run取得→永続run/予算照合→検証済み下書き採用（`openaiProduct`）を行う。前者だけでは合格にしない。通常2回/20 centsの予約を累計へ含め、未設定503・provider502・timeout504・予算429は受入失敗とする。復元の全行hash/証跡hash、復元後業務更新と再検査も検証する。OpenAIの失敗も予約を返還せず、勝手にリトライしない。
+3. 手順1の `cloud-results.json` の `scan.recoveryEvidencePath` を `SCS_RECOVERY_EVIDENCE` に固定し、そのclean/EICAR両件を含めて、完成した報告版のbackup→隔離restore→新規ログインを実施する。最後に `vp exec vitest run -c vitest.live.config.ts` を全件実行する。全件試験のscanは新しいファイルと別名の識別JSONを作るため、環境変数はbackup前のパスのまま維持する（新しい `cloud-results.json` のパスへ差し替えない）。識別JSONは上書き禁止で保存され、manifestの先頭・UUID順・ファイル名から正常ファイルを推測しない。両件のID/hash/sizeがbackupと一致しない場合は受入失敗とする。AI受入の前に公開inputを `openAiMode:trial` にし、専用Workerへ承認キーと同じ設定をdeployする。5キーpayloadの送信境界確認（`openaiTransport`）に加え、Workerの製品APIから生成→run取得→永続run/予算照合→検証済み下書き採用（`openaiProduct`）を行う。前者だけでは合格にしない。通常2回/20 centsの予約を累計へ含め、未設定503・provider502・timeout504・予算429は受入失敗とする。復元の全行hash/証跡hash、復元後業務更新と再検査も検証する。OpenAIの失敗も予約を返還せず、勝手にリトライしない。
 4. `.local/live/{auth,performance,cloud}-results.json`、report-qaの独立検査、幅1440/640とPDFページ画像、コマンドexit code、resource inventoryとsecret値を除く版をRELEASE_CHECKに転記する。合格していない項目があればIssueをcloseしない。
 
 負荷データ名は匿名検証1〜50/匿名診断1〜10。既存の非匿名データがあるDBでは停止する。最終suiteのCASはmain trialのrevisionを進めるため、復元データはバックアップ時点を正本に比較する。ブラウザの取込と復元後業務更新は一度だけの測定。再実行には記録を残して別の空の専用検証/復元先を用意し、既存の証跡や台帳を消して試験を通さない。
@@ -90,7 +91,9 @@ Playwrightのtrace/video/認証画面スクリーンショットは無効。ブ�
 
 restore用configは先に `cloud.ps1 -Action Prepare -Restore` で作る。空でないD1へのprepare-restoreは拒否。R2もIf-None-Matchで上書きを拒否する。DB exportは署名URLを固定されたR2 originから取得し、DB時点に含まれる証跡のid/key/size/SHA-256をprivate backupに複製する。ready/uploading/rejectedの配布状態にかかわらず、R2に保管済みの証跡をhash照合して隔離backup/restoreへ含める。再検査失敗でも旧report/historyとbytesを保持する。R2に存在しないrejected uploadと未保存の0 byte uploadingはmanifestのomittedFilesへ理由を記録し、存在するが破損したbytes、ready等の必要object欠落、checksum不足時は完了manifestを発行しない。rejectedの復元後も配布拒否を維持し、明示的再検査のclean結果だけで配布する。SQLは最大1 GBをoperatorメモリに保持するため、検証端末に十分な空きメモリが必要。大きいR2 uploadは8 MiB multipart、失敗uploadはabortする。
 
-復元SQLは全scan判定をfailed、元readyファイルをuploading、全app_userの失効境界を復元時刻+5秒以降へ進める。全テーブルを復元SQLの実SQLite結果と比較し、証跡をR2から再読込みhash照合する。その後、新しい実認証で隔離Workerの診断を読取り/更新し、復元証跡が初めは409、明示的再検査後にのみ取得できることを確認する。コピーだけの完了を業務復旧と扱わない。
+復元SQLは全scan判定をfailed、元readyファイルをuploading、全app_userの失効境界を復元時刻+5秒以降へ進める。全テーブルを復元SQLの実SQLite結果と比較し、証跡をR2から再読込みhash照合する。その後、新しい実認証で隔離Workerの診断を読取り/更新する。`SCS_RECOVERY_EVIDENCE` の正常ファイルをID/hash/sizeで照合し、初めはuploadingかつ配布409、明示的再検査後にのみready/取得200となり、取得bytesのhash/sizeが準備時と一致することを確認する。同じ記録の検出済みEICARは、復元直後と正常ファイルの再検査完了後の両方で、同じID/hash/size、rejected、配布409を確認する。EICARを正常復旧の対象にせず、保持と配布拒否を別に検証する。結果は `cloud-results.json` の `restore.restoredEvidence` に両件のID/hashと拒否確認を残す。コピーだけの完了を業務復旧と扱わない。
+
+ローカル回帰は `./scripts/vp.ps1 test --run tests/acceptance/restored-evidence.test.ts`。実backup/prepare-restoreとSQLiteでready/uploading/rejectedの全6順列を通し、全bytes保持・正常ファイルだけの再検査・検出済みファイルの配布拒否を検査する。入力不一致、拒否漏れ、復旧download破損の失敗対照も含む。外部HTTPだけを置換した試験であり、実GuardDuty/EICARや実クラウド復旧の合格を意味しない。実環境DoDは未実施のまま保持し、この回帰の成功だけでIssueをcloseしない。
 
 RPOは障害想定開始（prepare-restore.startedAt）からbackup開始時点まで24時間以内、RTOはその開始から全内容照合＋認証/業務更新/再検査完了まで8時間以内（1営業日を保守的に8連続時間として測定）。失敗で時計をリセットしない。復旧後のmain/preview切替は行わない。
 

@@ -11,6 +11,7 @@ import { validateManifest, hashBytes, hashRows } from "../../scripts/recovery.mj
 import { z } from "zod";
 import { livePreflight, withLivePreflight } from "../../scripts/live-preflight.mjs";
 import { deployedAiAcceptance } from "./deployedAi";
+import { recoveryEvidenceSchema, restoredEvidenceAcceptance } from "./restoredEvidence";
 
 // This suite deliberately fails without operator-provided, dedicated real resources.
 // No local server, fake HTTP response, skipped acceptance or credential-file lookup.
@@ -283,9 +284,30 @@ describe.sequential("selected real cloud acceptance", () => {
       })
       .toBe("rejected");
     expect((await api(`/files/${rejected.fileId}/content`)).status).toBe(409);
+    expect({ sha256: clean.sha256, sizeBytes: clean.sizeBytes }).toEqual({
+      sha256: hashBytes(bytes),
+      sizeBytes: bytes.length,
+    });
+    expect({ sha256: rejected.sha256, sizeBytes: rejected.sizeBytes }).toEqual({
+      sha256: hashBytes(eicar),
+      sizeBytes: eicar.length,
+    });
+    const recoveryEvidence = recoveryEvidenceSchema.parse({
+      schemaVersion: 1,
+      sourceWorker: config.workerName,
+      sourceDatabase: config.databaseId,
+      clean: { fileId: clean.fileId, sha256: clean.sha256, sizeBytes: clean.sizeBytes },
+      blocked: { fileId: rejected.fileId, sha256: rejected.sha256, sizeBytes: rejected.sizeBytes },
+    });
+    mkdirSync(".local/live/recovery-evidence", { recursive: true });
+    const recoveryEvidencePath = resolve(".local/live/recovery-evidence", `${clean.fileId}.json`);
+    writeFileSync(recoveryEvidencePath, JSON.stringify(recoveryEvidence, null, 2) + "\n", {
+      flag: "wx",
+    });
     record("scan", {
       cleanFileId: clean.fileId,
       blockedFileId: rejected.fileId,
+      recoveryEvidencePath,
       elapsedMs: Date.now() - start,
       files: 2,
       forgedVerdictDenied: true,
@@ -488,21 +510,14 @@ describe.sequential("selected real cloud acceptance", () => {
       ),
     );
     expect(changed.revision).toBe(recovered.revision + 1);
-    const file = manifest.files[0];
-    if (!file)
-      throw new Error("A real scanned evidence backup is required for the recovery drill.");
-    expect((await recoveredApi(`/files/${file.id}/content`)).status).toBe(409);
-    await data(await recoveredApi(`/files/${file.id}/rescan`, {}), 202);
-    await expect
-      .poll(async () => (await data(await recoveredApi(`/files/${file.id}`))).status, {
-        timeout: 300000,
-        interval: 3000,
-      })
-      .toBe("ready");
-    const recoveredDownload = await requireResponse(
-      await recoveredApi(`/files/${file.id}/content`),
+    const restoredEvidence = await restoredEvidenceAcceptance(
+      manifest,
+      JSON.parse(readFileSync(resolve(required("SCS_RECOVERY_EVIDENCE")), "utf8")),
+      recoveredApi,
+      async (readStatus) => {
+        await expect.poll(readStatus, { timeout: 300000, interval: 3000 }).toBe("ready");
+      },
     );
-    expect(hashBytes(new Uint8Array(await recoveredDownload.arrayBuffer()))).toBe(file.sha256);
     const rpoHours = (Date.parse(restore.startedAt) - Date.parse(manifest.createdAt)) / 3600000;
     const rtoHours = (Date.now() - Date.parse(restore.startedAt)) / 3600000;
     expect(rpoHours).toBeGreaterThanOrEqual(0);
@@ -518,6 +533,7 @@ describe.sequential("selected real cloud acceptance", () => {
       tablesVerified: restore.tableChecksums.length,
       resumedBusinessApi: true,
       rescannedRestoredEvidence: true,
+      restoredEvidence,
       worker: `${config.workerName}-restore`,
       verifiedAt: new Date().toISOString(),
     });
