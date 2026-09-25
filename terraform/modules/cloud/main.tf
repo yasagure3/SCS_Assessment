@@ -34,11 +34,17 @@ module "cognito" {
 resource "cloudflare_d1_database" "main" {
   account_id = var.cloudflare_account_id
   name       = "${local.name}-db"
+  read_replication = {
+    mode = "disabled"
+  }
   lifecycle { prevent_destroy = true }
 }
 resource "cloudflare_d1_database" "restore" {
   account_id = var.cloudflare_account_id
   name       = "${local.name}-restore-db"
+  read_replication = {
+    mode = "disabled"
+  }
   lifecycle { prevent_destroy = true }
 }
 resource "cloudflare_r2_bucket" "private" {
