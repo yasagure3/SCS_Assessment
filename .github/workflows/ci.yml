@@ -46,6 +46,8 @@ jobs:
           vp exec node --test tests/scripts/production-build.check.mjs
           vp exec node --test tests/scripts/bootstrap-admin.check.mjs
           vp exec node --test scripts/preview-config.check.mjs
+          vp exec node --test scripts/cloud-config.check.mjs scripts/recovery.check.mjs scripts/cloud-backup.check.mjs scripts/live-preflight.check.mjs scripts/cloud-io.check.mjs
+          vp exec node --test scripts/live-entry-gate.check.mjs
 
       - name: Install browser
         run: vp exec playwright install --with-deps chromium

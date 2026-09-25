@@ -133,6 +133,20 @@ async function fixture(
 }
 
 describe("OpenAI Responses through the Worker", () => {
+  it("constructs a real Workers Request and refuses a cross-origin redirect without forwarding the key", async () => {
+    const urls: string[] = [];
+    const f = await fixture(async (input, init) => {
+      const request = new Request(input, init);
+      urls.push(request.url);
+      return new Response(null, {
+        status: 302,
+        headers: { Location: "https://elsewhere.invalid/steal" },
+      });
+    });
+    const response = await f.send();
+    expect(response.status).toBe(502);
+    expect(urls).toEqual(["https://api.openai.com/v1/responses"]);
+  });
   it("blocks real outbound networking in the local Workers test configuration", async () => {
     const response = await fetch("https://outbound-test.invalid/");
     expect([response.status, await response.text()]).toEqual([503, "TEST_OUTBOUND_BLOCKED"]);
@@ -238,7 +252,7 @@ describe("OpenAI Responses through the Worker", () => {
       headers: received[0].init?.headers,
     }).toEqual({
       method: "POST",
-      redirect: "error",
+      redirect: "manual",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${configured.OPENAI_API_KEY}`,

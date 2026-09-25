@@ -1,0 +1,38 @@
+name: Private daily backup
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 0 * * *"
+permissions:
+  contents: read
+concurrency:
+  group: private-daily-backup
+  cancel-in-progress: false
+jobs:
+  backup:
+    # An operator configures this environment only after the initial restore drill.
+    if: vars.SCS_BACKUP_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: scs-anonymous-trial
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb
+        with:
+          node-version: "24"
+          cache: true
+      - run: vp install --frozen-lockfile
+      - name: Write public environment identifiers
+        env:
+          SCS_BACKUP_INPUT: ${{ vars.SCS_BACKUP_INPUT }}
+        run: vp exec node scripts/write-backup-input.mjs
+      - name: Export database and verify evidence checksums into private backup R2
+        env:
+          SCS_LIVE_ALLOW: ${{ vars.SCS_BACKUP_WORKER }}
+          SCS_CF_API_TOKEN: ${{ secrets.SCS_BACKUP_CF_API_TOKEN }}
+          SCS_R2_ACCESS_KEY_ID: ${{ secrets.SCS_BACKUP_R2_ACCESS_KEY_ID }}
+          SCS_R2_SECRET_ACCESS_KEY: ${{ secrets.SCS_BACKUP_R2_SECRET_ACCESS_KEY }}
+          SCS_R2_BACKUP_WRITE_ACCESS_KEY_ID: ${{ secrets.SCS_BACKUP_WRITE_R2_ACCESS_KEY_ID }}
+          SCS_R2_BACKUP_WRITE_SECRET_ACCESS_KEY: ${{ secrets.SCS_BACKUP_WRITE_R2_SECRET_ACCESS_KEY }}
+        run: vp exec node scripts/cloud-backup.mjs backup .local/cloud-input.json
+      # Database content and backup objects are never uploaded as Actions artifacts.

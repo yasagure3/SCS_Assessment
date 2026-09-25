@@ -22,6 +22,7 @@ import { D1AiBudget } from "./modules/advice/adapter/d1AiBudget";
 import type { AiPort } from "./modules/advice/domain/aiPort";
 import { reportRoutes } from "./modules/reports/adapter/routes";
 import { D1ReportRepository } from "./modules/reports/adapter/d1ReportRepository";
+import type { MalwareScan } from "./modules/evidence/domain/scanning";
 
 // The composition root selects persistent adapters. Tests replace only external identity services.
 export function createBusinessApp(
@@ -31,6 +32,7 @@ export function createBusinessApp(
     ai?: (bindings: Bindings) => AiPort;
     aiTimeoutMs?: number;
     aiFetch?: typeof fetch;
+    malwareScan?: (bindings: Bindings) => MalwareScan;
   },
 ) {
   const app = createApp(dependencies);
@@ -40,6 +42,8 @@ export function createBusinessApp(
     fileRoutes(
       (b) => new D1FileRepository(b.DB),
       (b) => new R2EvidenceStore(b.EVIDENCE_BUCKET),
+      undefined,
+      dependencies.malwareScan,
     ),
   );
   app.use(

@@ -8,6 +8,7 @@ export function createFileClient(io: {
   generation: () => number;
   digest: (bytes: ArrayBuffer) => Promise<ArrayBuffer>;
   save: (blob: Blob, name: string) => void;
+  wait?: (signal: AbortSignal) => Promise<void>;
 }) {
   function operation(signal?: AbortSignal) {
     const generation = io.generation();
@@ -68,6 +69,24 @@ export function createFileClient(io: {
       active();
       const result = (await response.json()) as ApiSuccess<FileUploaded>;
       active();
+      for (let attempt = 0; result.data.status === "uploading" && attempt < 60; attempt++) {
+        if (!io.wait)
+          throw new Error("ファイルを検査しています。しばらく待ってから再確認してください。");
+        await io.wait(signal);
+        active();
+        const metadata = (await (
+          await request(active, token, `/api/v1/files/${result.data.fileId}`, { signal })
+        ).json()) as ApiSuccess<FileMetadata>;
+        active();
+        result.data = {
+          fileId: metadata.data.id,
+          status: metadata.data.status,
+          sizeBytes: metadata.data.sizeBytes,
+          sha256: metadata.data.sha256,
+        };
+      }
+      if (result.data.status === "uploading")
+        throw new Error("安全性検査が続いています。同じファイルの登録ボタンで再確認できます。");
       return result.data;
     },
     async download(token: string, id: string, signal?: AbortSignal) {
@@ -88,6 +107,19 @@ export const browserFileClient = createFileClient({
   fetch: sessionFetch,
   generation: getSessionGeneration,
   digest: (bytes) => crypto.subtle.digest("SHA-256", bytes),
+  wait: (signal) =>
+    new Promise((resolve, reject) => {
+      signal.throwIfAborted();
+      const abort = () => {
+        clearTimeout(timer);
+        reject(new DOMException("送信を中止しました。", "AbortError"));
+      };
+      const timer = setTimeout(() => {
+        signal.removeEventListener("abort", abort);
+        resolve();
+      }, 2000);
+      signal.addEventListener("abort", abort, { once: true });
+    }),
   save: (blob, name) => {
     const url = URL.createObjectURL(blob),
       link = document.createElement("a");

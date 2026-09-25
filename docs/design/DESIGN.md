@@ -192,6 +192,7 @@ Migrationは連番SQLをcommitし既存ファイルを後から書き換えな�
 | POST /cases/:k/files | 非公開ファイルのbinaryアップロード | [evidence](features/evidence.md) |
 | GET /files/:id | 状態/メタデータ | evidence |
 | GET /files/:id/content | 認可付きattachmentダウンロード | evidence |
+| POST /files/:id/rescan | 管理者の明示的再検査・冪等予約 | evidence |
 | POST /assessments/:a/evidence | 証跡追加 | evidence |
 | PATCH/DELETE /assessments/:a/evidence/:id | 編集/関連解除 | evidence |
 | POST /assessments/:a/evidence/:id/reviews/:criterionId | 基準ごとの確認結果 | evidence |
@@ -241,7 +242,7 @@ Access/refresh tokenはブラウザメモリにだけ保持し、SDKのStorage�
 | xlsx検査 | 10MiB input、500 ZIP entries、実展開合計50MiB/1entry10MiB、5 sheets、2000rows×64cols、100000非空cells、ZIP64/暗号化拒否。10秒で解析Worker終了、下書きは変更なし |
 | PDF生成 | 遅延読込とWorker進捗/取消、120秒で停止。失敗時は同じsnapshotから再試行、欠字を黙って置換しない |
 
-ファイル内のリンクは自動取得せず、PDF/Officeの埋込み機能はアプリで実行しない。ダウンロードはContent-Disposition:attachment＋nosniff。スキャン基盤の選定は本番保管設計で確定する。
+ファイル内のリンクは自動取得せず、PDF/Officeの埋込み機能はアプリで実行しない。ダウンロードはContent-Disposition:attachment＋nosniff。正式保管は非公開R2、検査コピーは東京のprivate/versioned S3＋GuardDuty Malware Protection for S3。R2 version/key/hash/sizeとS3 key/versionの対応をfile_scansへ保存し、版指定の信頼できるNO_THREATS_FOUNDだけをreadyへ進める。通知を受け取るAPIはなく、重複/遅延/偽装通知を判定に使わない。
 
 保存中は二重押下を抑止し、失敗時は入力保持。成功表示はAPI成功後。検索一致なし/初期未取込/権限なし/外部サービス未設定を別表示。キーボード操作、focus表示、フォームlabel、色以外の状態記号、100%/200%拡大時の利用を確認する。集計の分母は81固定、分類合計と全体合計は同じ関数から算出する。
 
@@ -255,6 +256,14 @@ Access/refresh tokenはブラウザメモリにだけ保持し、SDKのStorage�
 
 ## インフラ
 
+2026-09-25の確定条件: 国内限定の保存要件なし、Cloudflare+Cognito継続。担当10名/同時5名/50社×10診断、RPO24時間/RTO1営業日。本体は確認した契約終了後3年、backup30日。AWS東京S3+GuardDutyの検査用コピーを使い、正式証跡はR2。初回は匿名のみ500診断/DB1GB/検査100件100MB/証跡backup2GB、非AI$10/AI$5かつ30回。月額管理目標は非AI$30/AI$20。実測は [CLOUD_RUNBOOK.md](../operations/CLOUD_RUNBOOK.md) と [RELEASE_CHECK.md](../operations/RELEASE_CHECK.md)。本番公開の承認は別途必要。
+
+新構成は `terraform/envs/trial` と `terraform/envs/production` でstate/resourceを分離し、既存previewを触らない。`scripts/cloud.ps1` はpublic-only入力からbuild前に設定を生成し、account/Worker/DB/R2/Cognito/静的配信先をbuilt outputと照合する。trial-onlyの実deploy guard、production構築の明示guard、production Cognito削除保護を持つ。AWS runtime最小policyをoperator回復資格から分離し、キーはTerraform resource/stateやブラウザへ保存しない。
+
+`0010_malware_scans.sql` は現scan attempt/正式R2版/検査S3版/hash/size/判定、非返還のtrial検査予約、確認済み契約終了日を追加する。製品compositionは必ずreal scan portを注入する。uploadはuploading、認可されたGET metadataで有限poll、clean確認後だけ関連付け/配布可能。管理者の明示的再検査には共通冪等台帳を使う。従来ready行と復元行にスキャン済みの推測をしない。復元では全認証境界も前進させる。
+
+日次D1 exportと証跡hash manifestをprivate backupへ保存し、空の別DB/R2へ復元する。全テーブル/証跡hash、新認証・業務更新・再scan配布まで隔離restore Workerで測定する。backup定期workflowと30日期限ruleは確認前無効。本体3年/backup30日のdry-run対象とplan hashを確認してから削除を判断する。自動的な本体削除は行わない。
+
 ローカル→匿名データの検証環境→本番の3段階。Cloudflare候補はWorker、D1 binding `DB`、R2 binding `EVIDENCE_BUCKET`。AIキー/Cognito管理操作資格はWorker secrets又は管理環境に保管し、`VITE_*`へ入れない。フロントに必要なpool/client IDは公開設定。既存のPC内キー類を無断で使用しない。
 
 OpenAIはサーバーBindings `OPENAI_API_KEY` / `OPENAI_MODEL` / `OPENAI_MODE`を使用し、未設定・不正値は通信しない。`trial`から`monthly`は運用者の明示切替だけで、月替わりや再デプロイでは試験枠を初期化しない。単価・データ保存条件・hard limit反映遅延と有効化手順は [OPENAI_SETUP.md](../operations/OPENAI_SETUP.md)。#47のローカル検証は#27の実環境検証・本番公開を完了しない。
@@ -266,6 +275,10 @@ GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・
 このmarkerはローカル製造を止めないが本番出荷を止める。実機では招待期限/再発行/MFA_SETUP/回復/停止、他顧客file取得拒否、同時更新・0行CAS・batch rollback、バックアップ復元、AI送信実体のallowlist、上限端末でのExcel/PDF生成を確認する。未検証のまま「本番対応済み」としない。
 
 ## 既知の制約
+
+- 実WorkersのRequestは `redirect:'error'` を受け付けずTypeErrorとなる（Issue27のWorker試験で再現）。固定provider URLに `manual` を指定し、全3xxをエラーにする。OpenAIキー/IAM署名をredirect先へ転送しない。
+- R2のversionは内容の世代識別子であり、過去版の復元手段ではない。日次のDB時点と証跡bytes/hashを別bucketへ複製し、変更/復元後のR2 versionに以前のscan判定を流用しない。
+- バックアップのDB SQLはoperatorメモリに最大1GBまで保持する。転送はmultipartでもメモリ上限の代替にならない。GitHub日次scheduleには厳密時刻の保証がないため、最新完了manifestの鮮度を監視し、RPO24h超過は未達として記録する。
 
 - Cloudflare Viteは設定をビルド時に確定する。検証公開は専用configPathをビルド前に選び、生成されたWorker設定とSPAのCognito IDを照合する。deploy時だけの環境指定では切替できない。[公式環境設定](https://developers.cloudflare.com/workers/vite-plugin/reference/cloudflare-environments/)
 - D1は1行2,000,000 bytes、1クエリ100 bind parameters。集約JSONを1MiB、snapshotを1.5MiBに制限し、seed/複数行INSERTはbind上限内に分割する。[公式上限](https://developers.cloudflare.com/d1/platform/limits/)
@@ -287,11 +300,11 @@ GitHub ActionsはPRで静的検証・単体/結合・ビルド。実データ・
 | 論点 | 現在の扱い/確定時点 |
 |---|---|
 | Q11権限範囲 | 管理者全件・担当者は割当顧客を設計前提。運用開始前に最終確認 |
-| 保存国・契約クラウド | Q14により案提示後に判断。実データ保管/本番構築の前に確定 |
-| 保持/削除・バックアップ期間 | 初回はarchiveのみ。削除・掃除jobを無断で動かさない。運用開始前に確定 |
+| 保存国・契約クラウド | 国内限定なし、Cloudflare+CognitoとAWS東京の検査用S3/GuardDutyを選定。実inventoryと匿名実測は#27 |
+| 保持/削除・バックアップ期間 | 契約終了後3年/backup30日。dry-runと対象確認後にのみ物理削除・期限ruleを判断 |
 | AI実環境/契約 | OpenAI・候補gpt-6-sol・標準処理・月$20/試験$5かつ30回は確定。実プロジェクト/キー/モデル利用可否/データ設定/費用設定と匿名実接続は#27に残る。既定無効 |
-| 人数・顧客数・時期・復旧目標 | 小規模1診断81件が検証の範囲。負荷/復元の合格基準を本番接続タスク前に決定 |
-| 証跡のスキャン/配布フォントNOTICE | 本番保管・配布の準備タスクで確定。PDF/Officeをブラウザ内プレビューしない |
+| 人数・顧客数・時期・復旧目標 | 担当10/並行5/50社500診断、RPO24h/RTO1営業日。実測完了までは出荷不可 |
+| 証跡のスキャン/配布フォントNOTICE | S3/GuardDuty選定、R2正式保管、NOTICE.mdとpublic/fonts/public/licensesに原表示。実clean/EICAR/復元検証は#27 |
 
 これらを未決のままクラウドの実顧客運用へ進めない。ローカル製造と匿名データによる結合検証は実施可能。
 

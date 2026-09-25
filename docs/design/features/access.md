@@ -101,3 +101,8 @@ token更新中も同じリソースのフォームを保持する。SWRの保持
 | 初回・retry・同キー再送の503/502/504契約 | Critical | access-management-errors Workers実D1試験（注入transport、実際の5秒上限） |
 | 管理者の招待→初回パスワード/TOTP→割当顧客→停止 | Critical | access-management Edge E2E（匿名fake） |
 | 実Cognito IAM/配信/immutable属性/MFA回復 | Critical・F04残 | ローカルfakeを本番合格の代替にしない |
+## Issue #27 の管理接続
+
+production compositionは選定した東京CognitoへSigV4署名付きAdminGetUser/AdminCreateUser transportを注入する。Pool ID、account、region、資格が未設定/不整合なら閉じて失敗する。招待Portの5秒制限、予約属性/sub照合、秘密/メール本文を出さないエラー処理を維持する。キーはWorker secrets、Pool/Clientは公開設定。runtime最小IAMとoperator回復IAMを分離する。
+
+紛失回復はアプリ停止/失効境界前進→operator AdminUserGlobalSignOut→AdminDeleteSoftwareToken→必須MFA_SETUPで新TOTP→再有効化。アプリAPIへ無認証回復入口やMFA解除権限を追加しない。Cognito側の再登録後、停止したアプリは有効化するまで業務アクセスを拒否する。実回復順序と本人確認は [AUTH_OPERATIONS.md](../../AUTH_OPERATIONS.md)、機械試験は `tests/e2e/live-auth.spec.ts`。実資格/実招待の試験結果をローカルfixtureで置換しない。

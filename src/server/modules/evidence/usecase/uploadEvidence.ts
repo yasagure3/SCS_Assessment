@@ -1,6 +1,7 @@
 import { DomainError, operationHash } from "../../assessment/domain/assessment";
 import { MAX_FILE_BYTES } from "../../../../shared/contracts/files";
 import type { EvidenceStore, FileContext, FileInput, FileRepository } from "../domain/files";
+import type { MalwareScan } from "../domain/scanning";
 
 export async function uploadEvidence(
   repository: FileRepository,
@@ -11,6 +12,7 @@ export async function uploadEvidence(
   body: ReadableStream<Uint8Array> | null,
   context: FileContext,
   inspect: (bytes: Uint8Array, input: FileInput) => void,
+  scan?: MalwareScan,
 ) {
   const hash = await operationHash("POST", `/api/v1/cases/${caseId}/files`, caseId, input);
   const reservation = await repository.reserve(caseId, input, key, hash, context),
@@ -70,6 +72,8 @@ export async function uploadEvidence(
     }
     if (!stored || stored.sizeBytes !== size || stored.sha256 !== actual)
       throw new DomainError("FILE_STORAGE_FAILED");
+    file.sizeBytes = size;
+    if (scan && (await scan.submit(file, bytes)) === "pending") return result();
     await repository.finish(file.id, "ready", size, context);
     file.status = "ready";
     file.sizeBytes = size;

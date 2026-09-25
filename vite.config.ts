@@ -4,11 +4,20 @@ import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { resolve } from "node:path";
 import { previewBuildSettings } from "./scripts/preview-config.mjs";
+import { cloudBuildSettings } from "./scripts/cloud-config.mjs";
 
 // Preview selection happens at build time, before Cloudflare flattens its config.
-const preview = process.env.SCS_PREVIEW_INPUT
-  ? previewBuildSettings(process.env.SCS_PREVIEW_INPUT, process.cwd())
-  : undefined;
+if (process.env.SCS_PREVIEW_INPUT && process.env.SCS_CLOUD_INPUT)
+  throw new Error("Select one environment input.");
+const preview = process.env.SCS_CLOUD_INPUT
+  ? cloudBuildSettings(
+      process.env.SCS_CLOUD_INPUT,
+      process.cwd(),
+      process.env.SCS_CLOUD_RESTORE === "true",
+    )
+  : process.env.SCS_PREVIEW_INPUT
+    ? previewBuildSettings(process.env.SCS_PREVIEW_INPUT, process.cwd())
+    : undefined;
 
 const localArtifactDirectories = [".local", "test-results"].map((directory) =>
   resolve(directory).replaceAll("\\", "/"),
@@ -277,6 +286,7 @@ export default defineConfig({
       "poc/**",
       "test/worker/**",
       "tests/e2e/**",
+      "tests/live/**",
     ],
   },
 });

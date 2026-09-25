@@ -67,7 +67,7 @@
 
 <!-- POC_STATUS: id=cloud-integration, blocker=false, status=unresolved -->
 
-Cognito招待/TOTP/回復/失効、D1 migrationと同時更新、非公開R2取得、契約したAI接続、上限時の性能・バックアップ復元は設定先が未定。ローカル設計を進められるが、実顧客データの投入・本番公開条件として残す。認証・ストレージ・AIはPortで分離し、未設定時は閉じた状態で動作させる。
+2026-09-25にCloudflare+Cognito、非公開R2正式保管、AWS東京のS3検査コピー+GuardDuty、OpenAI gpt-6-sol、規模・保持・復旧・予算が確定した。Cognito招待/TOTP/回復/失効、remote D1同時更新/rollback、private R2、AI実payload、上限Excel/PDF、隔離復元の機械試験と運用手順をIssue27で実装する。実測結果は [RELEASE_CHECK.md](../operations/RELEASE_CHECK.md)。statusは実受入完了までunresolvedを維持し、ローカル成功を本番出荷許可としない。
 
 ## リスクの優先度と根拠
 

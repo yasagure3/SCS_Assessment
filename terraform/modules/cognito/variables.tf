@@ -1,3 +1,11 @@
+variable "deletion_protection" {
+  type = string
+  default = "INACTIVE"
+  validation {
+    condition = contains(["ACTIVE", "INACTIVE"], var.deletion_protection)
+    error_message = "Use ACTIVE for production pools."
+  }
+}
 variable "create_test_user" {
   description = "動作確認用のテストユーザーを作成するか（ローカル専用。本番では false のまま）"
   type        = bool

@@ -16,6 +16,13 @@ export type Bindings = {
   OPENAI_API_KEY?: string;
   OPENAI_MODEL?: string;
   OPENAI_MODE?: string;
+  AWS_ACCOUNT_ID?: string;
+  AWS_REGION?: string;
+  AWS_ACCESS_KEY_ID?: string;
+  AWS_SECRET_ACCESS_KEY?: string;
+  AWS_SESSION_TOKEN?: string;
+  COGNITO_POOL_ID?: string;
+  S3_SCAN_BUCKET?: string;
 };
 export type AppEnv = { Bindings: Bindings; Variables: { principal: Principal; requestId: string } };
 export type AppDependencies = {
@@ -24,6 +31,11 @@ export type AppDependencies = {
   sessions: (bindings: Bindings) => SessionProvider;
 };
 const errors: Record<string, [ContentfulStatusCode, string]> = {
+  FILE_SCAN_BUDGET: [429, "匿名検証のファイル検査上限に達しました。管理者へ確認してください。"],
+  FILE_SCAN_UNAVAILABLE: [
+    503,
+    "ファイルの安全性検査を開始できませんでした。管理者へ確認してください。",
+  ],
   AI_STALE: [409, "回答・範囲・証跡が変わりました。送信内容を確認し直してください。"],
   AI_INPUT_CHANGED: [422, "送信内容が確認時と異なります。全文を確認し直してください。"],
   AI_NOT_READY: [409, "AI下書きを採用できる状態ではありません。生成状態を確認してください。"],

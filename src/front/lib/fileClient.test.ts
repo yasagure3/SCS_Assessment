@@ -2,6 +2,42 @@ import { describe, it, expect } from "vite-plus/test";
 import { createFileClient } from "./fileClient";
 
 describe("authenticated file transfer", () => {
+  it("waits for the asynchronous malware verdict before returning an attachable file", async () => {
+    const calls: string[] = [];
+    const client = createFileClient({
+      generation: () => 1,
+      digest: async () => new Uint8Array(32).buffer,
+      save: () => {},
+      wait: async () => {},
+      fetch: async (input) => {
+        calls.push(
+          typeof input === "string" ? input : input instanceof URL ? input.href : input.url,
+        );
+        return Response.json({
+          data:
+            calls.length === 1
+              ? { fileId: "scan-file", status: "uploading", sizeBytes: 9, sha256: "0".repeat(64) }
+              : {
+                  id: "scan-file",
+                  status: calls.length === 2 ? "uploading" : "ready",
+                  sizeBytes: 9,
+                  sha256: "0".repeat(64),
+                },
+        });
+      },
+    });
+    const file = Object.assign(new File(["anonymous"], "anonymous.txt"), {
+      arrayBuffer: async () => new TextEncoder().encode("anonymous").buffer,
+    });
+    expect(await client.upload("token", "case", file, "key", new AbortController().signal)).toEqual(
+      { fileId: "scan-file", status: "ready", sizeBytes: 9, sha256: "0".repeat(64) },
+    );
+    expect(calls).toEqual([
+      "/api/v1/cases/case/files",
+      "/api/v1/files/scan-file",
+      "/api/v1/files/scan-file",
+    ]);
+  });
   it("sends canonical MIME, client hash and operation key, then saves a named attachment using authorized requests", async () => {
     const calls: {
         path: string;

@@ -54,3 +54,12 @@ Office形式はZIP制限・macro/暗号化/外部参照拒否、TXTはUTF8でNUL
 Workers結合: 別顧客/別案件/未ready拒否、偽装・超過・中断、再送、SHA検証、URL自動fetchなし、レビュー/関連解除/CAS。単体: 証跡変更のレビューと助言無効化。E2E golden path: 文書登録＋匿名PDF添付→認可download→基準の確認→自己評価は変わらない。
 
 `fileClientGeneration.test.ts`は実fileClientと共通sessionFetchを接続し、upload/downloadの各待機境界・SDK更新とsession公開待ちで、通常更新／ログアウト／同一利用者再ログイン／別利用者再ログイン／取消を比較する。送信本文・操作キー・tokenの全要求列、ready結果と実際の保存内容を照合する。認可エラー本文が遅れた場合の破棄、添付の遅延完了と画面離脱時の取消もFront試験で固定する。
+## Issue #27 の非同期検査と再検査
+
+アップロードの形式/hash/サイズ検査後、正式bytesを非公開R2へ保持し、東京の専用S3に検査用コピーを送る。POST成功でも検査中は `status:uploading`。ブラウザは認可付きGET metadataを2秒ごと最大60回確認し、readyまで証跡保存を許可しない。長時間待機は再確認の案内を表示し、ログアウト/取消でpollを中断する。同一upload keyの再送はcopyを増やさない。
+
+file_scansにfileId・R2 key/version/hash/size・S3 key/version・attempt・判定を保存する。検査は版指定S3 HEAD/GuardDutyタグの読取りで照合し、NO_THREATS_FOUNDだけを許可。配布時にもR2.getの同版/hash/sizeを照合する。検出・不明・非対応・権限不足・失敗・待機は配布不可。通知用入口は作らず、旧結果/偽装/重複通知で状態を変えない。24h待機をfailedへ進める。provider一時障害中も配布しない。
+
+`POST /files/:id/rescan` はadmin限定、UUID Idempotency-Key、202で現在fileId/statusを返す。最初の予約だけがfresh attemptを開始し旧cleanを無効化、`file.rescan`監査と非返還の予算を残す。予約直後中断時は同じkeyでcopyを増やさず、運用者の確認後に別keyで再実行する。従来readyにscan行がない場合と復元時は配布しない。復元時にready/cleanを復活させず再検査する。
+
+trialは100件/合計100MBの累計予約をD1で原子的に制限する。個別ファイルは従来10MiB。S3の7日期限は検査コピーのみで、正式R2の保持は契約終了後3年。実clean/EICAR/private/他顧客拒否/復元後再検査の合格はRELEASE_CHECKに残す。

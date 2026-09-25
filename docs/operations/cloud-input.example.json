@@ -1,0 +1,14 @@
+{
+  "purpose": "anonymous-trial",
+  "offlineOnly": true,
+  "cloudflareAccountId": "00000000000000000000000000000000",
+  "awsAccountId": "000000000000",
+  "workerName": "scs-assessment-trial-verification",
+  "databaseId": "00000000-0000-0000-0000-000000000001",
+  "restoreDatabaseId": "00000000-0000-0000-0000-000000000002",
+  "cognitoUserPoolId": "ap-northeast-1_DUMMY",
+  "cognitoClientId": "dummy0000000000000000000000",
+  "scanBucket": "scs-trial-scan-000000000000-verification",
+  "guardDutyPlanId": "dummy0000000000000000000000",
+  "openAiMode": "disabled"
+}

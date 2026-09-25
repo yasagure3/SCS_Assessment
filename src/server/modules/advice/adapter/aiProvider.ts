@@ -155,7 +155,9 @@ export function openAiProvider(
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
           body,
           signal,
-          redirect: "error",
+          // Workers supports manual redirects, but not Request redirect:error.
+          // The exact 200 requirement below refuses every redirect without a second fetch.
+          redirect: "manual",
         });
         if (signal.aborted) {
           await response.body?.cancel();

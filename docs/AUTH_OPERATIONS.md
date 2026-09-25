@@ -40,7 +40,9 @@
 
 ### F04でのCognito管理接続
 
-現在のproduction compositionは管理transport未設定のため招待を503で拒否する。匿名fixtureを有効にする環境変数は存在しない。Terraform定義のimmutableな `app_user_id` 属性、AdminGetUser/AdminCreateUser の最小IAM権限、実Poolの7日と招待専用・MFA必須設定を実機確認してから署名済みtransportをcompositionへ注入する。既存Poolへの属性追加・実メール配信・TOTP回復はA02では実施していない。別環境の秘密情報をコピーして接続を通さない。
+Issue27のproduction compositionには東京Cognitoの署名済み管理transportを注入した。未設定/不一致のPool・AWS資格では閉じて失敗する。匿名fixtureを有効にする環境変数はない。Terraform定義のimmutableな `app_user_id`、AdminGetUser/AdminCreateUser のruntime最小IAM、実Poolの7日と招待専用・MFA必須設定を実機照合する。資格/秘密登録と実測は [CLOUD_RUNBOOK.md](operations/CLOUD_RUNBOOK.md)。他用途のキーやrootをruntimeへコピーしない。
+
+TOTP紛失では停止とアプリ失効を先に保存し、別operator資格で `AdminUserGlobalSignOut` と [AdminDeleteSoftwareToken](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminDeleteSoftwareToken.html) を対象Pool/Usernameへ実行する。TOTP必須Poolでは次回ログインのMFA_SETUPで新しい認証アプリを登録する。削除/回復権限をWorker runtimeへ付けない。本人確認後、Cognito再登録とアプリ再有効化を行い、旧tokenの拒否を測定する。自動試験では停止中の403を確認し、operatorの本人確認済み手順で再有効化してから新登録を完了する。実受入が未完了なら本番対応完了と記録しない。
 
 ## 全端末のログイン失効
 

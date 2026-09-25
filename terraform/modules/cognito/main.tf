@@ -1,6 +1,6 @@
 resource "aws_cognito_user_pool" "this" {
   name                = var.user_pool_name
-  deletion_protection = "INACTIVE"
+  deletion_protection = var.deletion_protection
 
   # 実際の AWS でもこの値は ForceNew のため明示しておく。
   username_attributes = ["email"]

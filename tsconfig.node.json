@@ -24,8 +24,10 @@
     "vite.config.ts",
     "drizzle.config.ts",
     "vitest.workers.config.ts",
+    "vitest.live.config.ts",
     "playwright.config.ts",
     "tests/e2e/**/*.ts",
+    "tests/live/**/*.ts",
     "tests/fixtures/importExcel.ts",
     "tests/fixtures/vite.config.ts"
   ]
