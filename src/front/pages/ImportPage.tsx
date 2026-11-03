@@ -423,9 +423,9 @@ export function ImportPage() {
         record.standardId !== "scs-20260327-star3" ? (
           <section className="panel">
             <p>
-              この版は公式シートの回答画面から入力してください。従来の一次スクリーニングExcelは2026年3月27日版の診断へ取り込めます。
+              評価項目マスタと自己評価の取込は、管理者用の「自己評価Excel取込」を利用してください。従来形式の回答だけの取込は2026年3月27日版に対応しています。
             </p>
-            <Link to={`/assessments/${record.id}/official`}>公式シート回答・Excel出力へ</Link>
+            <Link to={`/assessments/${record.id}/master-import`}>自己評価Excel取込へ</Link>
           </section>
         ) : (
           <ImportContent

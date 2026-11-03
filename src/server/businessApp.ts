@@ -22,6 +22,8 @@ import { D1AiBudget } from "./modules/advice/adapter/d1AiBudget";
 import type { AiPort } from "./modules/advice/domain/aiPort";
 import { reportRoutes } from "./modules/reports/adapter/routes";
 import { D1ReportRepository } from "./modules/reports/adapter/d1ReportRepository";
+import { masterImportRoutes } from "./modules/assessment/adapter/masterImportRoutes";
+import { D1MasterImportRepository } from "./modules/assessment/adapter/d1MasterImportRepository";
 
 // The composition root selects persistent adapters. Tests replace only external identity services.
 export function createBusinessApp(
@@ -55,6 +57,14 @@ export function createBusinessApp(
           413,
         ),
     }),
+  );
+  app.route(
+    "/api/v1",
+    masterImportRoutes(
+      (b) => new D1AssessmentRepository(b.DB),
+      (b) => new D1StandardRepository(b.DB),
+      (b) => new D1MasterImportRepository(b.DB),
+    ),
   );
   app.route(
     "/api/v1",

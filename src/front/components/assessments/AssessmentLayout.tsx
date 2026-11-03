@@ -4,6 +4,7 @@ import type { AssessmentDto, StandardDto } from "../../../shared/contracts/asses
 import type { CaseRecord, Customer } from "../../../shared/contracts/cases";
 import { useApi, isAccessError } from "../../lib/api";
 import { WorkspaceShell, LoadState } from "../WorkspaceShell";
+import { useAccess } from "../../lib/useAccess";
 type View = {
   record: AssessmentDto;
   standard: StandardDto;
@@ -19,6 +20,7 @@ export function AssessmentLayout({
   children: (view: View) => ReactNode;
 }) {
   const { assessmentId } = useParams();
+  const { me } = useAccess();
   const assessment = useApi<AssessmentDto>(`/api/v1/assessments/${assessmentId}`),
     record = useApi<CaseRecord>(assessment.data ? `/api/v1/cases/${assessment.data.caseId}` : null),
     customer = useApi<Customer>(
@@ -59,10 +61,18 @@ export function AssessmentLayout({
             <span className="edition-badge">★3 · 81評価基準</span>
           </header>
           <nav className="assessment-nav" aria-label="診断メニュー">
+            {me.data?.role === "admin" && !me.error && (
+              <NavLink to={`/assessments/${assessment.data.id}/master-import`}>
+                自己評価Excel取込
+              </NavLink>
+            )}
             <NavLink end to={`/assessments/${assessment.data.id}`}>
               現状ダッシュボード
             </NavLink>
             <NavLink to={`/assessments/${assessment.data.id}/criteria`}>評価基準一覧</NavLink>
+            <NavLink to={`/assessments/${assessment.data.id}/official-status`}>
+              公式回答状況
+            </NavLink>
             <NavLink to={`/assessments/${assessment.data.id}/official`}>
               公式シート回答・Excel出力
             </NavLink>

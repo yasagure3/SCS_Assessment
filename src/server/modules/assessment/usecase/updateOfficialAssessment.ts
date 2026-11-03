@@ -1,5 +1,5 @@
 import type { AssessmentRepository } from "../domain/assessment";
-import { operationHash } from "../domain/assessment";
+import { operationHash, DomainError } from "../domain/assessment";
 import type { StandardRepository } from "../domain/standard";
 import { summarize } from "../domain/summarize";
 import type { OfficialAnswers } from "../../../../shared/contracts/officialAssessment";
@@ -13,6 +13,12 @@ export async function updateOfficialAssessment(
   requestId: string,
 ) {
   const record = await repository.get(id, actorId);
+  const ids = Object.keys(record.document.responses);
+  if (
+    ids.length !== Object.keys(input.answers.criteria).length ||
+    ids.some((key) => !Object.hasOwn(input.answers.criteria, key))
+  )
+    throw new DomainError("VALIDATION_ERROR");
   record.document = { ...record.document, officialAnswers: input.answers };
   const saved = await repository.save({
     record,

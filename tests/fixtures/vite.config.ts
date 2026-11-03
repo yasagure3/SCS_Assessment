@@ -26,7 +26,7 @@ export default defineConfig(({ command }) => {
       tailwindcss(),
       cloudflare({
         configPath: resolve(import.meta.dirname, "wrangler.jsonc"),
-        persistState: { path: resolve(".local/e2e-state") },
+        persistState: { path: resolve(process.env.SCS_E2E_STATE_DIR || ".local/e2e-state") },
         inspectorPort: false,
         remoteBindings: false,
       }),
