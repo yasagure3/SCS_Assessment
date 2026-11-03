@@ -168,6 +168,9 @@ test("imports a master and O:R through the UI, preserves old answers, and saves/
   await expect(page.getByRole("heading", { name: "評価基準一覧", exact: true })).toBeVisible();
   await page.getByRole("link", { name: "4-4-4-1 詳細", exact: true }).click();
   await expect(
+    page.getByRole("heading", { name: "取込評価基準 · 4-4-4-1", exact: true }),
+  ).toBeVisible();
+  await expect(
     page.getByText(expected.masterRows.find((r) => r.id === "4-4-4-1")!.publicCells["13"], {
       exact: true,
     }),

@@ -493,6 +493,7 @@ test("a real browser at 200 percent keeps keyboard focus, form controls and the 
     });
     expect(zoom).toBe(2);
     await page.getByRole("link", { name: "顧客・案件を開く" }).click();
+    await expect(page.getByRole("heading", { name: "顧客・案件", exact: true })).toBeVisible();
     await page.keyboard.press("Control+Home");
     await page.getByRole("link", { name: "本文へ移動" }).focus();
     await expect(page.getByRole("link", { name: "本文へ移動" })).toBeFocused();
