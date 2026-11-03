@@ -230,9 +230,7 @@ test("reviews anonymous input, recovers lost generation and adoption responses, 
   await dialog.getByRole("button", { name: "生成状態を再確認", exact: true }).click();
   // The same error text remains while the refresh is in flight; wait for completion
   // before inspecting the replacement alert or taking responsive screenshots.
-  await expect(
-    dialog.getByRole("button", { name: "生成状態を再確認", exact: true }),
-  ).toBeEnabled();
+  await expect(dialog.getByRole("button", { name: "生成状態を再確認", exact: true })).toBeEnabled();
   await expect(dialog.getByRole("alert")).toHaveText(budgetMessage);
   await page.setViewportSize({ width: 1280, height: 900 });
   await dialog.getByRole("alert").scrollIntoViewIfNeeded();
