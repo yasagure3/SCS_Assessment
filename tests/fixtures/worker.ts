@@ -118,9 +118,15 @@ app.post("/__fixture/reset", async (c) => {
   ).run();
   const id = crypto.randomUUID();
   await c.env.DB.prepare(
-    "INSERT INTO app_users(id,cognito_sub,email_normalized,role,status,created_at,updated_at) VALUES(?,'fixture-sub',?,'staff','invited',?,?)",
+    "INSERT INTO app_users(id,cognito_sub,email_normalized,role,status,created_at,updated_at) VALUES(?,'fixture-sub',?,?,'invited',?,?)",
   )
-    .bind(id, `${id}@example.invalid`, stamp, stamp)
+    .bind(
+      id,
+      `${id}@example.invalid`,
+      c.req.query("role") === "admin" ? "admin" : "staff",
+      stamp,
+      stamp,
+    )
     .run();
   return c.json({ ok: true });
 });

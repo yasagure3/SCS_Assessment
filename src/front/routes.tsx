@@ -17,6 +17,8 @@ import { TasksPage } from "./pages/TasksPage";
 import { ComparisonPage } from "./pages/ComparisonPage";
 import { ReportsPage } from "./pages/ReportsPage";
 import { OfficialAssessmentPage } from "./pages/OfficialAssessmentPage";
+import { MasterImportPage } from "./pages/MasterImportPage";
+import { OfficialStatusPage } from "./pages/OfficialStatusPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/home" replace /> },
@@ -29,6 +31,7 @@ export const router = createBrowserRouter([
     { path: "/cases/:caseId", element: <CasePage /> },
     { path: "/assessments/:assessmentId", element: <DashboardPage /> },
     { path: "/assessments/:assessmentId/import", element: <ImportPage /> },
+    { path: "/assessments/:assessmentId/master-import", element: <MasterImportPage /> },
     { path: "/assessments/:assessmentId/criteria", element: <CriteriaPage /> },
     { path: "/assessments/:assessmentId/criteria/:criterionId", element: <CriterionPage /> },
     { path: "/assessments/:assessmentId/evidence", element: <EvidencePage /> },
@@ -36,6 +39,7 @@ export const router = createBrowserRouter([
     { path: "/assessments/:assessmentId/comparison", element: <ComparisonPage /> },
     { path: "/assessments/:assessmentId/reports", element: <ReportsPage /> },
     { path: "/assessments/:assessmentId/official", element: <OfficialAssessmentPage /> },
+    { path: "/assessments/:assessmentId/official-status", element: <OfficialStatusPage /> },
   ].map((route) => ({
     ...route,
     element: <RequireAuth>{route.element}</RequireAuth>,

@@ -102,6 +102,18 @@ export const criteria = sqliteTable(
     unique().on(t.standardId, t.orderNo),
   ],
 );
+export const masterImportSources = sqliteTable("master_import_sources", {
+  standardId: text("standard_id")
+    .primaryKey()
+    .references(() => standards.id),
+  baselineStandardId: required("baseline_standard_id").references(() => standards.id),
+  fileName: required("file_name"),
+  sheetName: required("sheet_name"),
+  headerRow: integer("header_row").notNull(),
+  publicRowsJson: required("public_rows_json"),
+  importedBy: required("imported_by").references(() => appUsers.id),
+  importedAt: required("imported_at"),
+});
 export const adviceTemplates = sqliteTable(
   "advice_templates",
   {

@@ -24,7 +24,7 @@ await run([
   "--config",
   "tests/fixtures/wrangler.jsonc",
   "--persist-to",
-  ".local/e2e-state",
+  process.env.SCS_E2E_STATE_DIR || ".local/e2e-state",
 ]);
 await run([
   "dev",

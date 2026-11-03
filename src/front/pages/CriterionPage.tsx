@@ -32,18 +32,31 @@ export function CriterionPage() {
             </div>
             <div className="criterion-detail">
               <section className="panel">
-                <p className="eyebrow">OFFICIAL CRITERION</p>
-                <h2>公式評価基準 · {criterion.id}</h2>
+                <p className="eyebrow">ASSESSMENT CRITERION</p>
+                <h2>
+                  {record.standardId.startsWith("scs-import-") ? "取込評価基準" : "公式評価基準"} ·{" "}
+                  {criterion.id}
+                </h2>
                 <p className="preline">{criterion.officialText}</p>
                 <p className="subtle">
-                  {criterion.category} ／ {standard.publicationDate}版
+                  {criterion.category} ／{" "}
+                  {record.standardId.startsWith("scs-import-")
+                    ? `${standard.publicationDate}取込版`
+                    : `${standard.publicationDate}版`}
                 </p>
                 <details className="source-details">
                   <summary>要求事項 {criterion.requirementId}</summary>
                   <p className="preline">{criterion.requirementText}</p>
-                  <a href={standard.sourceUrl} target="_blank" rel="noreferrer">
-                    公式の出典を開く
-                  </a>
+                  {standard.sourceUrl ? (
+                    <a href={standard.sourceUrl} target="_blank" rel="noreferrer">
+                      公式の出典を開く
+                    </a>
+                  ) : (
+                    <p>
+                      取込元：
+                      {record.document.importInfo?.fileName ?? "管理者が登録した評価項目マスタ"}
+                    </p>
+                  )}
                 </details>
                 <div className="original-response">
                   <h2>取込時の原回答（O〜R）</h2>

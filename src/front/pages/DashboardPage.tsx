@@ -1,5 +1,6 @@
 import { useCallback } from "react";
-import { OFFICIAL_STANDARD_ID, officialCatalog } from "../../shared/contracts/officialAssessment";
+import { supportsOfficialAnswers } from "../lib/officialProgress";
+import { OfficialProgressSummary } from "../components/assessments/OfficialProgressSummary";
 import { Link, useLocation } from "react-router";
 import { ScopeForm } from "../components/cases/ScopeForm";
 import { AssessmentLayout } from "../components/assessments/AssessmentLayout";
@@ -20,29 +21,8 @@ export function DashboardPage() {
     <AssessmentLayout title="診断の現状">
       {({ record, standard, readOnly, assessment, refresh }) => (
         <>
-          {record.standardId === OFFICIAL_STANDARD_ID || record.document.officialAnswers ? (
-            <section className="panel">
-              <h2>公式自己評価（評価基準 Ver.1.1）</h2>
-              <p>
-                公式回答の入力済み適合基準：
-                {
-                  officialCatalog.rows.filter((row) => {
-                    const answer = record.document.officialAnswers;
-                    return (
-                      answer &&
-                      (answer.criteria[row.criterionId].excluded || answer.rows[row.key].result)
-                    );
-                  }).length
-                }{" "}
-                / 108（対象外を含む）
-              </p>
-              <Link className="button primary" to={`/assessments/${record.id}/official`}>
-                公式シートに回答してExcelを出力
-              </Link>
-              <p className="subtle">
-                以下は診断メモの集計です。公式の適合・不適合は公式シート回答で確認してください。
-              </p>
-            </section>
+          {supportsOfficialAnswers(record.document.responses) ? (
+            <OfficialProgressSummary record={record} />
           ) : (
             !record.document.importInfo && (
               <p className="notice">

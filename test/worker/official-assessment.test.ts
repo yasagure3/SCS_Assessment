@@ -91,6 +91,20 @@ it.each(["scs-20260327-star3", OFFICIAL_STANDARD_ID])(
     expect(
       (await f.request(path, "PATCH", { ...edit, mutationId: crypto.randomUUID() })).status,
     ).toBe(409);
+    const staleAnswers = structuredClone(answers);
+    staleAnswers.rows["1-2-1-1:1"].answer = "古い画面の下書きで上書きしようとした回答";
+    expect(
+      (
+        await f.request(path, "PATCH", {
+          ...edit,
+          answers: staleAnswers,
+          mutationId: crypto.randomUUID(),
+        })
+      ).status,
+    ).toBe(409);
+    expect((await f.request(`/assessments/${f.id}`)).body.data.document.officialAnswers).toEqual(
+      answers,
+    );
     const invalid = structuredClone(answers);
     invalid.rows.unknown = { result: "", answer: "" };
     expect(
