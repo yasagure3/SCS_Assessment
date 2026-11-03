@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { officialAnswersSchema } from "./officialAssessment";
 
 export const STANDARD_ID = "scs-20260327-star3";
 export const MAX_DOCUMENT_BYTES = 1_048_576;
@@ -110,6 +111,7 @@ export const taskSchema = z.strictObject({
 export const assessmentDocumentSchema = z
   .strictObject({
     schemaVersion: z.literal(1),
+    officialAnswers: officialAnswersSchema.optional(),
     diagnosisDate: dateSchema.nullable(),
     copiedFrom: z.strictObject({ assessmentId: uuid, revision: z.int().positive() }).nullable(),
     scope: scopeSchema,

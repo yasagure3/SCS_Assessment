@@ -22,6 +22,7 @@ test("creates an assigned customer, a case and an 81-answer draft, then saves sc
   await page.getByRole("button", { name: "顧客を追加", exact: true }).click();
   await expect(page.getByRole("heading", { name: "匿名テスト社", exact: true })).toBeVisible();
   await page.getByLabel("案件名", { exact: true }).fill("初回スクリーニング");
+  await expect(page.getByLabel("評価基準の版")).toHaveValue("scs-20261028-v1.1-star3");
   await page.getByRole("button", { name: "案件を作成", exact: true }).click();
   await expect(page.getByTestId("unanswered-count")).toHaveText("81");
   await page.getByLabel("対象会社").fill("匿名テスト社 全社");
@@ -34,6 +35,7 @@ test("creates an assigned customer, a case and an 81-answer draft, then saves sc
   });
   expect(response.status()).toBe(200);
   const { data } = await response.json();
+  expect(data.standardId).toBe("scs-20261028-v1.1-star3");
   expect(data.revision).toBe(2);
   expect(Object.keys(data.document.responses)).toHaveLength(81);
   expect(data.document.scope.sites).toBe("本社・大阪支店");

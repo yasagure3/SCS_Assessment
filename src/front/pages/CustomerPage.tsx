@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import type { Customer, CaseRecord, CaseCreated } from "../../shared/contracts/cases";
-import { STANDARD_ID } from "../../shared/contracts/assessment";
+import { OFFICIAL_STANDARD_ID as STANDARD_ID } from "../../shared/contracts/officialAssessment";
 import type { ApiPage } from "../../shared/contracts/api";
 import { useApi, useWrite, isAccessError } from "../lib/api";
 import { WorkspaceShell, LoadState } from "../components/WorkspaceShell";
@@ -10,6 +10,7 @@ export function CustomerPage() {
   const { customerId } = useParams(),
     navigate = useNavigate(),
     [name, setName] = useState(""),
+    [standardId, setStandardId] = useState<string>(STANDARD_ID),
     [cursor, setCursor] = useState<string | null>(null);
   const customer = useApi<Customer>(`/api/v1/customers/${customerId}`),
     cases = useApi<ApiPage<CaseRecord>>(
@@ -20,7 +21,7 @@ export function CustomerPage() {
   async function create() {
     const result = await write.send<CaseCreated>(`/api/v1/customers/${customerId}/cases`, "POST", {
       name,
-      standardId: STANDARD_ID,
+      standardId,
     });
     if (result) void navigate(`/assessments/${result.data.assessmentId}`);
   }
@@ -95,8 +96,20 @@ export function CustomerPage() {
             <section className="panel create-panel">
               <h2>案件を作成</h2>
               <p className="subtle">
-                SCS ★3・81評価基準の未回答診断を作成します。対象範囲と診断日は後から入力できます。
+                SCS
+                ★3・81評価基準の未回答診断を作成します。公式シートへの回答にはVer.1.1を使用します。
               </p>
+              <label>
+                評価基準の版
+                <select
+                  value={standardId}
+                  disabled={write.pending}
+                  onChange={(e) => setStandardId(e.target.value)}
+                >
+                  <option value={STANDARD_ID}>Ver.1.1（2026年10月28日）公式シート回答</option>
+                  <option value="scs-20260327-star3">2026年3月27日版（従来のExcel取込）</option>
+                </select>
+              </label>
               <form
                 className="data-form"
                 onSubmit={(e) => {

@@ -419,15 +419,24 @@ function ImportContent({
 export function ImportPage() {
   return (
     <AssessmentLayout title="Excelから診断を始める">
-      {({ record, readOnly, refresh, assessment }) => (
-        <ImportContent
-          key={record.id}
-          record={record}
-          readOnly={readOnly}
-          refresh={refresh}
-          replace={(record) => assessment.replace({ data: record, requestId: "import" })}
-        />
-      )}
+      {({ record, readOnly, refresh, assessment }) =>
+        record.standardId !== "scs-20260327-star3" ? (
+          <section className="panel">
+            <p>
+              この版は公式シートの回答画面から入力してください。従来の一次スクリーニングExcelは2026年3月27日版の診断へ取り込めます。
+            </p>
+            <Link to={`/assessments/${record.id}/official`}>公式シート回答・Excel出力へ</Link>
+          </section>
+        ) : (
+          <ImportContent
+            key={record.id}
+            record={record}
+            readOnly={readOnly}
+            refresh={refresh}
+            replace={(record) => assessment.replace({ data: record, requestId: "import" })}
+          />
+        )
+      }
     </AssessmentLayout>
   );
 }
