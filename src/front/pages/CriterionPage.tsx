@@ -24,6 +24,9 @@ export function CriterionPage() {
         return (
           <>
             <div className="criterion-links">
+              <Link to={`/assessments/${record.id}/official?criterion=${criterion.id}`}>
+                公式シートの質問に回答・Excel出力
+              </Link>
               <a href="#criterion-evidence">関連する証跡へ</a>
               <a href="#criterion-advice">助言の確認へ</a>
             </div>

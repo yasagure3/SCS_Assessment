@@ -15,7 +15,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
           <p className="sidebar-note">
             SCS ★3
             <br />
-            2026年3月27日版
+            公式シート Ver.1.0 対応
             <br />
             26要求事項・81評価基準
           </p>

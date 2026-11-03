@@ -53,7 +53,11 @@ describe("public standard migration", () => {
     expect(migration).toBeDefined();
     await env.DB.batch(migration!.queries.map((query) => env.DB.prepare(query)));
     expect(
-      (await env.DB.prepare("SELECT count(*) AS n FROM criteria").first<{ n: number }>())?.n,
+      (
+        await env.DB.prepare("SELECT count(*) AS n FROM criteria WHERE standard_id=?")
+          .bind(STANDARD_ID)
+          .first<{ n: number }>()
+      )?.n,
     ).toBe(81);
     await expect(
       env.DB.prepare("UPDATE criteria SET official_text='modified'").run(),

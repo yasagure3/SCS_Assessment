@@ -8,6 +8,7 @@ import {
 } from "../../../../shared/contracts/assessment";
 
 import { DomainError } from "../../../../shared/errors";
+import { officialCatalog } from "../../../../shared/contracts/officialAssessment";
 export { DomainError } from "../../../../shared/errors";
 export function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
@@ -61,6 +62,19 @@ export async function basisHash(document: AssessmentDocument, id: string): Promi
     supplement: response.supplement,
     adviceBasisVersion: response.adviceBasisVersion,
     evidence,
+    ...(document.officialAnswers
+      ? {
+          official: {
+            standardId: document.officialAnswers.standardId,
+            organization: document.officialAnswers.organization,
+            scopeAnswers: document.officialAnswers.scopeAnswers,
+            criterion: document.officialAnswers.criteria[id],
+            rows: officialCatalog.rows
+              .filter((row) => row.criterionId === id)
+              .map((row) => document.officialAnswers!.rows[row.key]),
+          },
+        }
+      : {}),
   });
 }
 export function validateDocument(document: unknown, criterionIds: string[]): AssessmentDocument {

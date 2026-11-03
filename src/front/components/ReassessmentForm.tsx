@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { AssessmentDto } from "../../shared/contracts/assessments";
 import { MAX_DOCUMENT_BYTES, STANDARD_ID, type Scope } from "../../shared/contracts/assessment";
+import { OFFICIAL_STANDARD_ID } from "../../shared/contracts/officialAssessment";
 import { reassessmentSchema } from "../../shared/contracts/improvement";
 import { reassessmentCopy } from "../../shared/reassessmentCopy";
 import type { useWrite } from "../lib/api";
@@ -28,7 +29,7 @@ export function ReassessmentForm({
   const input = {
     previousAssessmentId: source.id,
     expectedPreviousRevision: source.revision,
-    standardId: STANDARD_ID,
+    standardId: source.standardId,
     diagnosisDate: date || null,
     scope,
     copyResponses,
@@ -36,7 +37,7 @@ export function ReassessmentForm({
   };
   const parsed = reassessmentSchema.safeParse(input);
   let bytes = 0;
-  const supported = source.standardId === STANDARD_ID;
+  const supported = [STANDARD_ID, OFFICIAL_STANDARD_ID].includes(source.standardId);
   if (parsed.success && supported)
     bytes = new TextEncoder().encode(
       JSON.stringify(

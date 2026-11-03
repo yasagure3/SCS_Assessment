@@ -1,4 +1,7 @@
 import { Hono } from "hono";
+import { mutationSchema } from "../../../../shared/contracts/assessment";
+import { officialAnswersSchema } from "../../../../shared/contracts/officialAssessment";
+import { updateOfficialAssessment } from "../usecase/updateOfficialAssessment";
 import { z } from "zod";
 import type { AppEnv, Bindings } from "../../../app";
 import { readJson } from "../../../http";
@@ -25,6 +28,22 @@ export function assessmentRoutes(
   runtime = { now: () => new Date().toISOString(), newId: () => crypto.randomUUID() },
 ) {
   const app = new Hono<AppEnv>();
+  app.patch("/assessments/:assessmentId/official-assessment", async (c) => {
+    const input = mutationSchema
+      .extend({ answers: officialAnswersSchema })
+      .parse(await readJson(c));
+    return c.json({
+      data: await updateOfficialAssessment(
+        assessments(c.env),
+        standards(c.env),
+        z.uuid().parse(c.req.param("assessmentId")),
+        input,
+        c.get("principal").id,
+        c.get("requestId"),
+      ),
+      requestId: c.get("requestId"),
+    });
+  });
   app.post("/cases/:caseId/reassessments", async (c) =>
     c.json(
       {

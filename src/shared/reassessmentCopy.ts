@@ -34,6 +34,9 @@ export function reassessmentCopy(
     : [];
   return {
     schemaVersion: 1,
+    ...(input.copyResponses && previous.document.officialAnswers
+      ? { officialAnswers: structuredClone(previous.document.officialAnswers) }
+      : {}),
     diagnosisDate: input.diagnosisDate,
     scope: structuredClone(input.scope),
     copiedFrom: { assessmentId: previous.id, revision: previous.revision },

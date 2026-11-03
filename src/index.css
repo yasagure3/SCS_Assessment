@@ -533,6 +533,40 @@ button,
   flex: 1;
   min-width: 120px;
 }
+.official-assessment fieldset {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #cbd5e5;
+  border-radius: 6px;
+}
+.official-assessment > p {
+  margin: 12px 0;
+  line-height: 1.8;
+}
+.official-assessment input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+.official-assessment > label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.official-assessment select,
+.official-assessment textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.official-assessment > label select {
+  padding: 10px;
+  border: 1px solid #cbd5e5;
+  border-radius: 6px;
+}
 .data-form {
   display: flex;
   flex-direction: column;

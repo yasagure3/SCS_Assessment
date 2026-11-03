@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { OFFICIAL_STANDARD_ID } from "./officialAssessment";
 import {
   dateSchema,
   mutationSchema,
@@ -46,7 +47,7 @@ export type TaskCommand =
 export const reassessmentSchema = z.strictObject({
   previousAssessmentId: uuid,
   expectedPreviousRevision: z.int().positive(),
-  standardId: z.literal(STANDARD_ID),
+  standardId: z.enum([STANDARD_ID, OFFICIAL_STANDARD_ID]),
   diagnosisDate: dateSchema.nullable(),
   scope: scopeSchema,
   copyResponses: z.boolean(),

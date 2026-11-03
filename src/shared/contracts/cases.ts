@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { OFFICIAL_STANDARD_ID } from "./officialAssessment";
 import { STANDARD_ID, dateSchema, mutationSchema, scopeSchema } from "./assessment";
 export const nameSchema = z
   .string()
@@ -14,7 +15,7 @@ export const patchEntitySchema = mutationSchema
   );
 export const createCaseSchema = z.strictObject({
   name: nameSchema,
-  standardId: z.literal(STANDARD_ID),
+  standardId: z.enum([STANDARD_ID, OFFICIAL_STANDARD_ID]),
   diagnosisDate: dateSchema.nullable().optional(),
   scope: scopeSchema.optional(),
 });
