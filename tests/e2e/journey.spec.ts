@@ -59,6 +59,8 @@ test("an invited operator completes import, evidence, human advice, tasks, reass
     await staff.getByLabel("顧客名", { exact: true }).fill("匿名業務動線社");
     await staff.getByRole("button", { name: "顧客を追加", exact: true }).click();
     await staff.getByLabel("案件名", { exact: true }).fill("匿名の初回診断");
+    // This journey verifies the original March workbook import and fixed report exports.
+    await staff.getByLabel("評価基準の版").selectOption("scs-20260327-star3");
     await staff.getByRole("button", { name: "案件を作成", exact: true }).click();
     await expect(staff.getByTestId("unanswered-count")).toHaveText("81");
     const id = new URL(staff.url()).pathname.split("/").at(-1)!;
